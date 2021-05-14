@@ -1,5 +1,7 @@
 clear;close all
 % Solve Yang NLS using Newton's method
+% Note: there is a problem if coarsestgrid is 6 or lower 
+% 
 % -------------------------------------------------------------------------
 % Domain parameters
 % -------------------------------------------------------------------------
