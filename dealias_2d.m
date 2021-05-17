@@ -7,7 +7,7 @@
 % Outputs:
 % w - dealiased multiplication
 
-function w=dealias2d(u,v)
+function w=dealias_2d(u,v)
 
 [N,M]=size(u);
 

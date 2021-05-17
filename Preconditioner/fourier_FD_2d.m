@@ -9,15 +9,21 @@
 % pde.b
 % pde.c
 % pde.f
-% scheme.dx
-% scheme.dy
+% domain.dx
+% domain.N
 % 
 % Ouputs:
 % v - solution
+%
+% Notes:
+% Assumes constant dx dy (for now)
 
-function v=fourier_FD(v,pde,scheme,option)
+function v=fourier_FD_2d(~,pde,domain,~)
 
-[Nx,Ny]=size(v);
+Nx=domain.N(1);
+Ny=domain.N(2);
+dx=domain.dx(1);
+dy=domain.dx(2);
 
 % Check if coefficients constant and find midpoint of a and b (at i+1)
 if length(pde.a)==1
@@ -42,8 +48,8 @@ end
 
 % 1D Fourier Dx diff matrix at i+1/2
 B=zeros(Nx,2);
-B(:,1)=-1/scheme.dx;
-B(:,2)=1/scheme.dx;
+B(:,1)=-1/dx;
+B(:,2)=1/dx;
 D1xf=spdiags(B,[0,1],Nx,Nx);
 D1xf(Nx,1)=B(Nx,2); % periodic condition
 
@@ -51,8 +57,8 @@ D1xf(Nx,1)=B(Nx,2); % periodic condition
 D2xf=kron(speye(Ny),D1xf);
 
 % 1D Fourier Dy diff matrix at i+1/2
-B(:,1)=-1/scheme.dy;
-B(:,2)=1/scheme.dy;
+B(:,1)=-1/dy;
+B(:,2)=1/dy;
 D1yf=spdiags(B,[0,1],Ny,Ny);
 D1yf(Ny,1)=B(Ny,2); % periodic condition
 
@@ -60,8 +66,8 @@ D1yf(Ny,1)=B(Ny,2); % periodic condition
 D2yf=kron(D1yf,speye(Nx));
 
 % 1D Fourier Dx diff matrix at i-1/2
-B(:,1)=-1/scheme.dx;
-B(:,2)=1/scheme.dx;
+B(:,1)=-1/dx;
+B(:,2)=1/dx;
 D1xb=spdiags(B,[-1,0],Nx,Nx);
 D1xb(1,Nx)=B(1,1); % periodic condition
 
@@ -69,8 +75,8 @@ D1xb(1,Nx)=B(1,1); % periodic condition
 D2xb=kron(speye(Ny),D1xb);
 
 % 1D Fourier Dy diff matrix at i-1/2
-B(:,1)=-1/scheme.dy;
-B(:,2)=1/scheme.dy;
+B(:,1)=-1/dy;
+B(:,2)=1/dy;
 D1yb=spdiags(B,[-1,0],Ny,Ny);
 D1yb(1,Ny)=B(1,1); % periodic condition
 

@@ -1,47 +1,55 @@
 clear;close all
+% -------------------------------------------------------------------------
 % Solve Yang NLS using Newton's method
 % Note: there is a problem if coarsestgrid is 6 or lower 
 % 
 % -------------------------------------------------------------------------
-% Domain parameters
+% INPUT PARAMETERS
 % -------------------------------------------------------------------------
-Lx = 10 * pi;
-Ly = 10 * pi;
+L(1) = 10 * pi;
+L(2) = 10 * pi;
 finestgrid = 8;
 coarsestgrid = 7;
 
-% -------------------------------------------------------------------------
-Nx = 2^finestgrid;
-Ny = 2^finestgrid;
-
-% Spectral Wave numbers
-kx = 2*pi/Lx*[0:Nx/2-1 -Nx/2 -Nx/2+1:-1]';
-ky = 2*pi/Ly*[0:Ny/2-1 -Ny/2 -Ny/2+1:-1]';
-[KX,KY] = ndgrid(kx,ky);
-
-x = Lx*(-Nx/2:Nx/2-1)'/Nx;
-y = Ly*(-Ny/2:Ny/2-1)'/Ny;
-[X,Y] = ndgrid(x,y);
-
-% -------------------------------------------------------------------------
 % PDE parameters
-% -------------------------------------------------------------------------
 
-a=ones(Nx,Ny);
-b=ones(Nx,Ny);
+a=@(X,Y) 1;
+b=@(X,Y) 1;
 
 V0=6;mu=-5;
 % c(x) function
-c=V0*(sin(X).^2+sin(Y).^2)+mu;
-% c=V0*(alias_2d_test(sin(X),sin(X))+alias_2d_test(sin(Y),sin(Y)))+mu;
+c=@(X,Y) V0*(sin(X).^2+sin(Y).^2)+mu;
+
 % RHS function
-f=zeros(Nx,Ny);
+f=@(X,Y) 0*X;
 
 % Initial guess
-v0=1.15*sech(0.5*sqrt(X.^2+Y.^2)).*cos(X).*cos(Y);
+v0=@(X,Y) 1.15*sech(0.5*sqrt(X.^2+Y.^2)).*cos(X).*cos(Y);
 
 % -------------------------------------------------------------------------
-% OPTIONS HERE
+% Set up parameters
+% -------------------------------------------------------------------------
+N(1) = 2^finestgrid;
+N(2) = 2^finestgrid;
+
+% Spectral Wave numbers
+k(:,1) = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
+k(:,2) = 2*pi/L(2)*[0:N(2)/2-1 -N(2)/2 -N(2)/2+1:-1]';
+[KX,KY] = ndgrid(k(:,1),k(:,2));
+
+x(:,1) = L(1)*(-N(1)/2:N(1)/2-1)'/N(1);
+x(:,2) = L(2)*(-N(2)/2:N(2)/2-1)'/N(2);
+[X,Y] = ndgrid(x(:,1),x(:,2));
+
+a=a(X,Y);
+b=b(X,Y);
+c=c(X,Y);
+f=f(X,Y);
+
+v0=v0(X,Y);
+
+% -------------------------------------------------------------------------
+% Multigrid Options here
 % -------------------------------------------------------------------------
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
@@ -62,14 +70,14 @@ option.solver='FMG';
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation, Restriction, Prolongation options
-option.operator=@fourier_Lu_mid;
+option.operator=@fourier_Lu_2d_mid;
 option.coarsegridsolver=@cg;
 option.relaxation=@MRR;
 option.restriction=@fourier_restrict_2d_mid;
 option.prolongation=@fourier_prolong_2d_mid;
 
 % Preconditioner
-option.preconditioner=@fourier_yang_pre;
+option.preconditioner=@fourier_yang_pre_2d;
 % Number of precondition relaxations
 option.prenumit=1;
 
@@ -77,30 +85,22 @@ option.prenumit=1;
 % Sort into sctructures
 % -------------------------------------------------------------------------
 % Assuming constant dx
-dx = x(2)-x(1);
-dy = y(2)-y(1);
+dx(1) = x(2,1)-x(1,1);
+dx(2) = x(2,2)-x(1,2);
 
 % Sort into structures
-domain.Lx = Lx;
-domain.Ly = Ly;
-domain.Nx = Nx;
-domain.Ny = Ny;
-domain.x = x;
-domain.y = y;
+domain.L = L;
+domain.N = N;
+domain.k = k;
+domain.dx = dx;
 
 pde.a = a;
 pde.b = b;
 pde.c = c;
 pde.f = f;
 
-scheme.kx = kx;
-scheme.ky = ky;
-scheme.dx = dx;
-scheme.dy = dy;
-
 option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
-option.grids=finestgrid-coarsestgrid+1;
 
 % -------------------------------------------------------------------------
 % NEWTON HERE
@@ -112,14 +112,14 @@ cnew=c+3*v0.^2;
 v=v0;
 
 % Error guess (keep at 0)
-e0=zeros(Nx,Ny);
+e0=zeros(N);
 
 tic
 for i=1:20
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,scheme)+v.^3);
+    pde.f=f-(option.operator(v,pde,domain)+v.^3);
    
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -132,9 +132,9 @@ for i=1:20
     pde.c=cnew;
 
     option.tol=1e-1*r;
-%     [e,r]=cg(e0,pde,scheme,option);
-%     e=fourier_matrixsolve_mid(e0,pde,scheme,option);
-    [e,r]=mg(e0,pde,domain,scheme,option);
+%     [e,r]=cg(e0,pde,domain,option);
+%     e=fourier_matrixsolve_mid(e0,pde,domain,option);
+    [e,r]=mg(e0,pde,domain,option);
 
     % Update correction
     v=v+e;

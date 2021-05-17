@@ -4,12 +4,8 @@
 %
 % Inputs:
 % v - best estimate
-% pde.a
-% pde.b
-% pde.c
-% pde.f
-% scheme.kx - wave number in x
-% scheme.ky - wave number in y
+% pde - structure consisting of pde coefficients
+% scheme.k - wave number in x
 % option.operator - operator used to find Lu
 % option.numit - number of iterations
 % option.preconditioner - preconditioner used
@@ -21,12 +17,12 @@
 %
 % Optional display messages can be commented out or left in
 
-function [v,r]=cg(v,pde,scheme,option)
+function [v,r]=cg(v,pde,domain,option)
 f=pde.f;
 maxit=10000;
 
 % Initial residual
-r=pde.f-option.operator(v,pde,scheme);
+r=pde.f-option.operator(v,pde,domain);
 
 if r==0
     return
@@ -37,7 +33,7 @@ if ~isempty(option.preconditioner) && option.prenumit~=0
     
     pde.f=r;
     option.numit=option.prenumit;
-    d=option.preconditioner(zeros(size(v)),pde,scheme,option);
+    d=option.preconditioner(zeros(size(v)),pde,domain,option);
     
 else
     
@@ -49,14 +45,14 @@ delta=sum(sum(r.*d));
 
 for i=1:maxit
     
-    q=option.operator(d,pde,scheme);
+    q=option.operator(d,pde,domain);
     alpha=delta/sum(sum(d.*q));
     v=v+alpha*d; % estimate of new solution
     
     % Recalculate every 100 iteration to remove roundoff errors
     if mod(i,100)==0
         
-        r=f-option.operator(v,pde,scheme);
+        r=f-option.operator(v,pde,domain);
         
     else
         
@@ -78,7 +74,7 @@ for i=1:maxit
     
         pde.f=r;
         option.numit=option.prenumit;
-        s=option.preconditioner(zeros(size(v)),pde,scheme,option);
+        s=option.preconditioner(zeros(size(v)),pde,domain,option);
     
     else
     

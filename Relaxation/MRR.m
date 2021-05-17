@@ -1,13 +1,9 @@
-% Performs Minimum Residual Richardson smoother on Lv=f
+% Performs Minimum Residual Richardson smoother on Au=f
 %
 % Inputs:
 % v - best estimate
-% pde.a
-% pde.b
-% pde.c
-% pde.f
-% scheme.kx - wave number in x
-% scheme.ky - wave number in y
+% pde - structure consisting of pde coefficients
+% domain.k - wave number
 % option.operator - operator used to find Lu
 % option.numit - number of iterations
 % option.preconditioner - preconditioner used
@@ -19,17 +15,17 @@
 %
 % See Boyd / Canuto for reference to algorithm
 
-function [v,r] = MRR(v,pde,scheme,option)
+function [v,r] = MRR(v,pde,domain,option)
 
 numit=option.numit;
 
 % Find residual only if numit=0
 if numit==0
-    r=pde.f-option.operator(v,pde,scheme);
+    r=pde.f-option.operator(v,pde,domain);
     return;
 end
 
-r=pde.f-option.operator(v,pde,scheme);
+r=pde.f-option.operator(v,pde,domain);
 
 if r==0
     return
@@ -40,7 +36,7 @@ if ~isempty(option.preconditioner) && option.prenumit~=0
     
     pde.f=r;
     option.numit=option.prenumit;
-    z=option.preconditioner(zeros(size(v)),pde,scheme,option);
+    z=option.preconditioner(zeros(size(v)),pde,domain,option);
     
 else
     
@@ -50,7 +46,7 @@ end
 
 for i=1:numit
     
-    Az=option.operator(z,pde,scheme);
+    Az=option.operator(z,pde,domain);
     tau=sum(sum(r.*Az))/sum(sum(Az.*Az));
     v=v+tau*z;
     r=r-tau*Az;
@@ -62,7 +58,7 @@ for i=1:numit
             
             pde.f=r;
             option.numit=option.prenumit;
-            z=option.preconditioner(zeros(size(v)),pde,scheme,option);
+            z=option.preconditioner(zeros(size(v)),pde,domain,option);
             
         else
             

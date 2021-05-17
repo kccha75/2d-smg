@@ -5,23 +5,26 @@
 % pde.b
 % pde.c
 % pde.f
-% scheme.kx
-% scheme.ky
+% domain.N
+% domain.k
 % 
 % Ouputs:
 % v - solution
 
-function v=fourier_matrixsolve(v,pde,scheme,option)
+function v=fourier_matrixsolve_2d(~,pde,domain,option)
 
-[Nx,Ny]=size(v);
+Nx=domain.N(1);
+Ny=domain.N(2);
+kx=domain.k(:,1);
+ky=domain.k(:,2);
 
 % 1D Fourier Dx diff matrix
-D1x=ifft(1i.*scheme.kx.*fft(eye(Nx,Nx)));
+D1x=ifft(1i.*kx.*fft(eye(Nx,Nx)));
 % 2D Fourier Dx diff matrix
 D2x=kron(speye(Ny),D1x);
 
 % 1D Fourier Dy diff matrix
-D1y=ifft(1i.*scheme.ky.*fft(eye(Ny,Ny)));
+D1y=ifft(1i.*ky.*fft(eye(Ny,Ny)));
 % 2D Fourier Dy diff matrix
 D2y=kron(D1y,speye(Nx));
 
