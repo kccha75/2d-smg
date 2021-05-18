@@ -1,25 +1,22 @@
-% 2D Fourier Prolongation operator assuming fine grid is 2x
-% coarse grid points
+% 2D Fourier Prolongation operator with x and y sweeps
+% assuming fine grid is 2x coarse grid points
 %
 % Assumed filtered for highest mode
 %
 % Inputs:
-% vc - coarse grid
+% vc - coarse grid (Nx * Ny size)
 %
 % Outputs:
-% vf - coarse grid prolongation
+% vc - coarse grid prolongation (Nx*2 * Ny*2 size)
 
 function vf=fourier_prolong_2d_filtered(vc)
 
-[Nx,Ny]=size(vc);
+% FFT + shift in x
+vf=fourier_prolong_filtered(vc);
 
-% FFT + shift
-vc_hat=fftshift(fft2(vc));
+% FFT + shift in y
+vf=fourier_prolong_filtered(vf');
 
-% Pad high frequency with 0's
-vc_hat=[zeros(Nx/2,2*Ny);zeros(Nx,Ny/2) vc_hat zeros(Nx,Ny/2); zeros(Nx/2,2*Ny)];
-
-% shift + iFFT
-vf=4*real(ifft2(fftshift(vc_hat)));
+vf=vf';
 
 end

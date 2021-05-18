@@ -4,23 +4,19 @@
 % Assumed filtered for highest mode
 %
 % Inputs:
-% vf - fine grid
+% vf - fine grid (Nx * Ny size)
 %
 % Outputs:
-% vc - fine grid restriction
+% vc - fine grid restriction (Nx/2 * Ny/2 size)
 
 function vc=fourier_restrict_2d_filtered(vf)
 
-[Nx,Ny]=size(vf);
+% FFT + shift in x
+vc=fourier_restrict_filtered(vf);
 
-% FFT + shift
-f_hat=fftshift(fft2(vf));
+% FFT + shift in y
+vc=fourier_restrict_filtered(vc');
 
-% Filter high frequency
-f_hat=f_hat(Nx/4+1:3*Nx/4,Ny/4+1:3*Ny/4);
-
-% shift + iFFT
-vc=0.25*real(ifft2(fftshift(f_hat)));
-
+vc=vc';
 
 end
