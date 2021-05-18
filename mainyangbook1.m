@@ -101,6 +101,7 @@ pde.f = f;
 
 option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
+option.grids=finestgrid-coarsestgrid+1;
 
 % -------------------------------------------------------------------------
 % NEWTON HERE

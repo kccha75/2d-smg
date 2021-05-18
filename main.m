@@ -46,7 +46,7 @@ option.Nd=1;
 option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='V-cycle';
+option.solver='FMG';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='Correction';
@@ -106,6 +106,7 @@ pde.f = f;
 
 option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
+option.grids=finestgrid-coarsestgrid+1;
 
 % -------------------------------------------------------------------------
 % Solve

@@ -22,6 +22,7 @@
 % option.prenumit - number of precondition iterations
 % option.finestgrid - finest grid used given by 2^finestgrid
 % option.coarsestgrid - coarsest grid used given by 2^coarsestgrid
+% option.grids - numbers of grids used in mg (counting from coarsest grid)
 %
 % Outputs:
 % v - best estimate after multigrid
@@ -44,9 +45,8 @@ end
 solution(1).v=v0;
 
 % Loop to set parameters for each grid level
-grids=option.finestgrid-option.coarsestgrid+1;
 
-for i=2:grids
+for i=2:option.grids
 
     for j=1:d
         domain(i).L(j)=domain(1).L(j); % L does not change between grids
@@ -96,14 +96,14 @@ switch option.solver
     case 'FMG'
              
         % Coarse grid initial guess (zeros)
-        solution(grids).v=zeros(domain(grids).N);
+        solution(option.grids).v=zeros(domain(option.grids).N);
         
         % Coarse grid solver
-        solution(grids).v=option.coarsegridsolver(solution(grids).v,pde(grids),domain(grids),option);
+        solution(option.grids).v=option.coarsegridsolver(solution(option.grids).v,pde(option.grids),domain(option.grids),option);
         
         % FMG options at coarsest grid
-        option.initialgrid=grids;
-        grids=1;
+        option.initialgrid=option.grids;
+        option.grids=1;
         
         % Save num_vcycle parameter
         num_vcycles=option.num_vcycles;
@@ -115,7 +115,7 @@ switch option.solver
             
             % Increment for next FMG cycle
             option.initialgrid=option.initialgrid-1;
-            grids=grids+1;
+            option.grids=option.grids+1;
             
             % Step up solution
             solution(i-1).v=option.prolongation(solution(i).v);
@@ -156,7 +156,6 @@ end
 function [v,r]=vcycle(v,pde,domain,option)
 
 solution(option.initialgrid).v=v;
-grids=option.finestgrid-option.coarsestgrid+1;
 
 % Down cycle iterations
 option.numit=option.Nd;
@@ -169,7 +168,7 @@ option.numit=option.Nd;
 for p=1:option.num_vcycles
 
     % Stepping down
-    for i=option.initialgrid:option.initialgrid+grids-2
+    for i=option.initialgrid:option.initialgrid+option.grids-2
         
         % Correction vs FAS scheme?
         switch option.mgscheme
@@ -196,7 +195,7 @@ for p=1:option.num_vcycles
         end
         
         % If at coarsest level, solve exactly
-        if i==option.initialgrid+grids-2
+        if i==option.initialgrid+option.grids-2
             
             solution(i+1).v=option.coarsegridsolver(solution(i+1).v,pde(i+1),domain(i+1),option);
             
@@ -214,7 +213,7 @@ for p=1:option.num_vcycles
     % Up cycle iterations
     option.numit=option.Nu;
     
-    for i=option.initialgrid+grids-1:-1:option.initialgrid+1
+    for i=option.initialgrid+option.grids-1:-1:option.initialgrid+1
         
         % Correction vs FAS scheme?
         switch option.mgscheme
