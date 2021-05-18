@@ -12,31 +12,11 @@
 function vc=fourier_restrict_2d_mid(vf)
 
 % FFT + shift in x
-vc=fourier_restrict_1d_x(vf);
+vc=fourier_restrict_mid(vf);
 
 % FFT + shift in y
-vc=fourier_restrict_1d_x(vc');
+vc=fourier_restrict_mid(vc');
 
 vc=vc';
-
-end
-
-% -------------------------------------------------------------------------
-% Subroutine 1d restriction
-% -------------------------------------------------------------------------
-
-function vc=fourier_restrict_1d_x(vf)
-
-[Nx,Ny]=size(vf);
-
-% FFT + shift
-v_hat=fftshift(fft(vf),1);
-
-% Filter high frequency
-v_hat=v_hat(Nx/4+1:3*Nx/4,:);
-v_hat(1,:)=v_hat(1,:)*2; % Midpoint adjustment
-
-% shift + iFFT
-vc=0.5*real(ifft(fftshift(v_hat,1)));
 
 end
