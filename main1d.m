@@ -8,11 +8,11 @@ clear;close all;%clc
 % -------------------------------------------------------------------------
 L(1) = 2 * pi;
 finestgrid = 7;
-coarsestgrid = 2;
+coarsestgrid = 3;
 
 % PDE Parameters
 
-a=@(x) 1;%+epsilon*exp(cos(X+Y));
+a=@(x) 23+sin(x).*cos(x);%+epsilon*exp(cos(X+Y));
 b=@(x) 1+exp(cos(x));%+epsilon*exp(cos(X+Y));
 
 f=@(x) -2*cos(x).^2+(3+exp(cos(x))).*sin(x).^2+sin(2*x);
@@ -30,7 +30,7 @@ v0=@(x) 0*x;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=100;
+option.num_vcycles=10;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -47,15 +47,15 @@ option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation, Restriction, Prolongation options
 option.operator=@fourier_Lu_1d;
-option.coarsegridsolver=@cg;
+option.coarsegridsolver=@fourier_matrixsolve_1d;
 option.relaxation=@MRR;
 option.restriction=@fourier_restrict_filtered;
 option.prolongation=@fourier_prolong_filtered;
 
 % Preconditioner
-option.preconditioner='';
+option.preconditioner=@fourier_FD_1d;
 % Number of precondition relaxations
-option.prenumit=0;
+option.prenumit=1;
 
 % -------------------------------------------------------------------------
 % Set up parameters
@@ -109,3 +109,5 @@ if max(abs(pde.b(:)))<1e-12
 end
 
 toc
+
+vv=cg(v0,pde,domain,option);
