@@ -24,7 +24,7 @@ maxit=10000;
 % Initial residual
 r=pde.f-option.operator(v,pde,domain);
 
-if r==0
+if rms(r)<option.tol
     return
 end
 
