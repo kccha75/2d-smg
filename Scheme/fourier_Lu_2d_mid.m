@@ -9,7 +9,6 @@
 % pde.a
 % pde.b
 % pde.c
-% pde.f
 % domain.k
 % domain.N
 %

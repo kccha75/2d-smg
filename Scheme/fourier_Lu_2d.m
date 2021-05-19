@@ -7,9 +7,7 @@
 % pde.a
 % pde.b
 % pde.c
-% pde.f
 % domain.k - wave number
-% domain.N
 %
 % Ouputs:
 % A - L*u
