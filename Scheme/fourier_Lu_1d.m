@@ -20,6 +20,6 @@ kx=domain.k(:,1);
 a=pde.a;
 b=pde.b;
 
-Lu=-ifft(-kx.^2.*fft(v))+a.*ifft(1i.*kx.*fft(v))+b.*v;
+Lu=real(-ifft(-kx.^2.*fft(v))+a.*ifft(1i.*kx.*fft(v))+b.*v);
 
 end
