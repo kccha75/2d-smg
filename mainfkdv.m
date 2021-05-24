@@ -2,7 +2,7 @@ clear;close all;%clc
 % -------------------------------------------------------------------------
 % Solve PDE -u_xx + au_x + bu + cu^2 = f using Fourier Spectral Multigrid at
 % Fourier collocation points and Newton iterations
-% Used on fKdV equation
+% Used on fKdV equation (Andrew's thesis form)
 % -------------------------------------------------------------------------
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
