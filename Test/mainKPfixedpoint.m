@@ -129,7 +129,7 @@ e0=zeros(N);e=e0;lin=e0;
 
 tic
 for i=1:20
-    
+    domain.k(1,1)=0;domain.k(1,2)=0;
     e=e0;
     pde.b=b;
     
