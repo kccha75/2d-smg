@@ -2,7 +2,7 @@ clear;close all
 % -------------------------------------------------------------------------
 % Solve KP using Newton's method in the form (-u_xx+au_x+bu+cu^2)_xx+du_yy=f_xx
 % Note: there is a problem if coarsestgrid is 6 or lower 
-% 
+% Also doesn't work!!! :)
 % -------------------------------------------------------------------------
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
