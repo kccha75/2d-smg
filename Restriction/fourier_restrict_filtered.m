@@ -4,10 +4,10 @@
 % Assumed filtered for highest mode
 %
 % Inputs:
-% vc - coarse grid (Nx * Ny * ... size)
+% vf - fine grid (Nx * Ny * ... size)
 %
 % Outputs:
-% vc - coarse grid prolongation (Nx/2 * Ny * ... size)
+% vc - coarse grid (Nx/2 * Ny * ... size)
 
 function vc=fourier_restrict_filtered(vf)
 
