@@ -19,7 +19,7 @@
 
 function [v,r]=bicg(v,pde,domain,option)
 f=pde.f;
-maxit=100;
+maxit=1000;
 
 % Initial residual
 r=pde.f-option.operator(v,pde,domain);
@@ -49,7 +49,16 @@ delta=sum(sum(r_hat.*d));
 for i=1:maxit
     
     q=option.operator(d,pde,domain);
-    q_hat=fourier_5KPu_2d_adjoint(d_hat,pde,domain);
+    
+    % tranpose here
+    pde_trans.a=pde.b;
+    pde_trans.b=pde.a;
+    pde_trans.c=pde.c;
+    domain_trans=domain;
+    domain_trans.k(:,1)=domain.k(:,2);
+    domain_trans.k(:,2)=domain.k(:,1);
+    
+    q_hat=option.operator(d_hat,pde_trans,domain_trans);
     alpha=delta/sum(sum(d_hat.*q));
     v=v+alpha*d; % estimate of new solution
     
