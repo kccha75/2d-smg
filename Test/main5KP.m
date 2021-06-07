@@ -69,7 +69,7 @@ option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation, Restriction, Prolongation options
 option.operator=@fourier_5KPu_2d;
-option.coarsegridsolver=@bicg;
+option.coarsegridsolver=@bicgstabtest;
 option.relaxation=@MRR;
 option.restriction=@fourier_restrict_2d_filtered;
 option.prolongation=@fourier_prolong_2d_filtered;
@@ -125,8 +125,8 @@ for i=1:20
     end
     
     % Solve linear equation
-    option.tol=1e-1*r;
-    [e,r]=bicg(e0,jacobian,domain,option);
+    option.tol=1e-4*r;
+    [e,r]=bicgstabtest(e0,jacobian,domain,option);
 %     [e,r]=mg(e0,jacobian,domain,option);
 
     % Update correction

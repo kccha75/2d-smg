@@ -8,13 +8,13 @@ clear;close all;%clc
 % -------------------------------------------------------------------------
 L(1) = 2 * pi;
 L(2) = 2 * pi;
-finestgrid = 7;
+finestgrid = 6;
 coarsestgrid = 3;
 
 % PDE Parameters
 
-epsilon=0.0;
-a=@(X,Y) 1;%+epsilon*exp(cos(X+Y));
+epsilon=0.5;
+a=@(X,Y) 1+epsilon*exp(cos(X+Y));
 b=@(X,Y) 1;%+epsilon*exp(cos(X+Y));
 c=@(X,Y) 0*X;
 
