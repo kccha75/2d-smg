@@ -105,7 +105,7 @@ option.grids=finestgrid-coarsestgrid+1;
 % NEWTON HERE
 % -------------------------------------------------------------------------
 
-v=v0;
+v=v0;    vhat=fft2(v);vhat(1,1)=0;v=fft(vhat);
 
 % Error guess (keep at 0)
 e0=zeros(N);
@@ -125,13 +125,16 @@ for i=1:20
     end
     
     % Solve linear equation
-    option.tol=1e-4*r;
+    option.tol=1e-1*r;
     [e,r]=bicgstabtest(e0,jacobian,domain,option);
 %     [e,r]=mg(e0,jacobian,domain,option);
 
     % Update correction
     v=v+e;
-
+    
+    % Mean 0
+    vhat=fft2(v);vhat(1,1)=0;v=fft(vhat);
+    
 end
 
 if i==20
