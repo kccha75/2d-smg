@@ -12,16 +12,17 @@ coarsestgrid = 6;
 
 % PDE Parameters
 mu=-1.2;
-a=@(x) -2;
-b=@(x) mu;
+a=@(X) -2;
+b=@(X) mu;
+c=@(X) -3;
 
-f=@(x) 0*x;
+f=@(X) 0*X;
 
 % Exact solution
 % ue=@(x) sin(x).^2;
 
 % Initial guess
-v0=@(x) 0.25*sech(0.3*x).*cos(x);
+v0=@(X) 0.25*sech(0.3*X).*cos(X);
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -63,22 +64,24 @@ N(1) = 2^finestgrid;
 N(2) = 1;
 
 % Spectral Wave numbers
-k(:,1) = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
+k{1} = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
 
-x(:,1) = L(1)*(-N(1)/2:N(1)/2-1)'/N(1);
+x{1} = L(1)*(-N(1)/2:N(1)/2-1)'/N(1);
+X=ndgrid(x{1});
 
-a=a(x);
-b=b(x);
-f=f(x);
+a=a(X);
+b=b(X);
+c=c(X);
+f=f(X);
 
 % ue=ue(x);
-v0=v0(x);
+v0=v0(X);
 
 % -------------------------------------------------------------------------
 % Sort into structures
 % -------------------------------------------------------------------------
 % Assuming constant dx
-dx(1) = x(2,1)-x(1,1);
+dx(1) = x{1}(2)-x{1}(1);
 
 % Sort into structures
 domain.L = L;
@@ -88,6 +91,7 @@ domain.dx = dx;
 
 pde.a = a;
 pde.b = b;
+pde.c = c;
 pde.f = f;
 
 option.finestgrid=finestgrid;
@@ -97,8 +101,7 @@ option.grids=finestgrid-coarsestgrid+1;
 % -------------------------------------------------------------------------
 % NEWTON HERE
 % -------------------------------------------------------------------------
-c=-3;
-bnew=b+2*c.*v0;
+
 v=v0;
 
 % Error guess (keep at 0)
@@ -107,11 +110,10 @@ e0=zeros(N);
 tic
 for i=1:20
     
-    pde.b=b;
-    % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)+c.*v.^2);
+    % Calculate Jacobian for linear equation
+    jacobian=jacobian_kdv5_1d(v,pde,domain);
    
-    r=rms(rms(pde.f));
+    r=rms(rms(jacobian.f));
     fprintf('Residual Newton = %d\n',r)
     if r<=1e-10
         fprintf('Converged after %d Newton Iterations \n',i-1)
@@ -119,16 +121,12 @@ for i=1:20
     end
     
     % Solve linear equation
-    pde.b=bnew;
-
 %     option.tol=1e-2*r;
 %     [e,r]=cg(e0,pde,domain,option);
-    [e,r]=mg(e0,pde,domain,option);
+    [e,r]=mg(e0,jacobian,domain,option);
 
     % Update correction
     v=v+e;
-    
-    bnew=b+2*c.*v;
 
 end
 
