@@ -65,7 +65,6 @@ N(2) = 1;
 
 % Spectral Wave numbers
 k{1} = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
-KX=ndgrid(k{1});
 
 x{1} = L(1)*(-N(1)/2:N(1)/2-1)'/N(1);
 X=ndgrid(x{1});
