@@ -51,7 +51,7 @@ for i=2:option.grids
     for j=1:d
         domain(i).L(j)=domain(1).L(j); % L does not change between grids
         domain(i).N(j)=domain(i-1).N(j)/2;
-        domain(i).k(:,j)=[domain(i-1).k(1:domain(i-1).N(j)/4,j);domain(i-1).k(3*domain(i-1).N(j)/4+1,j);domain(i-1).k(3*domain(i-1).N(j)/4+2:end,j)];
+        domain(i).k{j}=[domain(i-1).k{j}(1:domain(i-1).N(j)/4);domain(i-1).k{j}(3*domain(i-1).N(j)/4+1);domain(i-1).k{j}(3*domain(i-1).N(j)/4+2:end)];
         domain(i).dx(j)=domain(1).L(j)/domain(i).N(j);
         
         % Ensure zeros(domain(option.grids).N); gives a vector
