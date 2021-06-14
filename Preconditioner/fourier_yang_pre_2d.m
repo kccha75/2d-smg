@@ -10,8 +10,8 @@
 
 function v=fourier_yang_pre_2d(~,pde,domain,~)
 
-    kx=domain.k(:,1);
-    ky=domain.k(:,2);
+    kx=domain.k{1};
+    ky=domain.k{2};
 
     c=3;
     [KX,KY]=ndgrid(kx,ky);

@@ -19,6 +19,7 @@ b=@(X,Y) 1;
 V0=6;mu=-4.56;
 % c(x) function
 c=@(X,Y) V0*(sin(X).^2+sin(Y).^2)+mu;
+d=@(X,Y) 1;
 
 % RHS function
 f=@(X,Y) 0*X;
@@ -33,17 +34,18 @@ N(1) = 2^finestgrid;
 N(2) = 2^finestgrid;
 
 % Spectral Wave numbers
-k(:,1) = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
-k(:,2) = 2*pi/L(2)*[0:N(2)/2-1 -N(2)/2 -N(2)/2+1:-1]';
-[KX,KY] = ndgrid(k(:,1),k(:,2));
+k{1} = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
+k{2} = 2*pi/L(2)*[0:N(2)/2-1 -N(2)/2 -N(2)/2+1:-1]';
+[KX,KY] = ndgrid(k{1},k{2});
 
-x(:,1) = L(1)*(-N(1)/2:N(1)/2-1)'/N(1);
-x(:,2) = L(2)*(-N(2)/2:N(2)/2-1)'/N(2);
-[X,Y] = ndgrid(x(:,1),x(:,2));
+x{1} = L(1)*(-N(1)/2:N(1)/2-1)'/N(1);
+x{2} = L(2)*(-N(2)/2:N(2)/2-1)'/N(2);
+[X,Y] = ndgrid(x{1},x{2});
 
 a=a(X,Y);
 b=b(X,Y);
 c=c(X,Y);
+d=d(X,Y);
 f=f(X,Y);
 
 v0=v0(X,Y);
@@ -85,8 +87,8 @@ option.prenumit=1;
 % Sort into sctructures
 % -------------------------------------------------------------------------
 % Assuming constant dx
-dx(1) = x(2,1)-x(1,1);
-dx(2) = x(2,2)-x(1,2);
+dx(1) = x{1}(2)-x{1}(1);
+dx(2) = x{2}(2)-x{2}(1);
 
 % Sort into structures
 domain.L = L;
@@ -97,6 +99,7 @@ domain.dx = dx;
 pde.a = a;
 pde.b = b;
 pde.c = c;
+pde.d = d;
 pde.f = f;
 
 option.finestgrid=finestgrid;
@@ -107,9 +110,6 @@ option.grids=finestgrid-coarsestgrid+1;
 % NEWTON HERE
 % -------------------------------------------------------------------------
 
-% New b(x) function in Newton
-cnew=c+3*v0.^2;
-% cnew=c+3*alias_2d_test(v0,v0);
 v=v0;
 
 % Error guess (keep at 0)
@@ -118,11 +118,10 @@ e0=zeros(N);
 tic
 for i=1:20
     
-    pde.c=c;
-    % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)+v.^3);
-   
-    r=rms(rms(pde.f));
+    % Calculate Jacobian for linear equation
+    jacobian=jacobian_NLS1_2d(v,pde,domain);
+    
+    r=rms(rms(jacobian.f));
     fprintf('Residual Newton = %d\n',r)
     if r<=1e-10
         fprintf('Converged after %d Newton Iterations \n',i-1)
@@ -130,18 +129,14 @@ for i=1:20
     end
     
     % Solve linear equation
-    pde.c=cnew;
-
     option.tol=1e-1*r;
-%     [e,r]=cg(e0,pde,domain,option);
-%     e=fourier_matrixsolve_mid(e0,pde,domain,option);
-    [e,r]=mg(e0,pde,domain,option);
+%     [e,r]=cg(e0,jacobian,domain,option);
+%     e=fourier_matrixsolve_mid(e0,jacobian,domain,option);
+    [e,r]=mg(e0,jacobian,domain,option);
 
     % Update correction
     v=v+e;
-    
-    cnew=c+3*v.^2;
-%     cnew=c+3*alias_2d_test(v,v);
+
 end
 
 if i==20
