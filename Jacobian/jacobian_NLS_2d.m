@@ -14,7 +14,7 @@
 % jacobian.b
 % jacobian.c
 
-function jacobian=jacobian_NLS1_2d(v,pde,domain)
+function jacobian=jacobian_NLS_2d(v,pde,domain)
 
 jacobian.a=pde.a;
 jacobian.b=pde.b;

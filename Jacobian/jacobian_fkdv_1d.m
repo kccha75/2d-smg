@@ -1,7 +1,7 @@
 % Gives the Jacobian for the PDE in the form
 % (-u_xx+au_x+bu+cu^2)
 %
-% Jacobian is (-e_xx+ae_x+2bve)
+% Jacobian is (-e_xx+ae_x+(b+2cv)e)
 %
 % Inputs:
 % pde.a
