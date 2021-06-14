@@ -8,9 +8,8 @@ clear;close all
 % -------------------------------------------------------------------------
 L(1) = 120*pi;
 L(2) = 60*pi;
-finestgrid(1) = 10;
-finestgrid(2) = 7;
-coarsestgrid = 9;
+finestgrid = 10;
+coarsestgrid = 8;
 
 % PDE parameters
 mu=-1.2;
@@ -27,8 +26,8 @@ v0=@(X,Y) 0.43*sech(0.3*sqrt(X.^2+Y.^2)).*cos(X);
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-N(1) = 2^finestgrid(1);
-N(2) = 2^finestgrid(2);
+N(1) = 2^finestgrid;
+N(2) = 2^(finestgrid-3);
 
 % Spectral Wave numbers
 k{1} = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
@@ -52,7 +51,7 @@ v0=v0(X,Y);
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=100;
+option.num_vcycles=0;
 
 % Solver / solution tolerance
 option.tol=1e-12;
