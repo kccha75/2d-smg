@@ -6,10 +6,10 @@ clear;close all
 % -------------------------------------------------------------------------
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
-L(1) = 20;
-L(2) = 20;
-finestgrid = 8;
-coarsestgrid = 5;
+L(1) = 200;
+L(2) = 200;
+finestgrid = 10;
+coarsestgrid = 7;
 
 % PDE parameters
 B=4/3;lambda=-1;
@@ -27,8 +27,8 @@ v0=@(X,Y) 16*lambda*(3-((-2*lambda/(B-1/3))^(1/2)*X).^2+(abs(2*lambda)/(B-1/3)^(
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-N(1) = 2^finestgrid;
-N(2) = 2^finestgrid;
+N(1) = 2^(finestgrid);
+N(2) = 2^(finestgrid);
 
 % Spectral Wave numbers
 k{1} = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
@@ -103,6 +103,11 @@ option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
 option.grids=finestgrid-coarsestgrid+1;
 
+% jacobian=jacobian_Ku_2d(v0,pde,domain);
+% r=rms(rms(jacobian.f));
+% fprintf('Residual Newton = %d\n',r)
+
+
 % -------------------------------------------------------------------------
 % NEWTON HERE
 % -------------------------------------------------------------------------
@@ -127,7 +132,7 @@ for i=1:20
     end
     
     % Solve linear equation
-%     option.tol=1e-4*r;
+%     option.tol=1e-3*r;
     [e,r]=bicgstab(e0,jacobian,domain,option);
 %     [e,r]=mg(e0,jacobian,domain,option);
 

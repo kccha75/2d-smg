@@ -24,7 +24,7 @@ c=pde.c;
 d=pde.d;
 
 % inside bracket terms
-Lx=a.*ifft(-kx.^2.*fft(v))+b.*v+c.*v.^2;
+Lx=a.*ifft(-kx.^2.*fft(v))+b.*v+c.*v.*v;
 % x terms
 Lu_x=ifft(-kx.^2.*fft(Lx));
 
