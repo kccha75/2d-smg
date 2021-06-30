@@ -1,6 +1,6 @@
 % Performs multiplication L*u using Fourier collocation methods
 % L is the spectral operator for the given PDE in the form
-% -au_xx+cu+b*intint(u_yy)dxdx using
+% (au_xx+bu+cu^2)_xx+du_yy
 %
 % Inputs:
 % v - best estimate
@@ -9,27 +9,28 @@
 % pde.c
 % pde.d
 % domain.k - wave number
-% domain.N
 %
 % Ouputs:
 % A - L*u
 %
-
 function Lu=fourier_KPu_2d(v,pde,domain)
 
-kx=domain.k(:,1);
-ky=domain.k(:,2);
-kx(1)=1e-6;
-[KX,KY]=ndgrid(kx,ky);
+kx=domain.k{1};
+ky=domain.k{2};
 
 a=pde.a;
 b=pde.b;
 c=pde.c;
+d=pde.d;
 
-Kux=-a.*ifft(-kx.^2.*fft(v))+c.*v;
+% inside bracket terms
+Lx=a.*ifft(-kx.^2.*fft(v))+b.*v+c.*v.*v;
+% x terms
+Lu_x=real(ifft(-kx.^2.*fft(Lx)));
 
-Kuy=b.*ifft2(KY.^2./KX.^2.*fft2(v));
+% y term
+Lu_y=d.*real(ifft(-ky.^2.*fft(v')));
 
-Lu=Kux+Kuy;
+Lu=Lu_x+Lu_y';
 
 end

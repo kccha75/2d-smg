@@ -69,14 +69,14 @@ option.solver='FMG';
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation, Restriction, Prolongation options
-option.operator=@fourier_Ku_2d;
+option.operator=@fourier_KPu_2d;
 option.coarsegridsolver=@bicgstab;
 option.relaxation=@MRR;
 option.restriction=@fourier_restrict_2d_filtered;
 option.prolongation=@fourier_prolong_2d_filtered;
 
 % Preconditioner
-option.preconditioner=@fourier_Ku_pre_2d;
+option.preconditioner=@fourier_KP_pre_2d;
 % Number of precondition relaxations
 option.prenumit=1;
 
@@ -121,7 +121,7 @@ tic
 for i=1:20
     
     % Calculate Jacobian for linear equation
-    jacobian=jacobian_Ku_2d(v,pde,domain);
+    jacobian=jacobian_KP_2d(v,pde,domain);
    
     % Check nonlinear residual
     r=rms(rms(jacobian.f));

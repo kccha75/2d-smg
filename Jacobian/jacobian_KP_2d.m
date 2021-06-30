@@ -15,12 +15,12 @@
 % jacobian.b
 % jacobian.c
 
-function jacobian=jacobian_Ku_2d(v,pde,domain)
+function jacobian=jacobian_KP_2d(v,pde,domain)
 
 jacobian.a=pde.a;
 jacobian.b=pde.b+2*pde.c.*v;
 jacobian.c=0;
 jacobian.d=pde.d;
-jacobian.f=pde.f-fourier_Ku_2d(v,pde,domain);
+jacobian.f=pde.f-fourier_KPu_2d(v,pde,domain);
 
 end
