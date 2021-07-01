@@ -30,6 +30,7 @@ p=r;
 d=r;
 
 if rms(r(:))<option.tol
+    fprintf('Initial guess already below tolerance!\n');
     return
 end
 
