@@ -9,6 +9,11 @@
 
 function w=dealias_2d(u,v)
 
+if length(u) ==1 || length(v) == 1
+    w=u.*v;
+    return
+end
+
 [N,M]=size(u);
 
 % new padding size
