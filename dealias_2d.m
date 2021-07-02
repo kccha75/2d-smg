@@ -17,8 +17,8 @@ end
 [N,M]=size(u);
 
 % new padding size
-K1=3/2*N;
-K2=3/2*M;
+K1=ceil(3/2*N);
+K2=ceil(3/2*M);
 
 % index for padding
 padindex1 = [1:N/2,K1-N/2+1:K1];
