@@ -1,7 +1,7 @@
 clear;close all
 % -------------------------------------------------------------------------
 % Solve Yang NLS using Newton's method
-% Note: there is a problem if coarsestgrid is 6 or lower 
+% Note: coarsegrid 7 only, blows up or wrong solution otherwise
 % 
 % -------------------------------------------------------------------------
 % INPUT PARAMETERS
@@ -56,7 +56,7 @@ v0=v0(X,Y);
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=100;
+option.num_vcycles=0;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -119,7 +119,7 @@ tic
 for i=1:20
     
     % Calculate Jacobian for linear equation
-    jacobian=jacobian_NLS1_2d(v,pde,domain);
+    jacobian=jacobian_NLS_2d(v,pde,domain);
     
     r=rms(rms(jacobian.f));
     fprintf('Residual Newton = %d\n',r)

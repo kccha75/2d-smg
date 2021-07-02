@@ -1,7 +1,7 @@
 clear;close all
 % -------------------------------------------------------------------------
 % Solve Yang NLS using Newton's method
-% Note: there is a problem if coarsestgrid is 6 or lower 
+% Note: coarse grid only to 5, no lower  (or diverge)
 % 
 % -------------------------------------------------------------------------
 % INPUT PARAMETERS
@@ -9,7 +9,7 @@ clear;close all
 L(1) = 10 * pi;
 L(2) = 10 * pi;
 finestgrid = 8;
-coarsestgrid = 7;
+coarsestgrid = 5;
 
 % PDE parameters
 
@@ -119,7 +119,7 @@ tic
 for i=1:20
     
     % Calculate Jacobian for linear equation
-    jacobian=jacobian_NLS1_2d(v,pde,domain);
+    jacobian=jacobian_NLS_2d(v,pde,domain);
     
     r=rms(rms(jacobian.f));
     fprintf('Residual Newton = %d\n',r)
