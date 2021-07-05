@@ -9,7 +9,7 @@ clear;close all
 L(1) = 20 * pi;
 L(2) = 20 * pi;
 finestgrid = 8;
-coarsestgrid = 6;
+coarsestgrid = 5;
 
 % PDE parameters
 
@@ -110,7 +110,7 @@ option.grids=finestgrid-coarsestgrid+1;
 % NEWTON HERE
 % -------------------------------------------------------------------------
 option.jacobian_dealias=@jacobian_NLS_2d_dealias;
-v=v0;load('v0.mat');
+v=v0;
 
 % Error guess (keep at 0)
 e0=zeros(N);
@@ -135,9 +135,9 @@ for i=1:20
     
     % Solve linear equation
 %     option.tol=1e-1*r;
-%     [e,r]=cg(e0,jacobian,domain,option);
+%     [e,r]=cg(e0,jacobian(1),domain(1),option);
 %     e=fourier_matrixsolve_mid(e0,jacobian,domain,option);
-    [e,r]=mg_test_dealias(e0,jacobian,domain,option);
+    [e,r]=mg_dealias(e0,jacobian,domain,option);
 
     % Update correction
     v=v+e;

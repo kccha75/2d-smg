@@ -2,14 +2,14 @@ clear;close all
 % -------------------------------------------------------------------------
 % Solve Yang KP using Newton's method
 % in the form (-u_xxxx+au_xx+bu+cu^2)_xx-u_yy=f
-
+% COARSE GRID 6 or 8 diverges ... other values ok ...???
 % -------------------------------------------------------------------------
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
 L(1) = 200;
 L(2) = 200;
 finestgrid = 10;
-coarsestgrid = 4;
+coarsestgrid = 6;
 
 % PDE parameters
 B=4/3;lambda=-1;
@@ -53,7 +53,7 @@ v0=v0(X,Y);
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=2;
+option.num_vcycles=10;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -63,7 +63,7 @@ option.Nd=1;
 option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='FMG';
+option.solver='V-cycle';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='FAS';
@@ -112,6 +112,7 @@ option.grids=finestgrid-coarsestgrid+1;
 % NEWTON HERE
 % -------------------------------------------------------------------------
 option.jacobian_dealias=@jacobian_KP_2d_dealias;
+option.operator_dealias=@fourier_KPu_2d_dealias;
 v=v0;
 
 % % Jacobian fine grid here

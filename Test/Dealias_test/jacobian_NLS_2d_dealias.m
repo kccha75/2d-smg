@@ -19,6 +19,6 @@ function jacobian=jacobian_NLS_2d_dealias(v,pde,domain)
 jacobian.a=pde.a;
 jacobian.b=pde.b;
 jacobian.c=pde.c+3*pde.d.*dealias_2d(v,v);
-jacobian.f=pde.f-(fourier_Lu_2d(v,pde,domain)+pde.d.*dealias_2d(dealias_2d(v,v),v));
+jacobian.f=pde.f-(fourier_Lu_2d_dealias(v,pde,domain)+pde.d.*dealias_2d(dealias_2d(v,v),v));
 
 end
