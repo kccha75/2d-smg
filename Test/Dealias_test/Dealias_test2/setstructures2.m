@@ -27,8 +27,8 @@ for i=2:option.grids
             domain(i).N(2)=1;
         end
         
-        solution(i).v=option.restriction(solution(i-1).v);
-%         solution(i).v=solution(i-1).v(1:2:end,1:2:end);
+%         solution(i).v=option.restriction(solution(i-1).v);
+        solution(i).v=solution(i-1).v(1:2:end,1:2:end);
     end
     
     % Loop though all pde coefficients and restrict to coarse grid

@@ -9,7 +9,7 @@ clear;close all
 L(1) = 20 * pi;
 L(2) = 20 * pi;
 finestgrid = 8;
-coarsestgrid = 6;
+coarsestgrid = 5;
 
 % PDE parameters
 

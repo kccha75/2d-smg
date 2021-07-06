@@ -1,37 +1,34 @@
 clear;close all
 % -------------------------------------------------------------------------
-% Solve Yang NLS using Newton's method
-% Note: coarsegrid 7 only, blows up or wrong solution otherwise
-% TESTING DEALIAS
+% Solve Yang KP using Newton's method
+% in the form (-u_xxxx+au_xx+bu+cu^2)_xx-u_yy=f
+% COARSE GRID 6 or 8 diverges ... other values ok ...???
 % -------------------------------------------------------------------------
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
-L(1) = 20 * pi;
-L(2) = 20 * pi;
-finestgrid = 8;
+L(1) = 200;
+L(2) = 200;
+finestgrid = 10;
 coarsestgrid = 6;
 
 % PDE parameters
-
-a=@(X,Y) 1;
-b=@(X,Y) 1;
-
-V0=6;mu=-4.56;
-% c(x) function
-c=@(X,Y) V0*(sin(X).^2+sin(Y).^2)+mu;
-d=@(X,Y) 1;
+B=4/3;lambda=-1;
+a=@(X,Y) 1/2*(B-1/3);
+b=@(X,Y) lambda;
+c=@(X,Y) -3/4;
+d=@(X,Y) -1/2;
 
 % RHS function
 f=@(X,Y) 0*X;
 
 % Initial guess
-v0=@(X,Y) 0.56*sech(0.5*sqrt(X.^2+Y.^2)).*cos(X).*cos(Y);
-
+v0=@(X,Y) 16*lambda*(3-((-2*lambda/(B-1/3))^(1/2)*X).^2+(abs(2*lambda)/(B-1/3)^(1/2)*Y).^2)./(3+((-2*lambda/(B-1/3))^(1/2)*X).^2+(abs(2*lambda)/(B-1/3)^(1/2)*Y).^2).^2;
+% v0=@(X,Y) -4*sech(X.^2+Y.^2);
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-N(1) = 2^finestgrid;
-N(2) = 2^finestgrid;
+N(1) = 2^(finestgrid);
+N(2) = 2^(finestgrid);
 
 % Spectral Wave numbers
 k{1} = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
@@ -56,14 +53,14 @@ v0=v0(X,Y);
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=10;
+option.num_vcycles=1;
 
 % Solver / solution tolerance
 option.tol=1e-12;
 
 % Relaxations on the up and down cycle during Multigrid
-option.Nd=1;
-option.Nu=1;
+option.Nd=3;
+option.Nu=3;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
 option.solver='V-cycle';
@@ -72,14 +69,14 @@ option.solver='V-cycle';
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation, Restriction, Prolongation options
-option.operator=@fourier_Lu_2d_mid;
-option.coarsegridsolver=@cg;
+option.operator=@fourier_KPu_2d;
+option.coarsegridsolver=@bicgstab;
 option.relaxation=@MRR;
-option.restriction=@fourier_restrict_2d_mid;
-option.prolongation=@fourier_prolong_2d_mid;
+option.restriction=@fourier_restrict_2d_filtered;
+option.prolongation=@fourier_prolong_2d_filtered;
 
 % Preconditioner
-option.preconditioner=@fourier_yang_pre_2d;
+option.preconditioner=@fourier_KP_pre_2d;
 % Number of precondition relaxations
 option.prenumit=1;
 
@@ -106,10 +103,17 @@ option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
 option.grids=finestgrid-coarsestgrid+1;
 
+% jacobian=jacobian_Ku_2d(v0,pde,domain);
+% r=rms(rms(jacobian.f));
+% fprintf('Residual Newton = %d\n',r)
+
+
 % -------------------------------------------------------------------------
 % NEWTON HERE
 % -------------------------------------------------------------------------
-option.jacobian_dealias=@jacobian_NLS_2d_dealias;
+option.jacobian=@jacobian_KP_2d;
+option.jacobian_dealias=@jacobian_KP_2d_dealias2;
+option.operator_dealias= @fourier_KPu_2d_dealias2;
 v=v0;
 
 % Error guess (keep at 0)
@@ -119,29 +123,27 @@ tic
 for i=1:20
     
     % Jacobian fine grid here
-    jacobian=jacobian_NLS_2d(v,pde(1),domain(1));
+    jacobian=jacobian_KP_2d(v,pde(1),domain(1));
     
     % Setup structures here for linear problem
     [jacobian,domain]=setstructures(v,pde,jacobian,domain,option);
-    
+   
+    % Check nonlinear residual
     r=rms(rms(jacobian(1).f));
     fprintf('Residual Newton = %d\n',r)
-    if i~=1
     if r<=1e-10
         fprintf('Converged after %d Newton Iterations \n',i-1)
         break
     end
-    end
     
     % Solve linear equation
-%     option.tol=1e-1*r;
-%     [e,r]=cg(e0,jacobian(1),domain(1),option);
-%     e=fourier_matrixsolve_mid(e0,jacobian,domain,option);
+%     option.tol=1e-3*r;
+%     [e,r]=bicgstab(e0,jacobian(1),domain(1),option);
     [e,r]=mg_dealias(e0,jacobian,domain,option);
 
     % Update correction
     v=v+e;
-
+    
 end
 
 if i==20

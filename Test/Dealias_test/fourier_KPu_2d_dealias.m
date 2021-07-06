@@ -24,12 +24,8 @@ c=pde.c;
 d=pde.d;
 
 % inside bracket terms
-
-% if length(v)==2^10
-% Lx=a.*ifft(-kx.^2.*fft(v))+b.*v+c.*v.*v;
-% else
 Lx=a.*ifft(-kx.^2.*fft(v))+dealias_2d(b,v)+c.*dealias_2d(v,v);
-% end
+
 % x terms
 Lu_x=real(ifft(-kx.^2.*fft(Lx)));
 

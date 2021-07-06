@@ -117,14 +117,18 @@ solution(option.initialgrid).v=v;
 
 % Down cycle iterations
 option.numit=option.Nd;
+if option.initialgrid==1
 option.operator=@fourier_KPu_2d;
+else
+    option.operator=@fourier_KPu_2d_dealias2;
+end
 % Initial iterations
 [solution(option.initialgrid).v,solution(option.initialgrid).r]=option.relaxation(solution(option.initialgrid).v,pde(option.initialgrid),domain(option.initialgrid),option);
     
 
 % loop through vcycles
 for p=1:option.num_vcycles
-    option.operator=@fourier_KPu_2d_dealias;
+    option.operator=@fourier_KPu_2d_dealias2;
     % Stepping down
     for i=option.initialgrid:option.initialgrid+option.grids-2
         
