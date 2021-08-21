@@ -1,39 +1,38 @@
 clear;close all
 % -------------------------------------------------------------------------
-% Solve KP using Newton's method
-% in the form (au_xx+bu+cu^2)_xx+du_yy=f
+% Solve Yang KP using Newton's method
+% in the form (-u_xxxx+au_xx+bu+cu^2)_xx-u_yy=f
 
 % -------------------------------------------------------------------------
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
-L(1) = 200;
-L(2) = 200;
+L(1) = 120*pi;
+L(2) = 60*pi;
 finestgrid = 10;
-coarsestgrid = 7;
+coarsestgrid = 8;
 
 % PDE parameters
-B=4/3;lambda=-1;
-a=@(X,Y) 1/2*(B-1/3);
-b=@(X,Y) lambda;
-c=@(X,Y) -3/4;
-d=@(X,Y) -1/2;
+mu=-1.2;
+a=@(X,Y) -2;
+b=@(X,Y) mu;
+c=@(X,Y) -3;
 
 % RHS function
 f=@(X,Y) 0*X;
 
 % Initial guess
-v0=@(X,Y) 16*lambda*(3-((-2*lambda/(B-1/3))^(1/2)*X).^2+(abs(2*lambda)/(B-1/3)^(1/2)*Y).^2)./(3+((-2*lambda/(B-1/3))^(1/2)*X).^2+(abs(2*lambda)/(B-1/3)^(1/2)*Y).^2).^2;
-% v0=@(X,Y) -4*sech(X.^2+Y.^2);
+v0=@(X,Y) 0.43*sech(0.3*sqrt(X.^2+Y.^2)).*cos(X);
+
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-N(1) = 2^(finestgrid);
-N(2) = 2^(finestgrid);
+N(1) = 2^finestgrid;
+N(2) = 2^(finestgrid-3);
 
 % Spectral Wave numbers
 k{1} = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
 k{2} = 2*pi/L(2)*[0:N(2)/2-1 -N(2)/2 -N(2)/2+1:-1]';
-[KX,KY] = ndgrid(k{1},k{2});
+[KX,KY] = ndgrid(k(:,1),k(:,2));
 
 x{1} = L(1)*(-N(1)/2:N(1)/2-1)'/N(1);
 x{2} = L(2)*(-N(2)/2:N(2)/2-1)'/N(2);
@@ -42,7 +41,6 @@ x{2} = L(2)*(-N(2)/2:N(2)/2-1)'/N(2);
 a=a(X,Y);
 b=b(X,Y);
 c=c(X,Y);
-d=d(X,Y);
 f=f(X,Y);
 
 v0=v0(X,Y);
@@ -69,14 +67,14 @@ option.solver='FMG';
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation, Restriction, Prolongation options
-option.operator=@fourier_KPu_2d;
+option.operator=@fourier_5KPu_2d_test;
 option.coarsegridsolver=@bicgstab;
 option.relaxation=@MRR;
 option.restriction=@fourier_restrict_2d_filtered;
 option.prolongation=@fourier_prolong_2d_filtered;
 
 % Preconditioner
-option.preconditioner=@fourier_KP_pre_2d;
+option.preconditioner=@fourier_5KP_pre_2d;
 % Number of precondition relaxations
 option.prenumit=1;
 
@@ -96,32 +94,27 @@ domain.dx = dx;
 pde.a = a;
 pde.b = b;
 pde.c = c;
-pde.d = d;
 pde.f = f;
 
 option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
 option.grids=finestgrid-coarsestgrid+1;
 
-% jacobian=jacobian_Ku_2d(v0,pde,domain);
-% r=rms(rms(jacobian.f));
-% fprintf('Residual Newton = %d\n',r)
-
-
 % -------------------------------------------------------------------------
 % NEWTON HERE
 % -------------------------------------------------------------------------
-
+pde.z=1;
 v=v0;
 
 % Error guess (keep at 0)
 e0=zeros(N);
 
+for j=1:100
 tic
 for i=1:20
     
     % Calculate Jacobian for linear equation
-    jacobian=jacobian_KP_2d(v,pde,domain);
+    jacobian=jacobian_5KPu_2d_test(v,pde,domain);
    
     % Check nonlinear residual
     r=rms(rms(jacobian.f));
@@ -132,12 +125,15 @@ for i=1:20
     end
     
     % Solve linear equation
-%     option.tol=1e-3*r;
+%     option.tol=1e-4*r;
     [e,r]=bicgstab(e0,jacobian,domain,option);
 %     [e,r]=mg(e0,jacobian,domain,option);
 
     % Update correction
     v=v+e;
+    
+    % Mean 0
+    vhat=fft2(v);vhat(1,1)=0;v=ifft2(vhat);
     
 end
 
@@ -147,3 +143,6 @@ if i==20
     
 end 
 toc
+pde.z=pde.z-0.005;
+fprintf('z=%f\n',pde.z);
+end

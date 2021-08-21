@@ -8,7 +8,7 @@ clear;close all
 % -------------------------------------------------------------------------
 L(1) = 200;
 L(2) = 200;
-finestgrid = 10;
+finestgrid = 7;
 coarsestgrid = 7;
 
 % PDE parameters
@@ -133,11 +133,14 @@ for i=1:20
     
     % Solve linear equation
 %     option.tol=1e-3*r;
-    [e,r]=bicgstab(e0,jacobian,domain,option);
+%     [e,r]=bicgstab(e0,jacobian,domain,option);
 %     [e,r]=mg(e0,jacobian,domain,option);
+    e=FD_KPu_2d(e0,jacobian,domain,option);
 
     % Update correction
     v=v+e;
+    
+    v=v-1/(N(1)*N(2))*sum(sum(v));
     
 end
 

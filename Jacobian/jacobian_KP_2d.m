@@ -21,6 +21,7 @@ jacobian.a=pde.a;
 jacobian.b=pde.b+2*pde.c.*v;
 jacobian.c=0;
 jacobian.d=pde.d;
-jacobian.f=pde.f-fourier_KPu_2d(v,pde,domain);
+% jacobian.f=pde.f-fourier_KPu_2d(v,pde,domain);
+jacobian.f=pde.f-Lu_FD_KPu_2d(v,pde,domain);
 
 end
