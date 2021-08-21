@@ -12,17 +12,17 @@ coarsestgrid = 3;
 
 % PDE Parameters
 
-a=@(x) 23+sin(x).*cos(x);%+epsilon*exp(cos(X+Y));
-b=@(x) 1+exp(cos(x));%+epsilon*exp(cos(X+Y));
+a=@(X) 23+sin(X).*cos(X);%+epsilon*exp(cos(X+Y));
+b=@(X) 1+exp(cos(X));%+epsilon*exp(cos(X+Y));
 
-f=@(x) -2*cos(x).^2+(3+exp(cos(x))).*sin(x).^2+sin(2*x);
+f=@(X) -2*cos(X).^2+(3+exp(cos(X))).*sin(X).^2+sin(2*X);
 
 % Exact solution
-ue=@(x) sin(x).^2;
+ue=@(X) sin(X).^2;
 
 % Initial guess
 Nx=2^finestgrid;
-v0=@(x) 0*x;
+v0=@(X) 0*X;
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -64,22 +64,23 @@ N(1) = 2^finestgrid;
 N(2) = 1;
 
 % Spectral Wave numbers
-k(:,1) = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
+k{1} = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
 
-x(:,1) = L(1)*(-N(1)/2:N(1)/2-1)'/N(1);
+x{1} = L(1)*(-N(1)/2:N(1)/2-1)'/N(1);
+X=ndgrid(x{1});
 
-a=a(x);
-b=b(x);
-f=f(x);
+a=a(X);
+b=b(X);
+f=f(X);
 
-ue=ue(x);
-v0=v0(x);
+ue=ue(X);
+v0=v0(X);
 
 % -------------------------------------------------------------------------
 % Sort into structures
 % -------------------------------------------------------------------------
 % Assuming constant dx
-dx(1) = x(2,1)-x(1,1);
+dx(1) = x{1}(2)-x{1}(1);
 
 % Sort into structures
 domain.L = L;

@@ -15,8 +15,8 @@ function v=fourier_matrixsolve_2d(~,pde,domain,option)
 
 Nx=domain.N(1);
 Ny=domain.N(2);
-kx=domain.k(:,1);
-ky=domain.k(:,2);
+kx=domain.k{1};
+ky=domain.k{2};
 
 % 1D Fourier Dx diff matrix
 D1x=ifft(1i.*kx.*fft(eye(Nx,Nx)));

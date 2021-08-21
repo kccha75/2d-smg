@@ -14,8 +14,8 @@
 %
 function Lu=fourier_Lu_2d(v,pde,domain)
 
-kx=domain.k(:,1);
-ky=domain.k(:,2);
+kx=domain.k{1};
+ky=domain.k{2};
 
 a=pde.a;
 b=pde.b;

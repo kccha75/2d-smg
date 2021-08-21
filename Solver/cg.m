@@ -25,6 +25,7 @@ maxit=10000;
 r=pde.f-option.operator(v,pde,domain);
 
 if rms(r)<option.tol
+    fprintf('Initial guess already below tolerance!\n');
     return
 end
 

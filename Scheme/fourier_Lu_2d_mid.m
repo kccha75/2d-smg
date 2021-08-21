@@ -17,8 +17,8 @@
 %
 function Lu=fourier_Lu_2d_mid(u,pde,domain)
 
-kx=domain.k(:,1);
-ky=domain.k(:,2);
+kx=domain.k{1};
+ky=domain.k{2};
 Nx=domain.N(1);
 Ny=domain.N(2);
 

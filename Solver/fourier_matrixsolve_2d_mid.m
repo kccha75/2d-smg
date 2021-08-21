@@ -16,8 +16,8 @@ function v=fourier_matrixsolve_2d_mid(~,pde,domain,option)
 
 Nx=domain.N(1);
 Ny=domain.N(2);
-kx=domain.k(:,1);
-ky=domain.k(:,2);
+kx=domain.k{1};
+ky=domain.k{2};
 
 % Check if coefficients constant and find midpoint of a and b (at i+1)
 if length(pde.a)==1

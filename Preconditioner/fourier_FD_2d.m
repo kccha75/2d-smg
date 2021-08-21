@@ -85,6 +85,15 @@ D2yb=kron(D1yb,speye(Nx));
 
 % Solve + reshape
 A=-D2xb*(a_mid(:).*D2xf)-D2yb*(b_mid(:).*D2yf)+pde.c(:).*speye(Nx*Ny);
+
+% Check if Poisson type problem, then solve for mean 0 solution
+if max(abs(pde.c(:)))<1e-12
+
+    A(1,:)=1;
+    pde.f(1)=0;
+    
+end
+
 v=A\pde.f(:);
 v=reshape(v,Nx,Ny);
 

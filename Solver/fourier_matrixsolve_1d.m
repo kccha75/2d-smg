@@ -13,7 +13,7 @@
 function v=fourier_matrixsolve_1d(~,pde,domain,~)
 
 N=domain.N(1);
-kx=domain.k(:,1);
+kx=domain.k{1};
 
 % Fourier 1st derivative matrix
 D1x=ifft(1i.*kx.*fft(eye(N,N)));
