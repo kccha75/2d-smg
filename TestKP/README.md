@@ -1,0 +1,3 @@
+Testing crude continuation of e u_xxxx term as e goes from 1 to 0 ...
+
+complete failure
