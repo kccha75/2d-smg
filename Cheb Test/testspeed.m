@@ -1,6 +1,6 @@
     N = 2^9;
-    k = 0:N;
-    x = cos(pi*k/N)';
+    k = 0:N-1;
+    x = cos(pi*k/(N-1))';
     
     theta = tanh(x);
     u = theta+3*theta.^2;
@@ -10,6 +10,21 @@
     
    z = fct(u);
     uud = bct2(ctd2(z,k));
+    
+    
+    tic
+    for i=1:10000
+        du=fchd2(u);
+    end
+    
+   toc
+   
+   tic
+   for i=1:10000
+       du2=ifct(chebdiff(fct(u),2));
+   end
+   toc
+    
     
 function [fc] = fct2(ff)
     N = length(ff)-1;
