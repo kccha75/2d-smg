@@ -12,7 +12,7 @@ discretisation=[2 1];
 
 L(1) = 2;
 L(2) = 2*pi;
-finestgrid = 3;
+finestgrid = 6;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -55,8 +55,8 @@ option.mgscheme='Correction';
 option.operator=@cheb_fourier_Lu_2d;
 option.coarsegridsolver=@bicgstab;
 option.relaxation=@MRR;
-option.restriction=@cheb_fourier_restrict_filtered;
-option.prolongation=@cheb_fourier_prolong_filtered;
+option.restriction=@cheb_fourier_restrict_2d_filtered;
+option.prolongation=@cheb_fourier_prolong_2d_filtered;
 
 % Preconditioner
 option.preconditioner=@cheb_fourier_FD_2d;
@@ -115,14 +115,14 @@ option.discretisation = discretisation;
 
 % BCs
 pde.f(1,:)=0;pde.f(end,:)=0;
-% [pde,domain]=setstructures_test(v0,pde,domain,option);
+[pde,domain]=setstructures_test(v0,pde,domain,option);
 
 % BCs
 option.numit=1;
 
 tic
-% [v,r]=mg2(v0,pde,domain,option);
-[v,r]=MRR(v0,pde,domain,option);
+[v,r]=mg2(v0,pde,domain,option);
+% [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
 disp(rms(r(:)))
@@ -132,4 +132,4 @@ disp(rms(r(:)))
 % v=cheb_fourier_FD_2d(1,pde,domain,1);
 % r=pde.f-option.operator(v,pde,domain);
 % disp(rms(r(:)))
-figure;surf(v-ue)
+% figure;surf(v-ue)
