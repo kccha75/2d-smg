@@ -51,7 +51,7 @@ v0=v0(X,Y);
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=0;
+option.num_vcycles=100;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -125,8 +125,8 @@ for i=1:20
     
     % Solve linear equation
 %     option.tol=1e-4*r;
-    [e,r]=bicgstab(e0,jacobian,domain,option);
-%     [e,r]=mg(e0,jacobian,domain,option);
+%     [e,r]=bicgstab(e0,jacobian,domain,option);
+    [e,r]=mg(e0,jacobian,domain,option);
 
     % Update correction
     v=v+e;

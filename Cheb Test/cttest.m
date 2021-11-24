@@ -1,5 +1,5 @@
 function cttest
-    N = 32;
+    N = 16;
     k = 0:N;
     x = cos(pi*k/N);
     

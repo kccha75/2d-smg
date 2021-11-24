@@ -56,7 +56,7 @@ v0=v0(X,Y);
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=0;
+option.num_vcycles=100;
 
 % Solver / solution tolerance
 option.tol=1e-12;

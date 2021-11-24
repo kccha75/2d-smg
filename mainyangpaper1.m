@@ -8,8 +8,8 @@ clear;close all
 % -------------------------------------------------------------------------
 L(1) = 30;
 L(2) = 30;
-finestgrid = 8;
-coarsestgrid = 3;
+finestgrid = 6;
+coarsestgrid = 5;
 
 % PDE parameters
 
@@ -56,7 +56,7 @@ v0=v0(X,Y);
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=0;
+option.num_vcycles=100;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -130,8 +130,8 @@ for i=1:20
     
     % Solve linear equation
     option.tol=1e-1*r;
-%     [e,r]=cg(e0,jacobian,scheme,option);
-    [e,r]=mg(v,jacobian,domain,option);
+    [e,r]=cg(e0,jacobian,domain,option);
+%     [e,r]=mg(v,jacobian,domain,option);
 
     % Update correction
     v=v+e;

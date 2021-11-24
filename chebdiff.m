@@ -24,7 +24,7 @@ dv_hat(M+1,:) = .0;
 dv_hat(M,:) = 2*k(M+1)*v_hat(M+1,:);
     
 for j = M-1:-1:2
-	dv_hat(j,:) = dv_hat(j+2)+2*k(j+1)*v_hat(j+1,:);
+	dv_hat(j,:) = dv_hat(j+2,:)+2*k(j+1)*v_hat(j+1,:);
 end
 dv_hat(1,:) = .5*dv_hat(3,:)+v_hat(2,:);
     

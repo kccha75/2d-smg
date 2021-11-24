@@ -8,7 +8,7 @@ clear;close all
 % -------------------------------------------------------------------------
 L(1) = 10 * pi;
 L(2) = 10 * pi;
-finestgrid = 8;
+finestgrid = 10;
 coarsestgrid = 5;
 
 % PDE parameters

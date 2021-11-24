@@ -1,28 +1,34 @@
 clear;close all;%clc
 % -------------------------------------------------------------------------
-% Solve PDE -u_xx + au_x + bu = f using Fourier Spectral Multigrid at
-% Fourier collocation points
-%
+% Solve PDE au_xx + bu_yy + cu = f using Fourier Cheb Spectral Multigrid
 % -------------------------------------------------------------------------
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
-L(1) = 2 * pi;
+
+% Discretisation flag for each direction
+% 1 - Fourier
+% 2 - Cheb
+discretisation=[2 1];
+
+L(1) = 2;
+L(2) = 2*pi;
 finestgrid = 7;
 coarsestgrid = 3;
 
 % PDE Parameters
+a=@(X,Y) 1;
+b=@(X,Y) 1;
+c=@(X,Y) 1;
 
-a=@(X) 23+sin(X).*cos(X);%+epsilon*exp(cos(X+Y));
-b=@(X) 1+exp(cos(X));%+epsilon*exp(cos(X+Y));
-
-f=@(X) -2*cos(X).^2+(3+exp(cos(X))).*sin(X).^2+sin(2*X);
+% RHS
+% f=@(X,Y) exp(sin(Y)).*(cosh(X)+exp(X+Y).*(-cosh(1)+cosh(X))+(cosh(1)-cosh(X)).*(-cos(Y).^2+sin(Y)));
+f=@(X,Y) exp(sin(Y)).*(cosh(X).*(2+cos(Y).^2-sin(Y))+cosh(1).*(-1-cos(Y).^2+sin(Y)));
 
 % Exact solution
-ue=@(X) sin(X).^2;
+ue=@(X,Y) (cosh(X)-cosh(1)).*exp(sin(Y));
 
 % Initial guess
-Nx=2^finestgrid;
-v0=@(X) 0*X;
+v0=@(X,Y) 0*X;
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -30,7 +36,7 @@ v0=@(X) 0*X;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=10;
+option.num_vcycles=5;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -46,41 +52,46 @@ option.solver='V-cycle';
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation, Restriction, Prolongation options
-option.operator=@fourier_Lu_1d;
-option.coarsegridsolver=@fourier_matrixsolve_1d;
+option.operator=@cheb_fourier_Lu_2d;
+option.coarsegridsolver=@bicgstab;
 option.relaxation=@MRR;
-option.restriction=@fourier_restrict_filtered;
-option.prolongation=@fourier_prolong_filtered;
+option.restriction=@cheb_fourier_restrict_filtered;
+option.prolongation=@cheb_fourier_prolong_filtered;
 
 % Preconditioner
-option.preconditioner=@fourier_FD_1d;
+option.preconditioner=@cheb_fourier_FD_2d;
 % Number of precondition relaxations
 option.prenumit=1;
 
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-N(1) = 2^finestgrid;
-N(2) = 1;
+N(1) = 2^finestgrid+1;
+N(2) = 2^finestgrid;
 
 % Spectral Wave numbers
-k{1} = 2*pi/L(1)*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
+k{1} = (0:N(1)-1)'; % Cheb
+k{2} = 2*pi/L(2)*[0:N(2)/2-1 -N(2)/2 -N(2)/2+1:-1]'; % Fourier
 
-x{1} = L(1)*(-N(1)/2:N(1)/2-1)'/N(1);
-X=ndgrid(x{1});
+x{1} = cos(pi*k{1}/(N(1)-1)); % Cheb
+x{2} = L(2)*(-N(2)/2:N(2)/2-1)'/N(2); % Fourier
 
-a=a(X);
-b=b(X);
-f=f(X);
+[X,Y] = ndgrid(x{1},x{2});
 
-ue=ue(X);
-v0=v0(X);
+a=a(X,Y);
+b=b(X,Y);
+c=c(X,Y);
+f=f(X,Y);
+
+ue=ue(X,Y);
+v0=v0(X,Y);
 
 % -------------------------------------------------------------------------
 % Sort into structures
 % -------------------------------------------------------------------------
-% Assuming constant dx
-dx(1) = x{1}(2)-x{1}(1);
+% dx
+dx{1} = x{1}(2:end)-x{1}(1:end-1);
+dx{2} = x{2}(2)-x{1}(1);
 
 % Sort into structures
 domain.L = L;
@@ -90,25 +101,34 @@ domain.dx = dx;
 
 pde.a = a;
 pde.b = b;
+pde.c = c;
 pde.f = f;
 
 option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
 option.grids=finestgrid-coarsestgrid+1;
 
+
+option.discretisation = discretisation;
 % -------------------------------------------------------------------------
-% Solve
+% SOLVE HERE
 % -------------------------------------------------------------------------
-% MG here
+
+% BCs
+pde.f(1,:)=0;pde.f(end,:)=0;
+% [pde,domain]=setstructures_test(v0,pde,domain,option);
+
+% BCs
+option.numit=1;
 
 tic
-[v,r]=mg(v0,pde,domain,option);
-
-% Check if Poisson type problem, then scale for mean 0 solution
-if max(abs(pde.b(:)))<1e-12
-    v=v-1/(Nx(1)*N(2))*sum(sum(v));
-end
-
+% [v,r]=mg2(v0,pde,domain,option);
+% [v,r]=MRR(v0,pde,domain,option);
+% [v,r]=bicgstab(v0,pde,domain,option);
 toc
+% disp(rms(r))
+% 
+surf(pde.f-option.operator(ue,pde,domain))
 
-vv=cg(v0,pde,domain,option);
+% v=cheb_fourier_FD_2d(1,pde,domain,1);
+% figure;surf(v-ue)
