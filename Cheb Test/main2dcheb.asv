@@ -12,7 +12,7 @@ discretisation=[2 1];
 
 L(1) = 2;
 L(2) = 2*pi;
-finestgrid = 3;
+finestgrid = 8;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -61,7 +61,8 @@ option.prolongation=@cheb_fourier_prolong_filtered;
 % Preconditioner
 option.preconditioner=@cheb_fourier_FD_2d;
 % Number of precondition relaxations
-option.prenumit=1;
+option.prenumit=0;
+
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
@@ -118,18 +119,17 @@ pde.f(1,:)=0;pde.f(end,:)=0;
 % [pde,domain]=setstructures_test(v0,pde,domain,option);
 
 % BCs
-option.numit=1;
+option.numit=1000;
 
 tic
 % [v,r]=mg2(v0,pde,domain,option);
-[v,r]=MRR(v0,pde,domain,option);
+% [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
-disp(rms(r(:)))
+% disp(rms(r(:)))
 % 
 % surf(pde.f-option.operator(ue,pde,domain))
 
-% v=cheb_fourier_FD_2d(1,pde,domain,1);
-% r=pde.f-option.operator(v,pde,domain);
-% disp(rms(r(:)))
+v=cheb_fourier_FD_2d(1,pde,domain,1);
+r=pde.f-o
 figure;surf(v-ue)
