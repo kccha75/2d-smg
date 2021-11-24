@@ -55,8 +55,8 @@ option.mgscheme='Correction';
 option.operator=@cheb_fourier_Lu_2d;
 option.coarsegridsolver=@bicgstab;
 option.relaxation=@MRR;
-option.restriction=@cheb_fourier_restrict_2d_filtered;
-option.prolongation=@cheb_fourier_prolong_2d_filtered;
+option.restriction=@cheb_fourier_restrict_filtered;
+option.prolongation=@cheb_fourier_prolong_filtered;
 
 % Preconditioner
 option.preconditioner=@cheb_fourier_FD_2d;
