@@ -28,10 +28,10 @@ Lu1=ifct(chebdiff(fct(v),2));
 Lu2=real(ifft(-ky.^2.*fft(v')));
 
 
-Lu=Lu1+Lu2'+c.*v;
+Lu=a.*Lu1+a.*Lu2'+c.*v;
 
 % Apply BCs
-Lu(1,:)=0;
-Lu(end,:)=0;
+Lu(1,:)=v(1,:);
+Lu(end,:)=v(end,:);
 
 end
