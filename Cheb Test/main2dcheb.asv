@@ -12,7 +12,7 @@ discretisation=[2 1];
 
 L(1) = 2;
 L(2) = 2*pi;
-finestgrid = 8;
+finestgrid = 7;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -36,14 +36,14 @@ v0=@(X,Y) 0*X;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=5;
+option.num_vcycles=1;
 
 % Solver / solution tolerance
 option.tol=1e-12;
 
 % Relaxations on the up and down cycle during Multigrid
-option.Nd=1;
-option.Nu=1;
+option.Nd=0;
+option.Nu=0;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
 option.solver='V-cycle';
@@ -61,12 +61,11 @@ option.prolongation=@cheb_fourier_prolong_filtered;
 % Preconditioner
 option.preconditioner=@cheb_fourier_FD_2d;
 % Number of precondition relaxations
-option.prenumit=0;
-
+option.prenumit=1;
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-N(1) = 2^finestgrid;
+N(1) = 2^finestgrid+1; % cheb +1 points!s
 N(2) = 2^finestgrid;
 
 % Spectral Wave numbers
@@ -113,23 +112,21 @@ option.discretisation = discretisation;
 % -------------------------------------------------------------------------
 % SOLVE HERE
 % -------------------------------------------------------------------------
-
-% BCs
 pde.f(1,:)=0;pde.f(end,:)=0;
-% [pde,domain]=setstructures_test(v0,pde,domain,option);
+[pde,domain]=setstructures_test(v0,pde,domain,option);
 
-% BCs
-option.numit=1000;
+% pde.f(1,:)=0;pde.f(end,:)=0;
+% option.numit=1000;
 
 tic
-% [v,r]=mg2(v0,pde,domain,option);
+[v,r]=mg2(v0,pde,domain,option);
 % [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
-% disp(rms(r(:)))
-% 
+
 % surf(pde.f-option.operator(ue,pde,domain))
 
-v=cheb_fourier_FD_2d(1,pde,domain,1);
-r=pde.f-o
-figure;surf(v-ue)
+% v=cheb_fourier_FD_2d(1,pde,domain,1);
+% r=pde.f-option.operator(v,pde,domain);
+% disp(rms(r(:)))
+% figure;surf(v-ue)
