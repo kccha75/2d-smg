@@ -12,7 +12,7 @@ discretisation=[2 1];
 
 L(1) = 2;
 L(2) = 2*pi;
-finestgrid = 6;
+finestgrid = 8;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -49,11 +49,11 @@ option.Nu=1;
 option.solver='V-cycle';
 
 % Multigrid scheme: 'Correction' or 'FAS'
-option.mgscheme='Correction';
+option.mgscheme='FAS';
 
 % Operator, coarse grid solver, Relaxation, Restriction, Prolongation options
 option.operator=@cheb_fourier_Lu_2d;
-option.coarsegridsolver=@bicgstab;
+option.coarsegridsolver=@cheb_fourier_matrixsolve;
 option.relaxation=@MRR;
 option.restriction=@cheb_fourier_restrict_filtered;
 option.prolongation=@cheb_fourier_prolong_filtered;
@@ -65,7 +65,7 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-N(1) = 2^finestgrid;
+N(1) = 2^finestgrid+1; % cheb +1 points!s
 N(2) = 2^finestgrid;
 
 % Spectral Wave numbers
@@ -112,21 +112,18 @@ option.discretisation = discretisation;
 % -------------------------------------------------------------------------
 % SOLVE HERE
 % -------------------------------------------------------------------------
-
-% BCs
 pde.f(1,:)=0;pde.f(end,:)=0;
-[pde,domain]=setstructures_test(v0,pde,domain,option);
+% option.numit=10;
 
-% BCs
-option.numit=1;
+
+[pde,domain]=setstructures_test(v0,pde,domain,option);
 
 tic
 [v,r]=mg2(v0,pde,domain,option);
 % [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
-disp(rms(r(:)))
-% 
+
 % surf(pde.f-option.operator(ue,pde,domain))
 
 % v=cheb_fourier_FD_2d(1,pde,domain,1);

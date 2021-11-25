@@ -18,4 +18,7 @@ vc_hat=fct(vc);
 % Filter high frequency and invert
 vf=ifct([vc_hat;zeros(N)]);
 
+% Apply BCs
+vf(1,:)=0;vf(end,:)=0;
+
 end
