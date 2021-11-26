@@ -3,12 +3,13 @@
 % Inputs:
 % v0 - initial guess
 % pde - structure consisting of pde coefficients
-% domain.L - size of domain
+%
 % domain.N - number of points
 % domain.k - spectral wave numbers
 % domain.dx - step size
+%
 % option.num_vcycles - number of vcycles performed
-% option.tol - tolerance set
+% option.tol - tolerance set (solution / iteration)
 % option.Nd - number of iterations on the down cycle
 % option.Nu - number of iterations on the up cycle
 % option.solver - multigrid solver used 'V-cycle' or 'FMG'
@@ -20,8 +21,8 @@
 % option.prolongation - prolongation function
 % option.preconditioner - preconditioner function
 % option.prenumit - number of precondition iterations
-% option.finestgrid - finest grid used given by 2^finestgrid
-% option.coarsestgrid - coarsest grid used given by 2^coarsestgrid
+% option.finestgrid - finest grid used given by 2^finestgrid (or +1)
+% option.coarsestgrid - coarsest grid used given by 2^coarsestgrid (or +1)
 % option.grids - numbers of grids used in mg (counting from coarsest grid)
 %
 % Outputs:
@@ -33,6 +34,9 @@ function [v,r]=mg2(v0,pde,domain,option)
 
 % Solution structure here
 solution(1).v=v0;
+
+% Set multigrid structures
+[pde,domain]=setstructures(v0,pde,domain,option);
 
 % -------------------------------------------------------------------------
 % Solution method here
