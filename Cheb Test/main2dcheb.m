@@ -12,7 +12,7 @@ discretisation=[2 1];
 
 L(1) = 2;
 L(2) = 2*pi;
-finestgrid = 8;
+finestgrid = 6;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -36,7 +36,7 @@ v0=@(X,Y) 0*X;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=5;
+option.num_vcycles=2;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -55,8 +55,16 @@ option.mgscheme='FAS';
 option.operator=@cheb_fourier_Lu_2d;
 option.coarsegridsolver=@cheb_fourier_matrixsolve;
 option.relaxation=@MRR;
-option.restriction=@cheb_fourier_restrict_filtered;
-option.prolongation=@cheb_fourier_prolong_filtered;
+
+x_restrict=@cheb_restrict;
+y_restrict=@fourier_restrict_filtered;
+
+option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
+
+x_prolong=@cheb_prolong;
+y_prolong=@fourier_prolong_filtered;
+
+option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
 
 % Preconditioner
 option.preconditioner=@cheb_fourier_FD_2d;
