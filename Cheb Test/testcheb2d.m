@@ -10,8 +10,6 @@ clear;close all;%clc
 % 2 - Cheb
 discretisation=[2 1];
 
-L(1) = 2;
-L(2) = 2*pi;
 finestgrid = 6;
 coarsestgrid = 3;
 
@@ -21,7 +19,6 @@ b=@(X,Y) 1;
 c=@(X,Y) 1;
 
 % RHS
-% f=@(X,Y) exp(sin(Y)).*(cosh(X)+exp(X+Y).*(-cosh(1)+cosh(X))+(cosh(1)-cosh(X)).*(-cos(Y).^2+sin(Y)));
 f=@(X,Y) exp(sin(Y)).*(cosh(X).*(2+cos(Y).^2-sin(Y))+cosh(1).*(-1-cos(Y).^2+sin(Y)));
 
 % Exact solution
@@ -51,7 +48,7 @@ option.solver='V-cycle';
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='FAS';
 
-% Operator, coarse grid solver, Relaxation, Restriction, Prolongation options
+% Operator, coarse grid solver, Relaxation
 option.operator=@cheb_fourier_Lu_2d;
 option.coarsegridsolver=@cheb_fourier_matrixsolve;
 option.relaxation=@MRR;
@@ -68,20 +65,39 @@ option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
 
 % Preconditioner
 option.preconditioner=@cheb_fourier_FD_2d;
-% Number of precondition relaxations
+% Number of preconditioned relaxations
 option.prenumit=1;
+
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-N(1) = 2^finestgrid+1; % cheb +1 points!s
-N(2) = 2^finestgrid;
+d=length(discretisation); % Dimension of problem
+N=zeros(1,d);
+x=cell(size(discretisation));
+k=x;
+dx=x;
 
-% Spectral Wave numbers
-k{1} = (0:N(1)-1)'; % Cheb
-k{2} = 2*pi/L(2)*[0:N(2)/2-1 -N(2)/2 -N(2)/2+1:-1]'; % Fourier
+for i=1:length(discretisation)
+    
+    switch discretisation(i)
 
-x{1} = cos(pi*k{1}/(N(1)-1)); % Cheb
-x{2} = L(2)*(-N(2)/2:N(2)/2-1)'/N(2); % Fourier
+        % Fourier discretisation
+        case 1
+            N(i) = 2^finestgrid;
+            k{i} = [0:N(i)/2-1 -N(i)/2 -N(i)/2+1:-1]';
+            x{i} = 2*pi*(-N(i)/2:N(i)/2-1)'/N(i);
+            dx{i} = x{i}(2)-x{i}(1);
+            
+       % Chebyshev discretisation
+        case 2
+            N(i) = 2^finestgrid+1;
+            k{i} = (0:N(i)-1)';
+            x{i} = cos(pi*k{i}/(N(i)-1));
+            dx{i} = x{i}(2:end)-x{i}(1:end-1);
+            
+    end
+    
+end
 
 [X,Y] = ndgrid(x{1},x{2});
 
@@ -96,12 +112,6 @@ v0=v0(X,Y);
 % -------------------------------------------------------------------------
 % Sort into structures
 % -------------------------------------------------------------------------
-% dx
-dx{1} = x{1}(2:end)-x{1}(1:end-1);
-dx{2} = x{2}(2)-x{2}(1);
-
-% Sort into structures
-domain.L = L;
 domain.N = N;
 domain.k = k;
 domain.dx = dx;
@@ -115,19 +125,17 @@ option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
 option.grids=finestgrid-coarsestgrid+1;
 
-
 option.discretisation = discretisation;
 % -------------------------------------------------------------------------
 % SOLVE HERE
 % -------------------------------------------------------------------------
 pde.f(1,:)=0;pde.f(end,:)=0;
-% option.numit=10;
-
 
 [pde,domain]=setstructures_test(v0,pde,domain,option);
 
 tic
 [v,r]=mg2(v0,pde,domain,option);
+% option.numit=10;
 % [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
@@ -138,3 +146,4 @@ toc
 % r=pde.f-option.operator(v,pde,domain);
 % disp(rms(r(:)))
 % figure;surf(v-ue)
+
