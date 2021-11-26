@@ -1,14 +1,15 @@
 % Function uses multigrid to solve given pde
-
+%
 % Inputs:
 % v0 - initial guess
 % pde - structure consisting of pde coefficients
-% domain.L - size of domain
+%
 % domain.N - number of points
 % domain.k - spectral wave numbers
 % domain.dx - step size
+%
 % option.num_vcycles - number of vcycles performed
-% option.tol - tolerance set
+% option.tol - tolerance set (solution / iteration)
 % option.Nd - number of iterations on the down cycle
 % option.Nu - number of iterations on the up cycle
 % option.solver - multigrid solver used 'V-cycle' or 'FMG'
@@ -20,8 +21,8 @@
 % option.prolongation - prolongation function
 % option.preconditioner - preconditioner function
 % option.prenumit - number of precondition iterations
-% option.finestgrid - finest grid used given by 2^finestgrid
-% option.coarsestgrid - coarsest grid used given by 2^coarsestgrid
+% option.finestgrid - finest grid used given by 2^finestgrid (or +1)
+% option.coarsestgrid - coarsest grid used given by 2^coarsestgrid (or +1)
 % option.grids - numbers of grids used in mg (counting from coarsest grid)
 %
 % Outputs:
@@ -31,55 +32,11 @@
 % Notes: assumes constant dx dy (for now)
 function [v,r]=mg(v0,pde,domain,option)
 
-% -------------------------------------------------------------------------
-% Set up structures
-% -------------------------------------------------------------------------
-
-% Find dimension of problem
-if isvector(v0)
-    d=1;
-else
-    d=ndims(v0);
-end
-
+% Solution structure here
 solution(1).v=v0;
 
-% Loop to set parameters for each grid level
-
-for i=2:option.grids
-
-    for j=1:d
-        domain(i).L(j)=domain(1).L(j); % L does not change between grids
-        domain(i).N(j)=domain(i-1).N(j)/2;
-        domain(i).k{j}=[domain(i-1).k{j}(1:domain(i-1).N(j)/4);domain(i-1).k{j}(3*domain(i-1).N(j)/4+1);domain(i-1).k{j}(3*domain(i-1).N(j)/4+2:end)];
-        domain(i).dx(j)=domain(1).L(j)/domain(i).N(j);
-        
-        % Ensure zeros(domain(option.grids).N); gives a vector
-        if d==1
-            domain(i).N(2)=1;
-        end
-    end
-
-    % Loop though all pde coefficients and restrict to coarse grid
-    % Note: pde.f is not restricted (no need to in correction scheme)
-    fn=fieldnames(pde);
-    for ii=1:numel(fn)-1 % assume last element is f
-        
-        % Constant coefficient check
-        if length(pde(i-1).(fn{ii}))==1
-            pde(i).(fn{ii})=pde(i-1).(fn{ii});
-        else
-            pde(i).(fn{ii})=option.restriction(pde(i-1).(fn{ii}));
-        end
-
-    end
-    
-    % step down RHS (for FMG only)
-    if option.solver == "FMG"
-        pde(i).f=option.restriction(pde(i-1).f);
-    end
-    
-end
+% Set multigrid structures
+[pde,domain]=setstructures(v0,pde,domain,option);
 
 % -------------------------------------------------------------------------
 % Solution method here
@@ -234,7 +191,7 @@ for p=1:option.num_vcycles
                 solution(i-1).v=solution(i-1).v+option.prolongation(solution(i).v-option.restriction(solution(i-1).v));
                 
         end
-        
+
          % Iterate
          [solution(i-1).v,solution(i-1).r]=option.relaxation(solution(i-1).v,pde(i-1),domain(i-1),option);
                         
