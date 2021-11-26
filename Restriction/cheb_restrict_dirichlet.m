@@ -7,7 +7,7 @@
 % Outputs:
 % vc - coarse grid (ceil(Nx/2+1) * Ny * ... size)
 
-function vc=cheb_restrict(vf)
+function vc=cheb_restrict_dirichlet(vf)
 
 N=size(vf);
 

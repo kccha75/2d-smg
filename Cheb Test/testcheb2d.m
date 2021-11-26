@@ -54,12 +54,12 @@ option.coarsegridsolver=@cheb_fourier_matrixsolve;
 option.relaxation=@MRR;
 
 % Restriction
-x_restrict=@cheb_restrict;
+x_restrict=@cheb_restrict_dirichlet;
 y_restrict=@fourier_restrict_filtered;
 option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
 
 % Prolongation
-x_prolong=@cheb_prolong;
+x_prolong=@cheb_prolong_dirichlet;
 y_prolong=@fourier_prolong_filtered;
 option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
 
@@ -130,8 +130,6 @@ option.discretisation = discretisation;
 % SOLVE HERE
 % -------------------------------------------------------------------------
 pde.f(1,:)=0;pde.f(end,:)=0;
-
-[pde,domain]=setstructures_test(v0,pde,domain,option);
 
 tic
 [v,r]=mg2(v0,pde,domain,option);

@@ -7,7 +7,7 @@
 % Outputs:
 % vc - coarse grid prolongation (Nx*2-1 * Ny * ... size)
 
-function vf=cheb_prolong(vc)
+function vf=cheb_prolong_dirichlet(vc)
 
 N=size(vc);
 N(1)=N(1)-1;
