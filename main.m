@@ -10,7 +10,7 @@ clear;close all;%clc
 % 2 - Cheb
 discretisation=[2 1];
 
-finestgrid = 5;
+finestgrid = 6;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -33,7 +33,7 @@ v0=@(X,Y) 0*X;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=20;
+option.num_vcycles=0;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -43,7 +43,7 @@ option.Nd=1;
 option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='V-cycle';
+option.solver='FMG';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='FAS';

@@ -8,9 +8,9 @@ clear;close all;%clc
 % Discretisation flag for each direction
 % 1 - Fourier
 % 2 - Cheb
-discretisation=[2 1];
+discretisation=[2 2];
 
-finestgrid = 6;
+finestgrid = 7;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -19,10 +19,10 @@ b=@(X,Y) 1;
 c=@(X,Y) 1;
 
 % RHS
-f=@(X,Y) exp(sin(Y)).*(cosh(X).*(2+cos(Y).^2-sin(Y))+cosh(1).*(-1-cos(Y).^2+sin(Y)));
+f=@(X,Y) 1/4*cos(pi*Y/2).*((-4+pi^2)*cosh(1)-(-8+pi^2)*cosh(X));
 
 % Exact solution
-ue=@(X,Y) (cosh(X)-cosh(1)).*exp(sin(Y));
+ue=@(X,Y) (cosh(X)-cosh(1)).*cos(Y*pi/2);
 
 % Initial guess
 v0=@(X,Y) 0*X;
@@ -33,7 +33,7 @@ v0=@(X,Y) 0*X;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=2;
+option.num_vcycles=1;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -46,25 +46,25 @@ option.Nu=1;
 option.solver='V-cycle';
 
 % Multigrid scheme: 'Correction' or 'FAS'
-option.mgscheme='FAS';
+option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
-option.operator=@cheb_fourier_Lu_2d;
-option.coarsegridsolver=@cheb_fourier_matrixsolve;
+option.operator=@cheb_cheb_Lu_2d;
+option.coarsegridsolver=@cheb_cheb_matrixsolve;
 option.relaxation=@MRR;
 
 % Restriction
-x_restrict=@cheb_restrict;
-y_restrict=@fourier_restrict_filtered;
+x_restrict=@cheb_restrict_dirichlet;
+y_restrict=@cheb_restrict_dirichlet;
 option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
 
 % Prolongation
-x_prolong=@cheb_prolong;
-y_prolong=@fourier_prolong_filtered;
+x_prolong=@cheb_prolong_dirichlet;
+y_prolong=@cheb_prolong_dirichlet;
 option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
 
 % Preconditioner
-option.preconditioner=@cheb_fourier_FD_2d;
+option.preconditioner=@cheb_cheb_FD_2d;
 % Number of preconditioned relaxations
 option.prenumit=1;
 
@@ -129,21 +129,13 @@ option.discretisation = discretisation;
 % -------------------------------------------------------------------------
 % SOLVE HERE
 % -------------------------------------------------------------------------
-pde.f(1,:)=0;pde.f(end,:)=0;
-
-% [pde,domain]=setstructures(v0,pde,domain,option);
+pde.f(1,:)=0;pde.f(end,:)=0;pde.f(:,1)=0;pde.f(:,end)=0;
 
 tic
-[v,r]=mg2(v0,pde,domain,option);
-% option.numit=10;
-% [v,r]=MRR(v0,pde,domain,option);
+% [v,r]=mg(v0,pde,domain,option);
+option.numit=3;
+[v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
 
-% surf(pde.f-option.operator(ue,pde,domain))
-
-% v=cheb_fourier_FD_2d(1,pde,domain,1);
-% r=pde.f-option.operator(v,pde,domain);
-% disp(rms(r(:)))
-% figure;surf(v-ue)
-
+disp(rms(r(:)))
