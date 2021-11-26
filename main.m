@@ -10,7 +10,7 @@ clear;close all;%clc
 % 2 - Cheb
 discretisation=[2 1];
 
-finestgrid = 6;
+finestgrid = 5;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -33,7 +33,7 @@ v0=@(X,Y) 0*X;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=2;
+option.num_vcycles=20;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -132,16 +132,8 @@ option.discretisation = discretisation;
 pde.f(1,:)=0;pde.f(end,:)=0;
 
 tic
-[v,r]=mg2(v0,pde,domain,option);
+[v,r]=mg(v0,pde,domain,option);
 % option.numit=10;
 % [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
-
-% surf(pde.f-option.operator(ue,pde,domain))
-
-% v=cheb_fourier_FD_2d(1,pde,domain,1);
-% r=pde.f-option.operator(v,pde,domain);
-% disp(rms(r(:)))
-% figure;surf(v-ue)
-
