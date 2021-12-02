@@ -31,9 +31,10 @@ Lu2=real(ifft(-ky.^2.*fft(v')));
 Lu=a.*Lu1+b.*Lu2'+c.*v;
 
 % Apply BCs
-% Lu(1,:)=v(1,:);
+
+% Dirichlet -1 boundary
 Lu(end,:)=v(end,:);
-
-
+% Neumann +1 boundary
 Lu(1,:)=sum(fct(v).*kx.^2);
+
 end
