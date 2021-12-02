@@ -30,6 +30,9 @@ end
 if length(pde.b)==1
     b=pde.b*ones(domain.N);
 end
+if length(pde.c)==1
+    c=pde.c*ones(domain.N);
+end
 
 % -------------------------------------------------------------------------
 % Cheb au_xx
@@ -40,6 +43,9 @@ Dxx=ifct(chebdiff(fct(eye(Nx,Nx)),2));
 
 % Dirichlet BCs
 Dxx(1,:)=0;Dxx(end,:)=0;Dxx(1,1)=1;Dxx(end,end)=1;
+a(1,:)=1;a(end,:)=1;
+b(1,:)=0;b(end,:)=0;
+c(1,:)=0;c(end,:)=0;
 
 % 2D Matrix
 D2xx=kron(speye(Ny),Dxx);
@@ -55,7 +61,7 @@ Dyy=real(ifft(-ky.^2.*fft(eye(Ny,Ny))));
 D2yy=kron(Dyy,speye(Nx));
 
 % Solve + reshape
-A=a(:).*D2xx+b(:).*D2yy+pde.c(:).*speye(Nx*Ny);
+A=a(:).*D2xx+b(:).*D2yy+c(:).*speye(Nx*Ny);
 
 % Check if Poisson type problem, then solve for mean 0 solution
 if max(abs(pde.c(:)))<1e-12
