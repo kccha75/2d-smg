@@ -22,6 +22,7 @@ Ny=domain.N(2);
 ky=domain.k{2};
 a=pde.a;
 b=pde.b;
+c=pde.c;
 
 % Check if coefficients constant
 if length(pde.a)==1
