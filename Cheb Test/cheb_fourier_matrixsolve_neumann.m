@@ -16,7 +16,7 @@
 % v - solution
 %
 
-function v=cheb_fourier_matrixsolve_neumann(~,pde,domain,~)
+function v=cheb_fourier_matrixsolve_neumann(u,pde,domain,~)
 
 Nx=domain.N(1);
 Ny=domain.N(2);
@@ -44,9 +44,18 @@ end
 % 1D Cheb Dxx diff matrix
 Dxx=ifct(chebdiff(fct(eye(Nx,Nx)),2));
 
-% Dirichlet BCs
-Dxx(1,:)=0;Dxx(end,:)=0;Dxx(end,end)=1;%Dxx(1,:)=sum(fct(eye(Nx,Nx)).*kx.^2);
-Dxx(1,1)=1;
+% BCs
+% Right Dirichlet
+Dxx(1,:)=0;
+Dxx(1,:)=sum(fct(eye(Nx,Nx)).*kx.^2);
+
+% Left Neumann
+Dxx(end,:)=0;Dxx(end,end)=1;
+
+a(1,:)=1;a(end,:)=1;
+b(1,:)=0;b(end,:)=0;
+c(1,:)=0;c(end,:)=0;
+
 % 2D Matrix
 D2xx=kron(speye(Ny),Dxx);
 
@@ -60,9 +69,33 @@ Dyy=real(ifft(-ky.^2.*fft(eye(Ny,Ny))));
 % 2D Matrix
 D2yy=kron(Dyy,speye(Nx));
 
-% Solve + reshape
+% -------------------------------------------------------------------------
+% Spectral matrix
 A=a(:).*D2xx+b(:).*D2yy+c(:).*speye(Nx*Ny);
 
+% -------------------------------------------------------------------------
+% Boundary conditions
+% -------------------------------------------------------------------------
+
+% Left
+
+% A(1:Nx)=
+
+% Right
+
+% A((Ny-1)*Nx+1:Nx*Ny)=
+
+% % Top
+% A(1:Nx:(Ny-1)*Nx+1,:)=sparse(Ny,Nx*Ny); % Zero specific rows to BCs
+% index=sub2ind(size(A),1:Nx:(Ny-1)*Nx+1,1:Nx:(Ny-1)*Nx+1); % Get index
+% A(index)=1; % Set main diag element of rows to 1
+% 
+% % Bottom
+% A(Nx:Nx:Nx*Ny,:)=sparse(Ny,Nx*Ny);
+% index=sub2ind(size(A),Nx:Nx:Nx*Ny,Nx:Nx:Nx*Ny);
+% A(index)=1;
+
+% -------------------------------------------------------------------------
 % Check if Poisson type problem, then solve for mean 0 solution
 if max(abs(pde.c(:)))<1e-12
 
