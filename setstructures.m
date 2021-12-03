@@ -15,22 +15,15 @@
 
 function [pde,domain]=setstructures(v0,pde,domain,option)
 
-% Find dimension of problem
-if isvector(v0)
-    d=1;
-else
-    d=ndims(v0);
-end
-
 % Loop to set parameters for each grid level
 for i=2:option.grids
     
     % Loop dimensions
-    for j=1:d
+    for j=1:domain(1).dim
         
         domain(i).N(j)=ceil(domain(i-1).N(j)/2);
         
-        switch option.discretisation(j)
+        switch domain(1).discretisation(j)
             
             case 1  
             % Fourier
@@ -45,7 +38,7 @@ for i=2:option.grids
         end
         
         % Ensure zeros(domain(option.grids).N); gives a vector
-        if d==1
+        if domain(1).dim==1
             domain(i).N(2)=1;
         end
 
