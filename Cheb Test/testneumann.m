@@ -10,7 +10,7 @@ clear;close all;%clc
 % 2 - Cheb
 discretisation=[2 1];
 
-finestgrid = 5;
+finestgrid = 7;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -64,9 +64,9 @@ y_prolong=@fourier_prolong_filtered;
 option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
 
 % Preconditioner
-option.preconditioner=@jfkjhfjkshdfjksdhjfhsdkjfhjksdhfsdjfhkjdshfjkdshfjks;
+option.preconditioner=@cheb_fourier_FD_neumann;
 % Number of preconditioned relaxations
-option.prenumit=0;
+option.prenumit=1;
 
 % -------------------------------------------------------------------------
 % Set up parameters
@@ -132,8 +132,9 @@ option.discretisation = discretisation;
 pde.f(1,:)=0;pde.f(end,:)=0;
 
 tic
-% [v,r]=mg(v0,pde,domain,option);
-option.numit=1000;
-[v,r]=MRR(v0,pde,domain,option);
+[v,r]=mg(v0,pde,domain,option);
+option.numit=10;
+% [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
+disp(rms(r(:)))

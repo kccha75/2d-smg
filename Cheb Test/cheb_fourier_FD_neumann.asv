@@ -64,19 +64,17 @@ Dxx=spdiags(B,d,Nx,Nx);
 % Dirichlet BCs
 Dxx(1,1)=1;Dxx(end,end)=1;
 
-% Right neumann (at x=-1)
+% Left neumann ...
+
 Dxx(1,1)=-1/dx(1)-1/(dx(1)+dx(2));
 Dxx(1,2)=1/dx(1)+1/dx(2);
 Dxx(1,3)=-dx(1)/(dx(2)*(dx(1)+dx(2)));
 
-% Left neumann (at x=1)
-% Dxx(end,end)=1/dx(end)+1/(dx(end)+dx(end-1));
-% Dxx(end,end-1)=-(dx(end)+dx(end-1))/(dx(end)*dx(end-1));
-% Dxx(end,end-2)=dx(end)/(dx(end-1)*(dx(end)+dx(end-1)));
+% Right neumann ...
 
-a(1,:)=1;a(end,:)=1;
-b(1,:)=0;b(end,:)=0;
-c(1,:)=0;c(end,:)=0;
+Dxx(end,end)=dx(end)+1/(dx(end)+dx(end-1));
+Dxx(end,end-1)=-(dx(end)+dx(end-1))/(dx(end)*dx(end-1));
+Dxx(end,end-2)=
 
 % 2D Matrix
 D2xx=kron(speye(Ny),Dxx);
@@ -108,7 +106,7 @@ Dyy(Ny,1)=(1)/(dy^2);
 D2yy=kron(Dyy,speye(Nx));
 
 % Solve + reshape
-A=a(:).*D2xx+b(:).*D2yy+c(:).*speye(Nx*Ny);
+A=a(:).*D2xx+b(:).*D2yy+pde.c(:).*speye(Nx*Ny);
 
 % Check if Poisson type problem, then solve for mean 0 solution
 if max(abs(pde.c(:)))<1e-12
