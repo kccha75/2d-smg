@@ -16,7 +16,7 @@
 % v - solution
 %
 
-function v=cheb_fourier_matrixsolve_neumann(u,pde,domain,~)
+function v=cheb_fourier_matrixsolve_neumann(~,pde,domain,~)
 
 Nx=domain.N(1);
 Ny=domain.N(2);

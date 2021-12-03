@@ -17,10 +17,8 @@
 
 function v=matrixsolve_2d(~,pde,domain,~) % IN PROGRESS
 
-Nx=domain.N(1);
-Ny=domain.N(2);
-kx=domain.k{1};
-ky=domain.k{2};
+N=domain.N;
+k=domain.k;
 a=pde.a;
 b=pde.b;
 c=pde.c;
@@ -43,21 +41,22 @@ for i=1:length(domain.discretisation)
         case 1 % Fourier
             
             % 1D u_xx
-            Dxx{i}=fourier_Dxx();
+            Dxx{i}=real(ifft(-k{i}.^2.*fft(eye(N(i),N(i)))));
             
             
         case 2 % Cheb
             
             % 1D u_xx
-            Dxx{i}=cheb_Dxx();
+            Dxx{i}=ifct(chebdiff(fct(eye(N(i),N(i))),2));
     
     end
     
     
 end
 
-D2xx=kron(speye(Ny),Dxx{1});
-D2yy=kron(Dxx{2},speye(Nx));
+% 2D matrices
+D2xx=kron(speye(N(2)),Dxx{1});
+D2yy=kron(Dxx{2},speye(N(1)));
 
 % -------------------------------------------------------------------------
 % Spectral matrix
@@ -68,18 +67,18 @@ A=a(:).*D2xx+b(:).*D2yy+c(:).*speye(Nx*Ny);
 % -------------------------------------------------------------------------
 % domain.BC will need to have vectors ... and flags of BC type ...
 
-for i=1:length(domain.BC)
+for i=1:length(domain.BCflag)
     
-    switch domain.BC{i}
+    switch domain.BCflag(i)
         
         
-        case 1 % Fourier
+        case 1 % Dirichlet
             
             
-        case 2 % Dirichlet
+        case 2 % Neumann
             
             
-        case 3 % Neumann
+        case 3 % Fourier
         
         
         
@@ -117,22 +116,5 @@ end
 
 v=A\pde.f(:);
 v=reshape(v,Nx,Ny);
-
-end
-% -------------------------------------------------------------------------
-% Subroutine Cheb u_xx
-% -------------------------------------------------------------------------
-function Dxx=cheb_Dxx()
-
-Dxx=ifct(chebdiff(fct(eye(Nx,Nx)),2));
-
-
-end
-% -------------------------------------------------------------------------
-% Subroutine Fourier u_xx
-% -------------------------------------------------------------------------
-function Dxx=fourier_Dxx()
-
-Dxx=real(ifft(-kx.^2.*fft(eye(Nx,Nx))));
 
 end
