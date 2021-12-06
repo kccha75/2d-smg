@@ -1,4 +1,4 @@
-% Performs multiplication L*u using Cheb-Fourier collocation methods
+% Performs multiplication L*u using Spectral collocation methods
 % L is the spectral operator for the given PDE in the form
 % au_xx+bu_yy+cu=f
 %
@@ -10,7 +10,7 @@
 % domain.k - wave number
 %
 % Ouputs:
-% A - L*u
+% f - L*u
 %
 function f=Lu_2d(v,pde,domain)
 
@@ -21,6 +21,7 @@ b=pde.b;
 c=pde.c;
 
 u=cell(2);
+Lu=u;
 u{1}=v;
 u{2}=v';
 
@@ -42,44 +43,43 @@ for i=1:domain.dim
     
 end
 
-% Compute au_xx+bu_yy+cu
+% Compute au_xx+bu_yy+cu matrix
 f=a.*Lu{1}+b.*Lu{2}'+c.*v;
 
 % -------------------------------------------------------------------------
 % Apply BCs
 % -------------------------------------------------------------------------
+% Index cells for each boundary
+index=cell(length(domain.BCflag),1);
 
-[I,J]=ndgrid(1:N(1),1:N(2));
-index=cell(length(domain.BCflag));
+Nx=domain.N(1);
+Ny=domain.N(2);
 
-% Find indices of boundary
-index{1}=sub2ind(N,I(:,1),J(:,1)); % Left boundary of matrix
-index{2}=sub2ind(N,I(:,end),J(:,end)); % Right boundary of matrix
-index{3}=sub2ind(N,I(1,:),J(1,:)); % Top boundary of matrix
-index{4}=sub2ind(N,I(end,:),J(end,:)); % Bottom boundary of matrix
-
-% Dirichlet -1 boundary
-f(end,:)=v(end,:);
-% Neumann +1 boundary
-f(1,:)=sum(fct(v).*k{1}.^2);
-
+index{1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
+index{2}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
+index{3}=1:Nx; % Left boundary of matrix (y(1))
+index{4}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
 
 for i=1:length(domain.BCflag)
     
     switch domain.BCflag(i)
         
-        
         case 1 % Dirichlet
+            
             f(index{i})=v(index{i});
             
         case 2 % Neumann
             
-            f(index{i})=sum(fct(v).*k{1}.^2);
+            if rem(i,2)~=0 % Is not even?
+                f(index{i})=sum(fct(v).*k{i}.^2); % for x=1
+            else
+                f(index{i})=sum((-1).^k{i}.*fct(v).*k{i}.^2); % for x=-1
+            end
             
             
         case 3 % Fourier
 
-        
+            % do nothing :)
     end
     
 end

@@ -11,18 +11,18 @@ dim=2;
 % Discretisation flag for each dimension
 % 1 - Fourier
 % 2 - Cheb
-discretisation=[2 1];
+discretisation=[1 2];
 
 % Boundary flags (row) (x(1) x(end)) for each dimension
 % 1 - Dirichlet
 % 2 - Neumann
 % 3 - Fourier
-BCflag=[2 1 3 3];
+BCflag=[3 3 2 1];
 
-% Boundary condition values (column vector) (Non-fourier only)
-BC=[0 0];
+% Boundary condition values (column vector) (ignores fourier)
+BC=[0 0 0 0];
 
-finestgrid = 6;
+finestgrid = 5;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -31,10 +31,10 @@ b=@(X,Y) 1;
 c=@(X,Y) 1;
 
 % RHS
-f=@(X,Y) 1/4*exp(sin(Y)).*(cosh(1/2*(-1+X)).*(5+4*cos(Y).^2-4*sin(Y))-4*cosh(1)*(1+cos(Y).^2-sin(Y)));
+f=@(X,Y) 1/4*exp(sin(X)).*(cosh(1/2*(-1+Y)).*(5+4*cos(X).^2-4*sin(X))-4*cosh(1)*(1+cos(X).^2-sin(X)));
 
 % Exact solution
-ue=@(X,Y) (cosh(1/2*(X-1))-cosh(1)).*exp(sin(Y));
+ue=@(X,Y) (cosh(1/2*(Y-1))-cosh(1)).*exp(sin(X));
 
 % Initial guess
 v0=@(X,Y) 0*X;
@@ -61,7 +61,7 @@ option.solver='V-cycle';
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
-option.operator=@cheb_fourier_Lu_neumann;
+option.operator=@Lu_2d;
 option.coarsegridsolver=@cheb_fourier_matrixsolve;
 option.relaxation=@MRR;
 
@@ -144,8 +144,24 @@ option.grids=finestgrid-coarsestgrid+1;
 % -------------------------------------------------------------------------
 % Apply boundary conditions
 % -------------------------------------------------------------------------
-pde.f(end,:)=BC(2); % x=-1 or x(end) DIRICHLET
-pde.f(1,:)=BC(1); % x=1 or x(1) NEUMANN
+
+index=cell(length(domain.BCflag),1);
+
+Nx=domain.N(1);
+Ny=domain.N(2);
+
+index{1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
+index{2}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
+index{3}=1:Nx; % Left boundary of matrix (y(1))
+index{4}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
+
+for i=1:length(domain.BCflag)
+    
+    if domain.BCflag(i)~=3 % If not Fourier, set BCs
+        pde.f(index{i})=BC(:,i);
+    end
+    
+end
 
 % -------------------------------------------------------------------------
 % SOLVE HERE
@@ -153,7 +169,7 @@ pde.f(1,:)=BC(1); % x=1 or x(1) NEUMANN
 
 tic
 % [v,r]=mg(v0,pde,domain,option);
-option.numit=10;
+option.numit=30;
 [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc

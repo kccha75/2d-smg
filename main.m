@@ -10,7 +10,7 @@ clear;close all;%clc
 % 2 - Cheb
 discretisation=[2 1];
 
-finestgrid = 6;
+finestgrid = 4;
 coarsestgrid = 3;
 
 % PDE Parameters
