@@ -22,6 +22,9 @@ for i=2:option.grids
     for j=1:domain(1).dim
         
         domain(i).N(j)=ceil(domain(i-1).N(j)/2);
+        domain(i).dim=domain(1).dim;
+        domain(i).discretisation=domain(1).discretisation;
+        domain(i).BC=domain(1).BC;
         
         switch domain(1).discretisation(j)
             

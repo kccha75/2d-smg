@@ -28,7 +28,7 @@ beta2{2}=@(X,Y) 0;
 % Boundary condition values (column vector) (Non-fourier only)
 % BC=[0 0]; assume they are 0 for now ...
 
-finestgrid = 6;
+finestgrid = 7;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -189,8 +189,8 @@ end
 
 tic
 [v,r]=mg(v0,pde,domain,option);
-option.numit=30;
-[v,r]=MRR(v0,pde,domain,option);
+% option.numit=30;
+% [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
 disp(rms(r(:)))
