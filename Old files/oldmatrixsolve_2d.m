@@ -88,7 +88,7 @@ for i=1:length(domain.discretisation)
                         if mod(j,2)==1 % x(1) boundary
                             Dxx{i}(1,:)=sum(fct(eye(N(i),N(i))).*k{i}.^2);
                         else            % x(end) boundary
-                            Dxx{i}(end,:)=sum(fct(eye(N(i),N(i))).*k{i}.^2);
+                            Dxx{i}(end,:)=sum((-1).^k{i}.*fct(eye(N(i),N(i))).*k{i}.^2);
                         end
                     
                 end

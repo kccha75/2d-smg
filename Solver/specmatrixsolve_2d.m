@@ -15,7 +15,7 @@
 % v - solution
 %
 
-function v=matrixsolve_2d(~,pde,domain,~)
+function v=specmatrixsolve_2d(~,pde,domain,~)
 
 N=domain.N;
 Nx=domain.N(1);
@@ -45,54 +45,55 @@ for i=1:length(domain.discretisation)
             % 1D u_xx
             Dxx{i}=real(ifft(-k{i}.^2.*fft(eye(N(i),N(i)))));
             
-            
         case 2 % Cheb
             
             % 1D u_xx
             Dxx{i}=ifct(chebdiff(fct(eye(N(i),N(i))),2));
             
-% -------------------------------------------------------------------------            
-            % APPLY BCs
-% -------------------------------------------------------------------------  
-
-            for j=2*i:-1:2*i-1
-                
-                switch domain.BCflag(j)
-                    
-                    case 1 % Dirichlet
-                        
-                        if mod(j,2)==1 % x(1) boundary
-                        	Dxx{i}(1,:)=0;
-                            Dxx{i}(1,1)=1;
-                        else % x(end) boundary
-                            Dxx{i}(end,:)=0;
-                            Dxx{i}(end,end)=1;
-                        end
-                        
-                    case 2 % Neumann
-                        
-                        if mod(j,2)==1 % x(1) boundary
-                            Dxx{i}(1,:)=sum(fct(eye(N(i),N(i))).*k{i}.^2);
-                        else            % x(end) boundary
-                            Dxx{i}(end,:)=sum(fct(eye(N(i),N(i))).*k{i}.^2);
-                        end
-                    
-                end
-                
-            end
-    
     end
-    
-    
+            
 end
 
 % -------------------------------------------------------------------------
-% Boundary conditions
+            % BC matrix
 % -------------------------------------------------------------------------
+BC_mat=cell(1,domain.dim);
+a_mat=cell(3,1);
 
-a(1,:)=1;a(end,:)=1;
-b(1,:)=0;b(end,:)=0;
-c(1,:)=0;c(end,:)=0;
+a_mat{1}=a;
+a_mat{2}=b;
+a_mat{3}=c;
+
+index=cell(2,domain.dim); % Left and right, for each dimension
+
+index{1,1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
+index{2,1}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
+
+index{1,2}=1:Nx; % Left boundary of matrix (y(1))
+index{2,2}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
+
+for i=1:domain.dim
+    
+    BC_mat{i}=sparse(zeros(N(i)));
+    
+    if domain.discretisation(i)~=1
+
+        BC_mat{i}(1,:)=domain.BC{2,i}.*sum(fct(eye(N(i),N(i))).*k{i}.^2); % x(1) BC
+        BC_mat{i}(1,1)=BC_mat{i}(1,1)+domain.BC{1,i};
+        
+        BC_mat{i}(end,:)=domain.BC{4,i}.*sum((-1).^k{i}.*fct(eye(N(i),N(i))).*k{i}.^2);% x(end) BC
+        BC_mat{i}(end,end)=BC_mat{i}(end,end)+domain.BC{3,i};
+        
+        for j=1:3
+            a_mat{j}(index{1,i})=0;
+            a_mat{j}(index{2,i})=0;
+        end
+        
+    end
+    
+end
+
+BC2_mat=kron(speye(N(2)),BC_mat{1})+kron(BC_mat{2},speye(N(1)));
 
 % -------------------------------------------------------------------------
 % 2D matrices
@@ -100,7 +101,7 @@ D2xx=kron(speye(N(2)),Dxx{1});
 D2yy=kron(Dxx{2},speye(N(1)));
 
 % Spectral matrix
-A=a(:).*D2xx+b(:).*D2yy+c(:).*speye(Nx*Ny);
+A=a_mat{1}(:).*D2xx+a_mat{2}(:).*D2yy+a_mat{3}(:).*speye(Nx*Ny)+BC2_mat;
 % -------------------------------------------------------------------------
 % Check if Poisson type problem, then solve for mean 0 solution
 if max(abs(pde.c(:)))<1e-12

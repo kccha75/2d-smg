@@ -17,10 +17,10 @@ discretisation=[2 1];
 % in the form a1*u+b1*u=0 (x(1)), a2*u+b2*u=0 (x(end))
 alpha1{1}=@(X,Y) 0;
 beta1{1}=@(X,Y) 1;
-alpha2{1}=@(X,Y) 0;
+alpha2{1}=@(X,Y) 1;
 beta2{1}=@(X,Y) 0; 
 
-alpha1{2}=@(X,Y) 1;
+alpha1{2}=@(X,Y) 0;
 beta1{2}=@(X,Y) 0;
 alpha2{2}=@(X,Y) 0;
 beta2{2}=@(X,Y) 0;
@@ -28,7 +28,7 @@ beta2{2}=@(X,Y) 0;
 % Boundary condition values (column vector) (Non-fourier only)
 % BC=[0 0]; assume they are 0 for now ...
 
-finestgrid = 5;
+finestgrid = 6;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -68,7 +68,7 @@ option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
 option.operator=@Lu_2d;
-option.coarsegridsolver=@cheb_fourier_matrixsolve;
+option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
 % Restriction
@@ -82,7 +82,7 @@ y_prolong=@fourier_prolong_filtered;
 option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
 
 % Preconditioner
-option.preconditioner=@cheb_fourier_FD_neumann;
+option.preconditioner=@FDmatrixsolve_2d;
 % Number of preconditioned relaxations
 option.prenumit=1;
 
@@ -188,9 +188,11 @@ end
 % -------------------------------------------------------------------------
 
 tic
-% [v,r]=mg(v0,pde,domain,option);
+[v,r]=mg(v0,pde,domain,option);
 option.numit=30;
 [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
 disp(rms(r(:)))
+
+domain.BCflag=[2 1 3 3];
