@@ -13,14 +13,20 @@ dim=2;
 % 2 - Cheb
 discretisation=[2 1];
 
-% Boundary flags (row) (x(1) x(end)) for each dimension
-% 1 - Dirichlet
-% 2 - Neumann
-% 3 - Fourier
-BCflag=[2 1 3 3];
+% Boundary conditions for each discretisation
+% in the form a1*u+b1*u=0 (x(1)), a2*u+b2*u=0 (x(end))
+alpha1{1}=@(X,Y) 0;
+beta1{1}=@(X,Y) 1;
+alpha2{1}=@(X,Y) 0;
+beta2{1}=@(X,Y) 0; 
+
+alpha1{2}=@(X,Y) 1;
+beta1{2}=@(X,Y) 0;
+alpha2{2}=@(X,Y) 0;
+beta2{2}=@(X,Y) 0;
 
 % Boundary condition values (column vector) (Non-fourier only)
-BC=[0 0];
+% BC=[0 0]; assume they are 0 for now ...
 
 finestgrid = 5;
 coarsestgrid = 3;
@@ -121,11 +127,24 @@ ue=ue(X,Y);
 v0=v0(X,Y);
 
 % -------------------------------------------------------------------------
+% Set up BCs
+% -------------------------------------------------------------------------
+BC=cell(4,dim);
+
+for i=1:dim
+    
+    BC{1,i}=alpha1{i}(X,Y);
+    BC{2,i}=beta1{i}(X,Y);
+    BC{3,i}=alpha2{i}(X,Y);
+    BC{4,i}=beta2{i}(X,Y);
+    
+end
+
+% -------------------------------------------------------------------------
 % Sort into structures
 % -------------------------------------------------------------------------
 domain.dim = dim;
 domain.discretisation = discretisation;
-domain.BCflag = BCflag;
 domain.BC = BC;
 
 domain.N = N;
@@ -144,21 +163,22 @@ option.grids=finestgrid-coarsestgrid+1;
 % -------------------------------------------------------------------------
 % Apply boundary conditions
 % -------------------------------------------------------------------------
-
-index=cell(length(domain.BCflag),1);
+index=cell(2,domain.dim); % Left and right, for each dimension
 
 Nx=domain.N(1);
 Ny=domain.N(2);
 
-index{1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
-index{2}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
-index{3}=1:Nx; % Left boundary of matrix (y(1))
-index{4}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
+index{1,1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
+index{2,1}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
 
-for i=1:length(domain.BCflag)
+index{1,2}=1:Nx; % Left boundary of matrix (y(1))
+index{2,2}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
+
+for i=1:domain.dim
     
-    if domain.BCflag(i)~=3 % If not Fourier, set BCs
-        pde.f(index{i})=BC(:,i);
+    if domain.discretisation(i)~=1 % If not Fourier, set BCs
+        pde.f(index{1,i})=0; % Assume 0 for now ...
+        pde.f(index{2,i})=0;
     end
     
 end

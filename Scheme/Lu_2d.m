@@ -21,7 +21,7 @@ b=pde.b;
 c=pde.c;
 
 u=cell(2);
-Lu=u;
+Lu=cell(2);
 u{1}=v;
 u{2}=v';
 
@@ -44,42 +44,29 @@ for i=1:domain.dim
 end
 
 % Compute au_xx+bu_yy+cu matrix
-f=a.*Lu{1}+b.*Lu{2}'+c.*v;
+f=a.*Lu{1}+b.*Lu{2}'+c.*u{1};
 
 % -------------------------------------------------------------------------
 % Apply BCs
 % -------------------------------------------------------------------------
-% Index cells for each boundary
-index=cell(length(domain.BCflag),1);
+index=cell(2,domain.dim); % Left and right, for each dimension
 
 Nx=domain.N(1);
 Ny=domain.N(2);
 
-index{1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
-index{2}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
-index{3}=1:Nx; % Left boundary of matrix (y(1))
-index{4}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
+index{1,1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
+index{2,1}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
 
-for i=1:length(domain.BCflag)
+index{1,2}=1:Nx; % Left boundary of matrix (y(1))
+index{2,2}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
+
+for i=1:domain.dim
     
-    switch domain.BCflag(i)
-        
-        case 1 % Dirichlet
-            
-            f(index{i})=v(index{i});
-            
-        case 2 % Neumann
-            
-            if rem(i,2)~=0 % Is not even?
-                f(index{i})=sum(fct(v).*k{i}.^2); % for x=1
-            else
-                f(index{i})=sum((-1).^k{i}.*fct(v).*k{i}.^2); % for x=-1
-            end
-            
-            
-        case 3 % Fourier
-
-            % do nothing :)
+    if domain.discretisation(i)~=1
+        f(index{1,i})=domain.BC{1,i}.*u{i}(index{1,i})+ ...
+            domain.BC{2,i}.*sum(fct(u{i}).*k{i}.^2); % x(1)
+        f(index{2,i})=domain.BC{3,i}.*u{i}(index{2,i})+ ... 
+            domain.BC{4,i}.*sum((-1).^k{i}.*fct(u{i}).*k{i}.^2); % x(end)
     end
     
 end
