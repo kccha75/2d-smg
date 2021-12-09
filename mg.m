@@ -197,9 +197,9 @@ for p=1:option.num_vcycles
                         
     end
 
-    disp(rms(rms(solution(option.initialgrid).r))) % optional display rms residual
+    disp(rms(solution(option.initialgrid).r(:))) % optional display rms residual
     
-    if rms(rms(solution(option.initialgrid).r))<option.tol
+    if rms(solution(option.initialgrid).r(:))<option.tol
         
         fprintf('SMG converged after %d V-cycles!\n',p);
         break

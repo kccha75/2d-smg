@@ -24,7 +24,7 @@ maxit=10000;
 % Initial residual
 r=pde.f-option.operator(v,pde,domain);
 
-if rms(r)<option.tol
+if rms(r(:))<option.tol
     fprintf('Initial guess already below tolerance!\n');
     return
 end
@@ -62,7 +62,7 @@ for i=1:maxit
     end
     
     % Tolerance check
-    if rms(r)<option.tol
+    if rms(r(:))<option.tol
          
         fprintf('Conjugate Gradient Converged after %d iterations!\n',i);
         break
@@ -93,7 +93,7 @@ end
 if i==maxit
     
     fprintf('Conjugate Gradient did not converge after %d iterations!\n',i);
-    fprintf('Residual %d\n',rms(rms(r)));
+    fprintf('Residual %d\n',rms(r(:)));
     
 end
 
