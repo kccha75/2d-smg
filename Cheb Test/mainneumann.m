@@ -14,12 +14,14 @@ dim=2;
 discretisation=[2 1];
 
 % Boundary conditions for each discretisation
-% in the form a1*u+b1*u=0 (x(1)), a2*u+b2*u=0 (x(end))
-alpha1{1}=@(X,Y) 0;
+
+% x(1) a1*u+b1*u'=0 x(end) a2*u+b2*u'=0
+alpha1{1}=@(X,Y) 1;
 beta1{1}=@(X,Y) 1;
 alpha2{1}=@(X,Y) 1;
-beta2{1}=@(X,Y) 0; 
+beta2{1}=@(X,Y) 1; 
 
+% Fourier ... not needed
 alpha1{2}=@(X,Y) 0;
 beta1{2}=@(X,Y) 0;
 alpha2{2}=@(X,Y) 0;
@@ -28,7 +30,7 @@ beta2{2}=@(X,Y) 0;
 % Boundary condition values (column vector) (Non-fourier only)
 % BC=[0 0]; assume they are 0 for now ...
 
-finestgrid = 7;
+finestgrid = 6;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -51,7 +53,7 @@ v0=@(X,Y) 0*X;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=5;
+option.num_vcycles=20;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -72,7 +74,7 @@ option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
 % Restriction
-x_restrict=@cheb_restrict_dirichlet;
+x_restrict=@cheb_restrict;
 y_restrict=@fourier_restrict_filtered;
 option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
 
@@ -110,7 +112,7 @@ for i=1:length(discretisation)
             N(i) = 2^finestgrid+1;
             k{i} = (0:N(i)-1)';
             x{i} = cos(pi*k{i}/(N(i)-1));
-            dx{i} = x{i}(2:end)-x{i}(1:end-1);
+            dx{i} = x{i}(1:end-1)-x{i}(2:end); % due to x(1)=1, x(end)=-1
             
     end
     
