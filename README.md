@@ -1,2 +1,4 @@
 # fourier-smg-2d
-Two-dimensional Cheb or Fourier Spectral Multigrid
+Solves one-dimensional or two-dimensional PDE using Spectral Multigrid
+
+Each direction can be discretised by either Chebyshev or Fourier collocation methods
