@@ -22,9 +22,9 @@ alpha2{1}=@(X,Y) 1;
 beta2{1}=@(X,Y) 1; 
 
 % Fourier ... not needed
-alpha1{2}=@(X,Y) 0;
+alpha1{2}=@(X,Y) 1;
 beta1{2}=@(X,Y) 0;
-alpha2{2}=@(X,Y) 0;
+alpha2{2}=@(X,Y) 1;
 beta2{2}=@(X,Y) 0;
 
 % Boundary condition values (column vector) (Non-fourier only)
@@ -45,7 +45,7 @@ f=@(X,Y) 1/4*exp(sin(Y)).*(cosh(1/2*(-1+X)).*(5+4*cos(Y).^2-4*sin(Y))-4*cosh(1)*
 ue=@(X,Y) (cosh(1/2*(X-1))-cosh(1)).*exp(sin(Y));
 
 % Initial guess
-v0=@(X,Y) 0*X;
+v0=@(X,Y) rand(size(X));
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -53,7 +53,7 @@ v0=@(X,Y) 0*X;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=20;
+option.num_vcycles=5;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -63,7 +63,7 @@ option.Nd=1;
 option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='V-cycle';
+option.solver='FMG';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='Correction';
@@ -196,5 +196,9 @@ tic
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
 disp(rms(r(:)))
-
+tic
+option.numit=5;
+[v,r]=MRR(v0,pde,domain,option);
+disp(rms(r(:)))
+toc
 domain.BCflag=[2 1 3 3];

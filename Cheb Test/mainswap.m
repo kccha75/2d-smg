@@ -13,16 +13,24 @@ dim=2;
 % 2 - Cheb
 discretisation=[1 2];
 
-% Boundary flags (row) (x(1) x(end)) for each dimension
-% 1 - Dirichlet
-% 2 - Neumann
-% 3 - Fourier
-BCflag=[3 3 2 1];
+% Boundary conditions for each discretisation
 
-% Boundary condition values (column vector) (ignores fourier)
-BC=[0 0 0 0];
+% x(1) a1*u+b1*u'=0 x(end) a2*u+b2*u'=0
+alpha1{1}=@(X,Y) 1;
+beta1{1}=@(X,Y) 0;
+alpha2{1}=@(X,Y) 1;
+beta2{1}=@(X,Y) 0; 
 
-finestgrid = 5;
+% Fourier ... not needed
+alpha1{2}=@(X,Y) 1;
+beta1{2}=@(X,Y) 0;
+alpha2{2}=@(X,Y) 1;
+beta2{2}=@(X,Y) 0;
+
+% Boundary condition values (column vector) (Non-fourier only)
+% BC=[0 0]; assume they are 0 for now ...
+
+finestgrid = 6;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -55,28 +63,28 @@ option.Nd=1;
 option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='V-cycle';
+option.solver='FMG';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
 option.operator=@Lu_2d;
-option.coarsegridsolver=@cheb_fourier_matrixsolve;
+option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
 % Restriction
-x_restrict=@cheb_restrict_dirichlet;
-y_restrict=@fourier_restrict_filtered;
+y_restrict=@cheb_restrict;
+x_restrict=@fourier_restrict;
 option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
 
 % Prolongation
-x_prolong=@cheb_prolong;
-y_prolong=@fourier_prolong_filtered;
+y_prolong=@cheb_prolong;
+x_prolong=@fourier_prolong;
 option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
 
 % Preconditioner
-option.preconditioner=@cheb_fourier_FD_neumann;
+option.preconditioner=@FDmatrixsolve_2d;
 % Number of preconditioned relaxations
 option.prenumit=1;
 
@@ -104,7 +112,7 @@ for i=1:length(discretisation)
             N(i) = 2^finestgrid+1;
             k{i} = (0:N(i)-1)';
             x{i} = cos(pi*k{i}/(N(i)-1));
-            dx{i} = x{i}(2:end)-x{i}(1:end-1);
+            dx{i} = x{i}(1:end-1)-x{i}(2:end); % due to x(1)=1, x(end)=-1
             
     end
     
@@ -121,11 +129,24 @@ ue=ue(X,Y);
 v0=v0(X,Y);
 
 % -------------------------------------------------------------------------
+% Set up BCs
+% -------------------------------------------------------------------------
+BC=cell(4,dim);
+
+for i=1:dim
+    
+    BC{1,i}=alpha1{i}(X,Y);
+    BC{2,i}=beta1{i}(X,Y);
+    BC{3,i}=alpha2{i}(X,Y);
+    BC{4,i}=beta2{i}(X,Y);
+    
+end
+
+% -------------------------------------------------------------------------
 % Sort into structures
 % -------------------------------------------------------------------------
 domain.dim = dim;
 domain.discretisation = discretisation;
-domain.BCflag = BCflag;
 domain.BC = BC;
 
 domain.N = N;
@@ -144,21 +165,22 @@ option.grids=finestgrid-coarsestgrid+1;
 % -------------------------------------------------------------------------
 % Apply boundary conditions
 % -------------------------------------------------------------------------
-
-index=cell(length(domain.BCflag),1);
+index=cell(2,domain.dim); % Left and right, for each dimension
 
 Nx=domain.N(1);
 Ny=domain.N(2);
 
-index{1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
-index{2}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
-index{3}=1:Nx; % Left boundary of matrix (y(1))
-index{4}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
+index{1,1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
+index{2,1}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
 
-for i=1:length(domain.BCflag)
+index{1,2}=1:Nx; % Left boundary of matrix (y(1))
+index{2,2}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
+
+for i=1:domain.dim
     
-    if domain.BCflag(i)~=3 % If not Fourier, set BCs
-        pde.f(index{i})=BC(:,i);
+    if domain.discretisation(i)~=1 % If not Fourier, set BCs
+        pde.f(index{1,i})=0; % Assume 0 for now ...
+        pde.f(index{2,i})=0;
     end
     
 end
@@ -167,10 +189,16 @@ end
 % SOLVE HERE
 % -------------------------------------------------------------------------
 
-tic
+% tic
 % [v,r]=mg(v0,pde,domain,option);
-option.numit=30;
-[v,r]=MRR(v0,pde,domain,option);
+% option.numit=30;
+% [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
-toc
+% toc
+% disp(rms(r(:)))
+% tic
+option.numit=50;
+[v,r]=MRR(v0,pde,domain,option);
 disp(rms(r(:)))
+toc
+re=pde.f-Lu_2d(ue,pde,domain);
