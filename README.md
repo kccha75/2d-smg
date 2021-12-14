@@ -40,11 +40,11 @@ Exact solution is given by
 
 <img src="https://latex.codecogs.com/svg.image?u(x,y)=\left(\hbox{cosh}\left(\frac{1}{2}(x-1)\right)-\hbox{cosh}(1)\right)e^{\sin(y)}" title="u(x,y)=\left(\hbox{cosh}\left(\frac{1}{2}(x-1)\right)-\hbox{cosh}(1)\right)e^{\sin(y)}" />
 
-## Numerical solution
+### Numerical solution
 ![Plot of numerical solution](./Images/plot1.png)
 
-## Contours of numerical solution
+### Contours of numerical solution
 ![Contours of numerical solution](./Images/plot2.png)
 
-## Errors (compared to exact solution)
+### Errors (compared to exact solution)
 ![Numerical errors](./Images/plot3.png)
