@@ -28,12 +28,23 @@ Preconditioner, Solver and Scheme can easily be extended for different PDEs and 
 Multigrid, Minimum residual relaxation and conjugate gradient / bicgstab apply to any problems and dimensions provided the correct scheme is inputted. 
 
 ## Example solution
-Poisson's equation with y periodic boundary conditions, x=-1 homogeneous Dirichlet, x=1 homogeneous Neumann
+Poisson's equation in the rectangular domain
 
-Exact solution is given by $$(cosh(1/2*(x-1))-cosh(1)).*exp(sin(x))$$
+<img src="https://latex.codecogs.com/svg.image?x\in&space;[-1,1],\quad&space;y\in[-\pi,\pi]" title="x\in [-1,1],\quad y\in[-\pi,\pi]" />
 
-![Plot of numerical solution](./Images/plot1.pdf)
+* Periodic boundary conditions in <img src="https://latex.codecogs.com/svg.image?y" title="y" />
+* Homogeneous Dirichlet on <img src="https://latex.codecogs.com/svg.image?x=-1" title="x=-1" />
+* Homogeneous Neumann on <img src="https://latex.codecogs.com/svg.image?x=1" title="x=1" /> 
 
-![Contours of numerical solution](./Images/plot2.pdf)
+Exact solution is given by 
 
-![Numerical errors](./Images/plot3.pdf)
+<img src="https://latex.codecogs.com/svg.image?u(x,y)=\left(\hbox{cosh}\left(\frac{1}{2}(x-1)\right)-\hbox{cosh}(1)\right)e^{\sin(y)}" title="u(x,y)=\left(\hbox{cosh}\left(\frac{1}{2}(x-1)\right)-\hbox{cosh}(1)\right)e^{\sin(y)}" />
+
+## Numerical solution
+![Plot of numerical solution](./Images/plot1.png)
+
+## Contours of numerical solution
+![Contours of numerical solution](./Images/plot2.png)
+
+## Errors (compared to exact solution)
+![Numerical errors](./Images/plot3.png)
