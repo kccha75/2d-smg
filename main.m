@@ -5,12 +5,32 @@ clear;close all;%clc
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
 
-% Discretisation flag for each direction
+% Dimension of problem
+dim=2;
+
+% Discretisation flag for each dimension
 % 1 - Fourier
 % 2 - Cheb
 discretisation=[2 1];
 
-finestgrid = 4;
+% Boundary conditions for each discretisation
+
+% x(1) a1*u+b1*u'=0 x(end) a2*u+b2*u'=0
+alpha1{1}=@(X,Y) 0;
+beta1{1}=@(X,Y) 1;
+alpha2{1}=@(X,Y) 1;
+beta2{1}=@(X,Y) 0; 
+
+% Fourier ... not needed
+alpha1{2}=@(X,Y) 1;
+beta1{2}=@(X,Y) 0;
+alpha2{2}=@(X,Y) 1;
+beta2{2}=@(X,Y) 0;
+
+% Boundary condition values (column vector) (Non-fourier only)
+% BC=[0 0]; assume they are 0 for now ...
+
+finestgrid = 6;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -19,13 +39,13 @@ b=@(X,Y) 1;
 c=@(X,Y) 1;
 
 % RHS
-f=@(X,Y) exp(sin(Y)).*(cosh(X).*(2+cos(Y).^2-sin(Y))+cosh(1).*(-1-cos(Y).^2+sin(Y)));
+f=@(X,Y) 1/4*exp(sin(Y)).*(cosh(1/2*(-1+X)).*(5+4*cos(Y).^2-4*sin(Y))-4*cosh(1)*(1+cos(Y).^2-sin(Y)));
 
 % Exact solution
-ue=@(X,Y) (cosh(X)-cosh(1)).*exp(sin(Y));
+ue=@(X,Y) (cosh(1/2*(X-1))-cosh(1)).*exp(sin(Y));
 
 % Initial guess
-v0=@(X,Y) 0*X;
+v0=@(X,Y) rand(size(X));
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -33,7 +53,7 @@ v0=@(X,Y) 0*X;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=0;
+option.num_vcycles=5;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -46,34 +66,33 @@ option.Nu=1;
 option.solver='FMG';
 
 % Multigrid scheme: 'Correction' or 'FAS'
-option.mgscheme='FAS';
+option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
-option.operator=@cheb_fourier_Lu_2d;
-option.coarsegridsolver=@cheb_fourier_matrixsolve;
+option.operator=@Lu_2d;
+option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
 % Restriction
-x_restrict=@cheb_restrict_dirichlet;
+x_restrict=@cheb_restrict;
 y_restrict=@fourier_restrict_filtered;
 option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
 
 % Prolongation
-x_prolong=@cheb_prolong_dirichlet;
+x_prolong=@cheb_prolong;
 y_prolong=@fourier_prolong_filtered;
 option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
 
 % Preconditioner
-option.preconditioner=@cheb_fourier_FD_2d;
+option.preconditioner=@FDmatrixsolve_2d;
 % Number of preconditioned relaxations
 option.prenumit=1;
 
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-d=length(discretisation); % Dimension of problem
-N=zeros(1,d);
-x=cell(size(discretisation));
+N=zeros(1,dim);
+x=cell(1,dim);
 k=x;
 dx=x;
 
@@ -93,7 +112,7 @@ for i=1:length(discretisation)
             N(i) = 2^finestgrid+1;
             k{i} = (0:N(i)-1)';
             x{i} = cos(pi*k{i}/(N(i)-1));
-            dx{i} = x{i}(2:end)-x{i}(1:end-1);
+            dx{i} = x{i}(1:end-1)-x{i}(2:end); % due to x(1)=1, x(end)=-1
             
     end
     
@@ -110,8 +129,26 @@ ue=ue(X,Y);
 v0=v0(X,Y);
 
 % -------------------------------------------------------------------------
+% Set up BCs
+% -------------------------------------------------------------------------
+BC=cell(4,dim);
+
+for i=1:dim
+    
+    BC{1,i}=alpha1{i}(X,Y);
+    BC{2,i}=beta1{i}(X,Y);
+    BC{3,i}=alpha2{i}(X,Y);
+    BC{4,i}=beta2{i}(X,Y);
+    
+end
+
+% -------------------------------------------------------------------------
 % Sort into structures
 % -------------------------------------------------------------------------
+domain.dim = dim;
+domain.discretisation = discretisation;
+domain.BC = BC;
+
 domain.N = N;
 domain.k = k;
 domain.dx = dx;
@@ -125,15 +162,47 @@ option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
 option.grids=finestgrid-coarsestgrid+1;
 
-option.discretisation = discretisation;
+% -------------------------------------------------------------------------
+% Apply boundary conditions
+% -------------------------------------------------------------------------
+index=cell(2,domain.dim); % Left and right, for each dimension
+
+Nx=domain.N(1);
+Ny=domain.N(2);
+
+index{1,1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
+index{2,1}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
+
+index{1,2}=1:Nx; % Left boundary of matrix (y(1))
+index{2,2}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
+
+for i=1:domain.dim
+    
+    if domain.discretisation(i)~=1 % If not Fourier, set BCs
+        pde.f(index{1,i})=0; % Assume 0 for now ...
+        pde.f(index{2,i})=0;
+    end
+    
+end
+
 % -------------------------------------------------------------------------
 % SOLVE HERE
 % -------------------------------------------------------------------------
-pde.f(1,:)=0;pde.f(end,:)=0;
 
 tic
 [v,r]=mg(v0,pde,domain,option);
-% option.numit=10;
+% option.numit=30;
 % [v,r]=MRR(v0,pde,domain,option);
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
+disp(rms(r(:)))
+tic
+option.numit=5;
+[vv,rr]=MRR(v0,pde,domain,option);
+disp(rms(r(:)))
+toc
+
+surf(X,Y,v);xlabel('x');ylabel('y');title('Numerical solution of Poissons equation')
+figure;contour(X,Y,v);xlabel('x');ylabel('y')
+figure;surf(X,Y,abs(v-ue));xlabel('x');ylabel('y');title('Error compared to exact solution')
+
