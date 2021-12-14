@@ -32,8 +32,8 @@ Poisson's equation with y periodic boundary conditions, x=-1 homogeneous Dirichl
 
 Exact solution is given by $$(cosh(1/2*(x-1))-cosh(1)).*exp(sin(x))$$
 
-![Plot of numerical solution](/Images/plot1.pdf)
+![Plot of numerical solution](./Images/plot1.pdf)
 
-![Contours of numerical solution](/Images/plot2.pdf)
+![Contours of numerical solution](./Images/plot2.pdf)
 
-![Numerical errors](/Images/plot3.pdf)
+![Numerical errors](./Images/plot3.pdf)
