@@ -16,8 +16,8 @@ discretisation=[1 2];
 % Boundary conditions for each discretisation
 
 % x(1) a1*u+b1*u'=0 x(end) a2*u+b2*u'=0
-alpha1{1}=@(X,Y) 0;
-beta1{1}=@(X,Y) 1;
+alpha1{1}=@(X,Y) 1;
+beta1{1}=@(X,Y) 0;
 alpha2{1}=@(X,Y) 1;
 beta2{1}=@(X,Y) 0; 
 
@@ -170,11 +170,11 @@ index=cell(2,domain.dim); % Left and right, for each dimension
 Nx=domain.N(1);
 Ny=domain.N(2);
 
-index{1,1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
-index{2,1}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
+index{1,1}=(1:Nx:Nx*(Ny-1)+1)'; % Top boundary of matrix (x(1))
+index{2,1}=(Nx:Nx:Nx*Ny)'; % Bottom boundary of matrix (x(end))
 
-index{1,2}=1:Nx; % Left boundary of matrix (y(1))
-index{2,2}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
+index{1,2}=(1:Nx)'; % Left boundary of matrix (y(1))
+index{2,2}=(Nx*(Ny-1)+1:Nx*Ny)'; % Right boundary of matrix (y(end))
 
 for i=1:domain.dim
     
@@ -194,32 +194,56 @@ h = @(x) .1*(1-tanh((x-.5)/.1).^2)+.1*(1-tanh((x+.5)/.1).^2); % Bump function
 H0=1; % initial height
 
 loops=10;
+
+u=x{1};
+x_old=u;
+kinv=[0;1./(1i*k{2}(2:N))];
+
 for i=1:loops
     
-    y=h(x{1});
-    L=H0-1/N(1)*sum(x{1}); % New L value
-    v=L*x{2}; % To set the new domain to be [0 L] (needs fixing)
-    [U,V]=ndgrid(x{1},v); % new grid (-pi pi) and (0 L)
- 
-    % define new RHS? change to homogeneous BCs?
-    RHS=-h_uu*(1-v/L); pde.f=RHS;
+    y_bc=h(x_old); % assume initially x=u 
+    L=H0-1/(N(1)+1)*(sum(y_bc)+y_bc(1)); % New L value (see boundary integral) extra terms due to Fourier periodic
+   
+    v=L/2*(x{2}+1); % To set the new domain to be [0 L] (needs fixing)
     
-    % Solve laplace's equation
-    [y,r]=MRR(v0,pde,domain,option);
+    % Solve laplace's equation, poisson's after transformation
+    % need to change coefficients a,b
+    % define new RHS, change to homogeneous BCs
+    h_uu=real(ifft(-k{1}.^2.*fft(y_bc)));
+    [U,V]=ndgrid(u,v);
     
-    % find dy/dv
-    dy=ifct(chebdiff(fct(y),1));
+    pde.b=(L/2)^2;
+    pde.f=-h_uu.*(1-V/L);
+    
+    % Solve here
+    option.numit=20;
+    [Y,r]=bicgstab(v0,pde,domain,option);
+    
+    % Transform back to original coordinates
+    y=y_bc.*(1-V/L)+H0*V/L+Y;
+
+    % find dy/dv on domain
+    dY=ifct(chebdiff(fct(Y'),1));
+    dY=dY';
+    dy=dY*2/L-1;
     
     % find new x integrate wrt u
-    new_x=ifft(1./(1i*k).*fft(dy));
+    x_new=real(ifft(kinv.*fft(dy)));
     
+    % look at x on bottom boundary
+    x_new=x_new(index{2,2});
     
     % compare old x with new x, break if tol met, loop otherwise
-    
-    if new_x-old_x < tol
+    if norm(x_new - x_old) < 1e-8
+        fprintf('Linear residual is %d\n',rms(r(:)))
+        fprintf('x diff is %d\n',norm(x_new - x_old))
+        fprintf('Reached tolerance after %d iterations!\n',i)
         break;
     end
     
-    old_x=new_x;
+    fprintf('Linear residual is %d\n',rms(r(:)))
+    fprintf('x diff is %d\n',norm(x_new - x_old))
+    
+    x_old=x_new;
     
 end
