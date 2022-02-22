@@ -166,29 +166,64 @@ end
 % SOLVE HERE
 % -------------------------------------------------------------------------
 
-tic
-% [v,r]=mg(v0,pde,domain,option);
-% option.numit=30;
-% [v,r]=MRR(v0,pde,domain,option);
-[v,r]=bicgstab(v0,pde,domain,option);
-toc
-disp(rms(r(:)))
-tic
-option.numit=5;
-[vv,rr]=MRR(v0,pde,domain,option);
-disp(rms(r(:)))
-toc
+% tic
+% % [v,r]=mg(v0,pde,domain,option);
+% % option.numit=30;
+% % [v,r]=MRR(v0,pde,domain,option);
+% [v,r]=bicgstab(v0,pde,domain,option);
+% toc
+% disp(rms(r(:)))
+% tic
+% option.numit=5;
+% [vv,rr]=MRR(v0,pde,domain,option);
+% disp(rms(r(:)))
+% toc
+% 
+% plot(X,v);xlabel('x');title('Numerical solution of Poissons equation')
 
-plot(X,v);xlabel('x');title('Numerical solution of Poissons equation')
-
+% -------------------------------------------------------------------------
 % Eigenvalue matrices ...
+% -------------------------------------------------------------------------
+
+% Eigenvalues of phi_zz+z/c^2*phi=0
+% with phi(0)=0;phi(1)=0;
+
+A=2*ifct(chebdiff(fct(eye(N,N)),2)); % 2x since change in domain to [0,1]
+A(1,:)=0;A(1,1)=0;
+A(end,:)=0;A(end,end)=0;
+
+X2=(X+1)/2;
+B=-diag(X2);
+B(1,1)=1;B(end,end)=1;
+
+[V,D,flag]=eigs(A,B,65);
+
+eigen=diag(D);
+
+[V2,D2]=eig(A,B);
+
+eigen2=sort(diag(D2),'descend');
+
+% % testing ... [0,1] boundary diff
+% 
+% ff=sin(X2*2*pi);
+% A=2*ifct(chebdiff(fct(eye(N,N)),1));
+% 
+% df=cos(X2*2*pi)*2*pi;
+% dff=A*ff;
+% dfff=2*ifct(chebdiff(fct(ff),1));
+% 
+% plot(X2,df,X2,dff,X2,dfff)
 
 
-D=ifct(chebdiff(fct(eye(N,N)),2));
-D(1,:)=0;D(1,1)=1;
-D(end,:)
-M=-diag(X);
 
-eigs(D,M);
-
-
+% % testing ... [-1,1] boundary diff
+% 
+% ff=sin(X*2*pi);
+% A=ifct(chebdiff(fct(eye(N,N)),1));
+% 
+% df=cos(X*2*pi)*2*pi;
+% dff=A*ff;
+% dfff=ifct(chebdiff(fct(ff),1));
+% 
+% plot(X,df,X,dff,X,dfff)
