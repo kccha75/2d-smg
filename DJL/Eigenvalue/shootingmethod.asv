@@ -1,0 +1,24 @@
+tspan=[0,10];
+
+
+c=linspace(-100,100,1000);
+
+dy=linspace(-100,100,1000);
+
+yend=zeros(
+
+for i=1:1000 % c loop
+    
+    for j=1:1000 % dy loop
+    
+        y0=[0;dy(j)];
+
+        ode=@(z,y) [y(2) ; -z/c(i)^2*y(1)];
+
+        [t,y]=ode45(ode,tspan,y0);
+    
+        yend(i,j)=y(end,1);
+        
+    end
+    
+end
