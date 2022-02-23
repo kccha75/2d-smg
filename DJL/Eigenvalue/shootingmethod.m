@@ -2,9 +2,9 @@ clear;clc;close all
 
 tspan=[0,1];
 
-c=linspace(-10000,10000,100);
+c=linspace(-1,1,1000);
 
-dy=linspace(-10,10,100);
+dy=linspace(-100,100,100);
 
 yend=zeros(length(c),length(dy));
 
@@ -23,7 +23,7 @@ for i=1:length(c) % c loop
     end
     
 end
-surf(c,dy,yend);
+surf(c,dy,yend');
 xlabel('c');ylabel('dy')
 hold on
-surf(c,dy,zeros(length(c),length(dy)));
+surf(c,dy,zeros(length(c),length(dy))');

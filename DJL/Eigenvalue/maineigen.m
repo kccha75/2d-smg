@@ -24,7 +24,7 @@ beta2{1}=@(X,Y) 0;
 % Boundary condition values (column vector) (Non-fourier only)
 % BC=[0 0]; assume they are 0 for now ...
 
-finestgrid = 6;
+finestgrid = 8;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -188,22 +188,22 @@ end
 % Eigenvalues of phi_zz+z/c^2*phi=0
 % with phi(0)=0;phi(1)=0;
 
-A=2*ifct(chebdiff(fct(eye(N,N)),2)); % 2x since change in domain to [0,1]
-A(1,:)=0;A(1,1)=0;
-A(end,:)=0;A(end,end)=0;
-
-X2=(X+1)/2;
-B=-diag(X2);
-B(1,1)=1;B(end,end)=1;
-
-[V,D,flag]=eigs(A,B,65);
-
-eigen=diag(D);
-
-[V2,D2]=eig(A,B);
-
-eigen2=sort(diag(D2),'descend');
-
+% A=2*ifct(chebdiff(fct(eye(N,N)),2)); % 2x since change in domain to [0,1]
+% A(1,:)=0;A(1,1)=0;
+% A(end,:)=0;A(end,end)=0;
+% 
+% X2=(X+1)/2;
+% B=-diag(X2);
+% B(1,1)=1;B(end,end)=1;
+% 
+% [V,D,flag]=eigs(A,B,65);
+% 
+% eigen=diag(D);
+% 
+% [V2,D2]=eig(A,B);
+% 
+% eigen2=sort(diag(D2),'descend');
+% -------------------------------------------------------------------------
 % % testing ... [0,1] boundary diff
 % 
 % ff=sin(X2*2*pi);
@@ -227,3 +227,19 @@ eigen2=sort(diag(D2),'descend');
 % dfff=ifct(chebdiff(fct(ff),1));
 % 
 % plot(X,df,X,dff,X,dfff)
+% -------------------------------------------------------------------------
+
+A=2*ifct(chebdiff(fct(eye(N,N)),2)); % 2x since change in domain to [0,1]
+
+
+X2=(X+1)/2;
+
+
+A=A./X2;
+
+A(1,:)=0;A(1,1)=1;
+A(end,:)=0;A(end,end)=1;
+
+
+eigen=eigs(A,N);
+
