@@ -1,4 +1,4 @@
-clear;clc;close all
+clear;close all
 
 tspan=[0,1];
 

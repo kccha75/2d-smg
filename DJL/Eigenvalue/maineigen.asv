@@ -219,21 +219,18 @@ A=A./X2;
 A(1,:)=0;A(1,1)=1;
 A(end,:)=0;A(end,end)=1;
 
-% [v,eigen]=eig(A,'vector');
 
-% Find smallest 3 eigenvectors
+[v,eigen]=eig(A,'vector');
+
+
 [eigenvector,eigenvalue]=eigs(A,3,'smallestabs');
-eigenvalue=diag(eigenvalue); % turn into vector
+eigenvalue=diag(eigenvalue);
 
-% disregarding the 2 that do not satisfy BCs
 eigenvector=eigenvector(:,3);
 eigenvalue=eigenvalue(3);
 
 plot(X2,eigenvector)
-int_phi2=sum(eigenvector.^2)/length(eigenvector);
-int_phi3=sum(eigenvector.^3)/length(eigenvector);
 
-% differentiate
-deigenvector=2*ifct(chebdiff(fct(eigenvector),1)); % 2x since change in domain to [0,1]
-% phi_z(0)
-phiz0=deigenvector(end);
+int_phi2=sum(eigenvector)/length(eigenvector);
+int_phi3
+phiz0
