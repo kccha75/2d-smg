@@ -24,7 +24,7 @@ beta2{1}=@(X,Y) 0;
 % Boundary condition values (column vector) (Non-fourier only)
 % BC=[0 0]; assume they are 0 for now ...
 
-finestgrid = 8;
+finestgrid = 6;
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -210,9 +210,7 @@ end
 % divided both sides by z first ... to get D2/z*phi=lambda*phi
 A=4*ifct(chebdiff(fct(eye(N,N)),2)); % 2x since change in domain to [0,1] and 2x for 2nd derivative
 
-
 X2=(X+1)/2;
-
 
 A=A./X2;
 
@@ -230,10 +228,23 @@ eigenvector=eigenvector(:,3);
 eigenvalue=eigenvalue(3);
 
 plot(X2,eigenvector)
-int_phi2=sum(eigenvector.^2)/length(eigenvector);
-int_phi3=sum(eigenvector.^3)/length(eigenvector);
+
+% Integrals int(phi^2)
+int_phi2=sum((eigenvector(1:end-1).^2+eigenvector(2:end).^2)/2.*dx{1}/2); %midpoint rule
+int_phi2_spec=clenshaw_curtis(eigenvector.^2)/2; % clenshaw_curtis (divide 2 for domain)
 
 % differentiate
 deigenvector=2*ifct(chebdiff(fct(eigenvector),1)); % 2x since change in domain to [0,1]
+
 % phi_z(0)
 phiz0=deigenvector(end);
+
+% integrals int(phi_z^2) and int(phi_z^3)
+int_phi_z_2=clenshaw_curtis(deigenvector.^2)/2;
+int_phi_z_3=clenshaw_curtis(deigenvector.^3)/2;
+
+% % Test stuff ...
+% f=exp(X2);
+% sum((f(1:end-1).^2+f(2:end).^2)/2.*dx{1}/2) % midpoint rule
+% clenshaw_curtis(f.^2)/2 % clenshaw_curtis
+% exact=3.194528049465325
