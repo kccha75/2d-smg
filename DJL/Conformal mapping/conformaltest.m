@@ -30,7 +30,7 @@ beta2{2}=@(X,Y) 0;
 % Boundary condition values (column vector) (Non-fourier only)
 % BC=[0 0]; assume they are 0 for now ...
 
-finestgrid = 7;
+finestgrid = [9,7];
 coarsestgrid = 3;
 
 % PDE Parameters
@@ -102,14 +102,14 @@ for i=1:length(discretisation)
 
         % Fourier discretisation
         case 1
-            N(i) = 2^finestgrid;
+            N(i) = 2^finestgrid(i);
             k{i} = [0:N(i)/2-1 -N(i)/2 -N(i)/2+1:-1]';
             x{i} = 2*pi*(-N(i)/2:N(i)/2-1)'/N(i);
             dx{i} = x{i}(2)-x{i}(1);
             
        % Chebyshev discretisation
         case 2
-            N(i) = 2^finestgrid+1;
+            N(i) = 2^finestgrid(i)+1;
             k{i} = (0:N(i)-1)';
             x{i} = cos(pi*k{i}/(N(i)-1));
             dx{i} = x{i}(1:end-1)-x{i}(2:end); % due to x(1)=1, x(end)=-1
@@ -197,7 +197,7 @@ loops=10;
 
 u=x{1};
 x_old=u;
-kinv=[0;1./(1i*k{2}(2:N))];
+kinv=[0;1./(1i*k{1}(2:N(1)))];
 
 for i=1:loops
     
@@ -223,7 +223,7 @@ for i=1:loops
     y=y_bc.*(1-V/L)+H0*V/L+Y;
 
     % find dy/dv on domain
-    dY=ifct(chebdiff(fct(Y'),1));
+    dY=2*ifct(chebdiff(fct(Y'),1));
     dY=dY';
     dy=dY*2/L-1;
     
