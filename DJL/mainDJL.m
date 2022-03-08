@@ -2,13 +2,11 @@
 % NEWTON HERE
 % -------------------------------------------------------------------------
 
-v=v0;
-
 % Error guess (keep at 0)
 e0=zeros(N);
 
 tic
-for i=1:20
+for i=1:5
     
     % Calculate Jacobian for linear equation
     jacobian=jacobian_DJL(v,pde,domain);

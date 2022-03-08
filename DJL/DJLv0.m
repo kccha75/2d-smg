@@ -1,5 +1,5 @@
 % -------------------------------------------------------------------------
-% Initialise conditions
+% Initialise conditions BCS etc
 % -------------------------------------------------------------------------
 
 DJLinitialise
@@ -18,12 +18,12 @@ A(1,:)=0;A(1,1)=1;
 A(end,:)=0;A(end,end)=1;
 
 % Find smallest 3 eigenvectors
-[eigenvector,eigenvalue]=eigs(A,3,'smallestabs');
+[eigenvector,eigenvalue]=eigs(A,4,'smallestabs');
 eigenvalue=diag(eigenvalue); % turn into vector
 
 % disregarding the 2 that do not satisfy BCs
-eigenvector=eigenvector(:,3);
-eigenvalue=eigenvalue(3);
+eigenvector=eigenvector(:,4);
+eigenvalue=eigenvalue(4);
 
 global u
 u=1/sqrt(eigenvalue);
@@ -47,19 +47,26 @@ int_phi_z_3=clenshaw_curtis(deigenvector.^3)/2;
 r=3*u/2*int_phi_z_3/int_phi_z_2;
 s=u/2*int_phi_2/int_phi_z_2;
 
-topography=0*x{2};
-
 gamma=u/2*phiz0/int_phi_z_2;
 
 % fKdV solution (after rescaling)
 
 L=10;
-delta=1;
-fKdVsol=delta/2*sech(sqrt(delta/2)*x{2}/pi*L).^2;
-v=6*s/L^2*fKdVsol*eigenvector';
+delta=10;
+fKdVsol=delta/2*sech(sqrt(delta/2)*x{2}/(2*pi)*L).^2;
+v=6*s/(r*L^2)*eigenvector*fKdVsol';
 
-surf(v)
+% surf(v)
 
-DJLinitialise
+% -------------------------------------------------------------------------
+% Initialise PDE parameters
+% -------------------------------------------------------------------------
 
+DJL_pde_initialise
+
+
+% -------------------------------------------------------------------------
+% Solve
+% -------------------------------------------------------------------------
 mainDJL
+surf(v)

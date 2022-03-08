@@ -1,11 +1,9 @@
-% clear;close all;%clc
+clear;close all;%clc
 % -------------------------------------------------------------------------
 % Solve DJL PDE A_xx+A_zz+(z-A)*A/u^2=0 using Fourier Cheb Spectral Multigrid
 % -------------------------------------------------------------------------
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
-
-
 
 % Dimension of problem
 dim=2;
@@ -15,33 +13,8 @@ dim=2;
 % 2 - Cheb
 discretisation=[2 1];
 
-% Boundary conditions for each discretisation (Fourier not used)
-
-% x(1) a1*u+b1*u'=0 x(end) a2*u+b2*u'=0
-alpha1{1}=@(X,Y) 1;
-beta1{1}=@(X,Y) 0;
-alpha2{1}=@(X,Y) 1;
-beta2{1}=@(X,Y) 0; 
-
-% x(1) a1*u+b1*u'=0 x(end) a2*u+b2*u'=0
-alpha1{2}=@(X,Y) 1;
-beta1{2}=@(X,Y) 0;
-alpha2{2}=@(X,Y) 1;
-beta2{2}=@(X,Y) 0;
-
-finestgrid = 6;
+finestgrid = 7;
 coarsestgrid = 3;
-
-% PDE Parameters
-a=@(X,Y) 1;
-b=@(X,Y) 1;
-c=@(X,Y) Y/u^2;
-
-% RHS
-f=@(X,Y) 0*X;
-
-% Initial guess
-v0=@(X,Y) sech(X).^2;
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -116,42 +89,15 @@ end
 
 [X,Y] = ndgrid(x{1},x{2});
 
-a=a(X,Y);
-b=b(X,Y);
-c=c(X,Y);
-f=f(X,Y);
-
-v0=v0(X,Y);
-
-% -------------------------------------------------------------------------
-% Set up BCs
-% -------------------------------------------------------------------------
-BC=cell(4,dim);
-
-for i=1:dim
-    
-    BC{1,i}=alpha1{i}(X,Y);
-    BC{2,i}=beta1{i}(X,Y);
-    BC{3,i}=alpha2{i}(X,Y);
-    BC{4,i}=beta2{i}(X,Y);
-    
-end
-
 % -------------------------------------------------------------------------
 % Sort into structures
 % -------------------------------------------------------------------------
 domain.dim = dim;
 domain.discretisation = discretisation;
-domain.BC = BC;
 
 domain.N = N;
 domain.k = k;
 domain.dx = dx;
-
-pde.a = a;
-pde.b = b;
-pde.c = c;
-pde.f = f;
 
 option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
