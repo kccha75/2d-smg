@@ -1,32 +1,25 @@
 % -------------------------------------------------------------------------
-% Initialise conditions BCS etc
-% -------------------------------------------------------------------------
-
-DJLinitialise
-
-% -------------------------------------------------------------------------
 % Eigenvalues of phi_zz+z*lambda*phi=0
 % -------------------------------------------------------------------------
 % divided both sides by z first ... to get D2/z*phi=lambda*phi
-A=-4*ifct(chebdiff(fct(eye(Nx,Nx)),2)); % 2x since change in domain to [0,1] and 2x for 2nd derivative
+A=-4*ifct(chebdiff(fct(eye(N(2),N(2))),2)); % 2x since change in domain to [0,1] and 2x for 2nd derivative
 
-x2=(x{1}+1)/2;
+x2=(x{2}+1)/2;
 
 A=A./x2;
 
 A(1,:)=0;A(1,1)=1;
 A(end,:)=0;A(end,end)=1;
 
-% Find smallest 3 eigenvectors
-[eigenvector,eigenvalue]=eigs(A,4,'smallestabs');
+% Find smallest eigenvectors
+[eigenvector,eigenvalue]=eigs(A,3,'smallestabs');
 eigenvalue=diag(eigenvalue); % turn into vector
 
 % disregarding the 2 that do not satisfy BCs
-eigenvector=eigenvector(:,4);
-eigenvalue=eigenvalue(4);
+eigenvector=eigenvector(:,3);
+eigenvalue=eigenvalue(3);
 
-global u
-u=1/sqrt(eigenvalue);
+C=1/sqrt(eigenvalue);
 
 % -------------------------------------------------------------------------
 % Calculate integrals (coefficients for fKdV equation)
@@ -44,29 +37,17 @@ phiz0=deigenvector(end);
 int_phi_z_2=clenshaw_curtis(deigenvector.^2)/2;
 int_phi_z_3=clenshaw_curtis(deigenvector.^3)/2;
 
-r=3*u/2*int_phi_z_3/int_phi_z_2;
-s=u/2*int_phi_2/int_phi_z_2;
+r=3*C/2*int_phi_z_3/int_phi_z_2;
+s=C/2*int_phi_2/int_phi_z_2;
 
-gamma=u/2*phiz0/int_phi_z_2;
+gamma=C/2*phiz0/int_phi_z_2;
 
 % fKdV solution (after rescaling)
+delta=(u-C)/epsilon; %v=c+delta*epsilon
 
-L=10;
-delta=10;
-fKdVsol=delta/2*sech(sqrt(delta/2)*x{2}/(2*pi)*L).^2;
-v=6*s/(r*L^2)*eigenvector*fKdVsol';
+XX=x{1}/pi*KAI; % X domain
 
-% surf(v)
+fKdVsol=delta/2*sech(sqrt(delta/2)*XX).^2; % (X from -10 to 10)
+v=epsilon*6*s/(r*L^2)*fKdVsol*eigenvector';
 
-% -------------------------------------------------------------------------
-% Initialise PDE parameters
-% -------------------------------------------------------------------------
-
-DJL_pde_initialise
-
-
-% -------------------------------------------------------------------------
-% Solve
-% -------------------------------------------------------------------------
-mainDJL
 surf(v)

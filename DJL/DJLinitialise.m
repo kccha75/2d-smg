@@ -11,10 +11,24 @@ dim=2;
 % Discretisation flag for each dimension
 % 1 - Fourier
 % 2 - Cheb
-discretisation=[2 1];
+discretisation=[1 2];
 
-finestgrid = 7;
+finestgrid = [6,6];
 coarsestgrid = 3;
+
+% -------------------------------------------------------------------------
+% DJL parameters
+% -------------------------------------------------------------------------
+
+epsilon=0.01;
+alpha=epsilon^2;
+mu=sqrt(epsilon);
+
+L=0.1; % non-dimensionalised length scale of topography
+KAI=50; % non-dimensionalised length scale of kdv
+global u
+u=0.23;
+
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -71,14 +85,14 @@ for i=1:length(discretisation)
 
         % Fourier discretisation
         case 1
-            N(i) = 2^finestgrid;
+            N(i) = 2^finestgrid(i);
             k{i} = [0:N(i)/2-1 -N(i)/2 -N(i)/2+1:-1]';
             x{i} = 2*pi*(-N(i)/2:N(i)/2-1)'/N(i);
             dx{i} = x{i}(2)-x{i}(1);
             
        % Chebyshev discretisation
         case 2
-            N(i) = 2^finestgrid+1;
+            N(i) = 2^finestgrid(i)+1;
             k{i} = (0:N(i)-1)';
             x{i} = cos(pi*k{i}/(N(i)-1));
             dx{i} = x{i}(1:end-1)-x{i}(2:end); % due to x(1)=1, x(end)=-1
@@ -102,26 +116,3 @@ domain.dx = dx;
 option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
 option.grids=finestgrid-coarsestgrid+1;
-
-% -------------------------------------------------------------------------
-% Apply boundary conditions
-% -------------------------------------------------------------------------
-index=cell(2,domain.dim); % Left and right, for each dimension
-
-Nx=domain.N(1);
-Ny=domain.N(2);
-
-index{1,1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
-index{2,1}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
-
-index{1,2}=1:Nx; % Left boundary of matrix (y(1))
-index{2,2}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
-
-for i=1:domain.dim
-    
-    if domain.discretisation(i)~=1 % If not Fourier, set BCs
-        pde.f(index{1,i})=0; % Assume 0 for now ...
-        pde.f(index{2,i})=0;
-    end
-    
-end
