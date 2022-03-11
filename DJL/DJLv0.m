@@ -47,7 +47,6 @@ delta=(u-C)/epsilon; %v=c+delta*epsilon
 
 XX=x{1}/pi*KAI; % X domain
 
-fKdVsol=delta/2*sech(sqrt(delta/2)*XX).^2; % (X from -10 to 10)
-v=epsilon*6*s/(r*L^2)*fKdVsol*eigenvector';
+fKdVsol=delta/2*sech(sqrt(delta/2)*XX).^2; % (X from -KAI to KAI)
+v0=epsilon*6*s/(r*L^2)*fKdVsol*eigenvector';
 
-surf(v)

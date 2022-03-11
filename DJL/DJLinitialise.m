@@ -26,8 +26,9 @@ mu=sqrt(epsilon);
 
 L=0.1; % non-dimensionalised length scale of topography
 KAI=50; % non-dimensionalised length scale of kdv
+        % large enough st fkdv solution goes to 0
 global u
-u=0.23;
+u=0.3;
 
 
 % -------------------------------------------------------------------------

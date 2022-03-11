@@ -3,8 +3,8 @@
 % -------------------------------------------------------------------------
 % PDE Parameters
 
-Lx=KAI*L/mu/pi;
-Ly=1/2;
+Lx=KAI*L/mu/pi; % ?? domain to [-pi pi]
+Ly=1/2; % [0 1] domain to [-1 1]
 
 a=@(X,Y) 1/Lx^2;
 b=@(X,Y) 1/Ly^2;
