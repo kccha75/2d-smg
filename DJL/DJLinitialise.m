@@ -20,15 +20,14 @@ coarsestgrid = 3;
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=0.01;
+epsilon=0.1;
 alpha=epsilon^2;
 mu=sqrt(epsilon);
 
-L=0.1; % non-dimensionalised length scale of topography
-KAI=50; % non-dimensionalised length scale of kdv
-        % large enough st fkdv solution goes to 0
+L=1; % non-dimensionalised length scale of topography
+
 global u
-u=0.3;
+u=0.111;
 
 
 % -------------------------------------------------------------------------
