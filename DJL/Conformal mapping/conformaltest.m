@@ -36,7 +36,7 @@ coarsestgrid = 3;
 % PDE Parameters
 a=@(X,Y) 1/4;
 b=@(X,Y) 1;
-c=@(X,Y) 1;
+c=@(X,Y) 0;
 
 % RHS
 f=@(X,Y) 0*X;
@@ -202,7 +202,7 @@ kinv=[0;1./(1i*k{1}(2:N(1)))];
 for i=1:loops
     
     y_bc=h(x_old); % assume initially x=u 
-    L=H0-1/(N(1)+1)*(sum(y_bc)+y_bc(1)); % New L value (see boundary integral) extra terms due to Fourier periodic
+    L=H0-trapint(y_bc,x{1})/(2*pi); % New L value (see boundary integral) extra terms due to Fourier periodic
    
     v=L/2*(x{2}+1); % To set the new domain to be [0 L] (needs fixing)
     
