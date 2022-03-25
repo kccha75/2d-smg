@@ -1,4 +1,3 @@
-clear;close all;%clc
 % -------------------------------------------------------------------------
 % Solve DJL PDE A_xx+A_zz+(z-A)*A/u^2=0 using Fourier Cheb Spectral Multigrid
 % -------------------------------------------------------------------------
@@ -25,10 +24,6 @@ alpha=epsilon^2;
 mu=sqrt(epsilon);
 
 L=1; % non-dimensionalised length scale of topography
-
-global u
-u=0.111;
-
 
 % -------------------------------------------------------------------------
 % Multigrid Options here

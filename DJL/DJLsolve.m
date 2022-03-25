@@ -8,7 +8,7 @@ v=v0;
 e0=zeros(N);
 
 tic
-for i=1:10
+for i=1:20
     
     % Calculate Jacobian for linear equation
     jacobian=jacobian_DJL(v,pde,domain);
@@ -18,6 +18,7 @@ for i=1:10
     fprintf('Residual Newton = %d\n',r)
     if r<=1e-10
         fprintf('Converged after %d Newton Iterations \n',i-1)
+        converge=true;
         break
     end
     
@@ -34,6 +35,8 @@ end
 if i==20
     
     fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
+
+    converge=false;
     
 end 
 toc
