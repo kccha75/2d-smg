@@ -12,12 +12,12 @@ A(1,:)=0;A(1,1)=1;
 A(end,:)=0;A(end,end)=1;
 
 % Find smallest eigenvectors
-[eigenvector,eigenvalue]=eigs(A,4,'smallestabs');
+[eigenvector,eigenvalue]=eigs(A,3,'smallestabs');
 eigenvalue=diag(eigenvalue); % turn into vector
 
 % disregarding the 2 that do not satisfy BCs
-eigenvector=eigenvector(:,4);
-eigenvalue=eigenvalue(4);
+eigenvector=eigenvector(:,3);
+eigenvalue=eigenvalue(3);
 
 C=1/sqrt(eigenvalue);
 
@@ -45,7 +45,7 @@ gamma=C/2*phiz0/int_phi_z_2;
 % fKdV solution (after rescaling)
 delta_star=delta*L^2/s;
 
-% KAI such that relative to max 10^-6 at fkdv solution ends
+% KAI such that relative to max 10^-10 at fkdv solution ends
 KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-10*delta_star/2));
 
 XX=x{1}/pi*KAI; % X domain

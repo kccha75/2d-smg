@@ -1,17 +1,29 @@
 % Function calculates area approximation using trapezoidal rule
-%
-% area = trapint(f,x)
+% in the x direction only (first component)
 %
 % Inputs:
-% f - vector of function f(x) (column vector)
-% x - vector of x (column vector)
+% f - f(x) (Nx * Ny * ... size)
+% x - vector of x
 %
 % Outputs:
-% area (scalar)
+% I (scalar in x direction)
 
-function area=trapint(f,x)
+function I=trapint(f,x)
+
+N=size(f);
+
+% Make column vector
+x=x(:);
+
+f=f(:,:);
 
 % Formula for trapezoidal rule with summation through matrix multiplcation
-area = 0.5*(x(2:end)-x(1:end-1))'*(f(2:end)+f(1:end-1));
+I = 0.5*(x(2:end)-x(1:end-1))'*(f(2:end,:)+f(1:end-1,:));
+
+% Scalar in x direction
+N(1)=1;
+
+% Reshape to correct size
+I=reshape(I,N);
 
 end
