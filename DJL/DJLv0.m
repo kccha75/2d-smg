@@ -46,8 +46,11 @@ gamma=C/2*phiz0/int_phi_z_2;
 delta_star=delta*L^2/s;
 
 % KAI such that relative to max 10^-10 at fkdv solution ends
-KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-10*delta_star/2));
+% KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-12*delta_star/2));
 
+% KAI such that absolute min 10^-12 at fkdv solution ends
+KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-10));
+% KAI=100;
 XX=x{1}/pi*KAI; % X domain
 
 fKdVsol=delta_star/2*sech(sqrt(delta_star/2)*XX).^2; % (X from -KAI to KAI)

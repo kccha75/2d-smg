@@ -19,7 +19,7 @@ coarsestgrid = 3;
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=0.1;
+epsilon=1;
 alpha=epsilon^2;
 mu=sqrt(epsilon);
 

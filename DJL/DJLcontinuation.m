@@ -1,14 +1,15 @@
-du=0.005;
+du=0.0001;
 
 global u
 U(1)=u;
 V(1)=clenshaw_curtis2(2*trapint(v(1:N(1)/2+1,:).^2,x{1}(1:N(1)/2+1))'/pi*KAI*L/mu);
 
-for ii=1:1
+for ii=1:200
     fprintf('Step %d\n',ii)
     u=u+du;
     
     v0=v;
+    DJL_pde_initialise
     DJLsolve
 
     if converge==false
