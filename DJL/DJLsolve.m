@@ -2,10 +2,12 @@
 % NEWTON HERE
 % -------------------------------------------------------------------------
 
+
+function v=DJLsolve(v0,pde,domain,option)
 v=v0;
 
 % Error guess (keep at 0)
-e0=zeros(N);
+e0=zeros(domain.N);
 
 tic
 for i=1:20

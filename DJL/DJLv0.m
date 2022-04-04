@@ -1,6 +1,19 @@
 % -------------------------------------------------------------------------
 % Eigenvalues of phi_zz+z*lambda*phi=0
 % -------------------------------------------------------------------------
+
+function [v0]=DJLv0(DJL,domain)
+
+N=domain.N;
+x=domain.x;
+u=DJL.u;
+epsilon = DJL.epsilon;
+alpha = DJL.alpha;
+mu = DJL.mu;
+L = DJL.L;
+KAI = DJL.KAI;
+mode=DJL.mode;
+
 % divided both sides by z first ... to get D2/z*phi=lambda*phi
 A=-4*ifct(chebdiff(fct(eye(N(2),N(2))),2)); % 2x since change in domain to [0,1] and 2x for 2nd derivative
 
@@ -12,12 +25,12 @@ A(1,:)=0;A(1,1)=1;
 A(end,:)=0;A(end,end)=1;
 
 % Find smallest eigenvectors
-[eigenvector,eigenvalue]=eigs(A,3,'smallestabs');
+[eigenvector,eigenvalue]=eigs(A,mode+2,'smallestabs');
 eigenvalue=diag(eigenvalue); % turn into vector
 
 % disregarding the 2 that do not satisfy BCs
-eigenvector=eigenvector(:,3);
-eigenvalue=eigenvalue(3);
+eigenvector=eigenvector(:,mode+2);
+eigenvalue=eigenvalue(mode+2);
 
 C=1/sqrt(eigenvalue);
 
@@ -49,10 +62,10 @@ delta_star=delta*L^2/s;
 % KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-12*delta_star/2));
 
 % KAI such that absolute min 10^-12 at fkdv solution ends
-KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-10));
-% KAI=100;
+% KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-10));
+
 XX=x{1}/pi*KAI; % X domain
 
+% fKdVsol for no forcing
 fKdVsol=delta_star/2*sech(sqrt(delta_star/2)*XX).^2; % (X from -KAI to KAI)
 v0=epsilon*6*s/(r*L^2)*fKdVsol*eigenvector';
-

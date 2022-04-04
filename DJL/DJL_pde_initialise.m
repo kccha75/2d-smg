@@ -1,3 +1,12 @@
+function [pde,domain]=DJL_pde_initialise(DJL,domain)
+
+X=domain.X;
+u=DJL.u;
+KAI=DJL.KAI;
+mu=DJL.mu;
+L=DJL.L;
+dim=domain.dim;
+pde.u=DJL.u;
 % -------------------------------------------------------------------------
 % Set up PDE
 % -------------------------------------------------------------------------
@@ -34,10 +43,10 @@ BC=cell(4,dim);
 
 for i=1:dim
     
-    BC{1,i}=alpha1{i}(X,Y);
-    BC{2,i}=beta1{i}(X,Y);
-    BC{3,i}=alpha2{i}(X,Y);
-    BC{4,i}=beta2{i}(X,Y);
+    BC{1,i}=alpha1{i}(X{1},X{2});
+    BC{2,i}=beta1{i}(X{1},X{2});
+    BC{3,i}=alpha2{i}(X{1},X{2});
+    BC{4,i}=beta2{i}(X{1},X{2});
     
 end
 
@@ -46,10 +55,10 @@ end
 % -------------------------------------------------------------------------
 domain.BC = BC;
 
-a=a(X,Y);
-b=b(X,Y);
-c=c(X,Y);
-f=f(X,Y);
+a=a(X{1},X{2});
+b=b(X{1},X{2});
+c=c(X{1},X{2});
+f=f(X{1},X{2});
 
 pde.a = a;
 pde.b = b;

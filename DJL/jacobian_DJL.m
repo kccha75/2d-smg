@@ -16,10 +16,10 @@
 % jacobian.c
 
 function jacobian=jacobian_DJL(v,pde,domain)
-global u
+
 jacobian.a=pde.a;
 jacobian.b=pde.b;
-jacobian.c=pde.c-2*v/u^2;
-jacobian.f=pde.f-(Lu_2d(v,pde,domain)-v.^2/u^2);
+jacobian.c=pde.c-2*v/pde.u^2;
+jacobian.f=pde.f-(Lu_2d(v,pde,domain)-v.^2/pde.u^2);
 
 end

@@ -1,20 +1,39 @@
 clear;close all;%clc
 
-global u
+% -------------------------------------------------------------------------
+% DJL parameters
+% -------------------------------------------------------------------------
+
+epsilon=1;
+alpha=epsilon^2;
+mu=sqrt(epsilon);
+L=1; % non-dimensionalised length scale of topography
 u=0.24;
+KAI=20;
+mode=1;
 
-DJLinitialise
+DJL.mode=1;
+DJL.epsilon = epsilon;
+DJL.alpha = alpha;
+DJL.mu = mu;
+DJL.L  = L;
+DJL.u = u;
 
-DJLv0
+DJL.KAI = 20;
+% -------------------------------------------------------------------------
 
-DJL_pde_initialise
+[domain,option]=DJLinitialise();
 
-DJLsolve
+v0=DJLv0(DJL,domain);
 
-X2=X/pi*KAI*L/mu;
-Y2=(Y+1)/2;
+[pde,domain]=DJL_pde_initialise(DJL,domain);
 
-DJLcontinuation
+v=DJLsolve(v0,pde,domain,option);
+% 
+% X2=X/pi*KAI*L/mu;
+% Y2=(Y+1)/2;
+% 
+% DJLcontinuation
 
 
 % surf(X2,Y2,v0);title('initial guess')

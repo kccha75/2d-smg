@@ -4,6 +4,8 @@
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
 
+function [domain,option]=DJLinitialise()
+
 % Dimension of problem
 dim=2;
 
@@ -14,16 +16,6 @@ discretisation=[1 2];
 
 finestgrid = [6,6];
 coarsestgrid = 3;
-
-% -------------------------------------------------------------------------
-% DJL parameters
-% -------------------------------------------------------------------------
-
-epsilon=1;
-alpha=epsilon^2;
-mu=sqrt(epsilon);
-
-L=1; % non-dimensionalised length scale of topography
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -71,6 +63,7 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 N=zeros(1,dim);
 x=cell(1,dim);
+X=x;
 k=x;
 dx=x;
 
@@ -96,7 +89,7 @@ for i=1:length(discretisation)
     
 end
 
-[X,Y] = ndgrid(x{1},x{2});
+[X{1},X{2}] = ndgrid(x{1},x{2});
 
 % -------------------------------------------------------------------------
 % Sort into structures
@@ -111,3 +104,6 @@ domain.dx = dx;
 option.finestgrid=finestgrid;
 option.coarsestgrid=coarsestgrid;
 option.grids=finestgrid-coarsestgrid+1;
+
+domain.x = x;
+domain.X = X;
