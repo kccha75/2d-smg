@@ -27,6 +27,8 @@ option.num_vcycles=5;
 
 % Solver / solution tolerance
 option.tol=1e-12;
+option.Newtontol=1e-10;
+option.maxit=20;
 
 % Relaxations on the up and down cycle during Multigrid
 option.Nd=1;

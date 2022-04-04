@@ -1,21 +1,19 @@
 % Function performs natural parameter continuation
 %
 % Input:
-% v - initial solution at initial parameter
-% u - initial parameter
+% v
 % s - initial step size
 % ds - step size
 % dsmax
 % dsmin
-% DJL
-% domain
-% option
+% 
 %
 % Output:
 % v - solution vector at each parameter value 
-% u - parameter vector
+% lambda - parameter vector
 
 % function [v,lambda]=naturalparametercontinuation(v,u,du,domain)
+
 
 N=domain.N;
 x=domain.x;

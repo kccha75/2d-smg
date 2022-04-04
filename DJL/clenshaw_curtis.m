@@ -6,7 +6,7 @@
 % Ouputs:
 % I - Integral (scalar in x direction)
 
-function I = clenshaw_curtis2(f)
+function I = clenshaw_curtis(f)
 
 N=size(f);
 M=N(1)-1;

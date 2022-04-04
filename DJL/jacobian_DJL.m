@@ -5,15 +5,17 @@
 % Jacobian is e_xx+e_zz+e(z-2v)/u^2
 %
 % Inputs:
-% pde.a     coefficient in front of A_xx
-% pde.b     coefficient in front of A_zz
-% pde.c     coefficient in front of A
+% pde.a - coefficient in front of A_xx
+% pde.b - coefficient in front of A_zz
+% pde.c - coefficient in front of A
+% pde.u - wave speed
 % domain
 %
 % Ouputs:
 % jacobian.a
 % jacobian.b
 % jacobian.c
+% jacobian.f - nonlinear residual
 
 function jacobian=jacobian_DJL(v,pde,domain)
 

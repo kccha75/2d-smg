@@ -12,25 +12,22 @@ u=0.24;
 KAI=20;
 mode=1;
 
-DJL.mode=1;
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
 DJL.mu = mu;
 DJL.L  = L;
 DJL.u = u;
-
 DJL.KAI = 20;
+DJL.mode=1;
 % -------------------------------------------------------------------------
 
 [domain,option]=DJLinitialise();
 
 v0=DJLv0(DJL,domain);
 
-[pde,domain]=DJL_pde_initialise(DJL,domain);
+[pde,domain,option]=DJL_pde_initialise(DJL,domain,option);
 
-v=DJLsolve(v0,pde,domain,option);
-
-
+[v,i,flag]=NewtonSolve(v0,pde,domain,option);
 
 DJLcontinuation
 

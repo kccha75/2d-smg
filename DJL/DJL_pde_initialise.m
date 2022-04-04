@@ -1,4 +1,4 @@
-function [pde,domain]=DJL_pde_initialise(DJL,domain)
+function [pde,domain,option]=DJL_pde_initialise(DJL,domain,option)
 
 X=domain.X;
 u=DJL.u;
@@ -7,6 +7,7 @@ mu=DJL.mu;
 L=DJL.L;
 dim=domain.dim;
 pde.u=DJL.u;
+
 % -------------------------------------------------------------------------
 % Set up PDE
 % -------------------------------------------------------------------------
@@ -87,3 +88,8 @@ for i=1:domain.dim
     end
     
 end
+
+% -------------------------------------------------------------------------
+% Jacobian
+% -------------------------------------------------------------------------
+option.jacobian=@jacobian_DJL;
