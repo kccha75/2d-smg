@@ -29,7 +29,23 @@ v0=DJLv0(DJL,domain);
 
 [v,i,flag]=NewtonSolve(v0,pde,domain,option);
 
-DJLcontinuation
+% continuation options?
+cont_option.ds=0.001;
+cont_option.ds_min=1e-6;
+cont_option.ds_max=0.05;
+cont_option.maxit= 8;
+cont_option.N_opt=4;
+cont_option.Newtontol=1e-10;
+cont_option.steps=200;
+cont_option.jacobian=@jacobian_DJL;
+
+cont_option.operator=option.operator;
+cont_option.preconditioner=option.preconditioner;
+cont_option.prenumit=option.prenumit;
+cont_option.tol=option.tol;
+
+testDJLcontinuation
+% DJLcontinuation
 
 X2=domain.X{1}/pi*KAI*L/mu;
 Y2=(domain.X{2}+1)/2;
@@ -54,3 +70,6 @@ fprintf('Domain is %d\n',KAI*L/mu)
 
 surf(v0)
 min(v0(:))
+
+
+

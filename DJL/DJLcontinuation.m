@@ -30,7 +30,7 @@ V(1)=clenshaw_curtis(2*trapI(v.^2,dx{1})'/pi*KAI*L/mu);
 
 converge=true;
 
-for ii=1:200
+for ii=1:250
     fprintf('Step %d\n',ii)
     u=u+du;
     DJL.u=u;
