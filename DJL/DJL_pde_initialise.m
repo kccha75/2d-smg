@@ -1,12 +1,13 @@
 function [pde,domain,option]=DJL_pde_initialise(DJL,domain,option)
 
+dim=domain.dim;
 X=domain.X;
-u=DJL.u;
-KAI=DJL.KAI;
+
 mu=DJL.mu;
 L=DJL.L;
-dim=domain.dim;
+u=DJL.u;
 pde.u=DJL.u;
+KAI=DJL.KAI;
 
 % -------------------------------------------------------------------------
 % Set up PDE

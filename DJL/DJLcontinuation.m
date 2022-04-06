@@ -21,9 +21,11 @@ N=domain.N;
 x=domain.x;
 dx=domain.dx;
 
-du=0.0001;
-
+mu=DJL.mu;
+L=DJL.L;
 u=pde.u;
+KAI=DJL.KAI;
+
 
 U(1)=u;
 V(1)=clenshaw_curtis(2*trapI(v.^2,dx{1})'/pi*KAI*L/mu);

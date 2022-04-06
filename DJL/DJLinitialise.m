@@ -4,7 +4,7 @@
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
 
-function [domain,option]=DJLinitialise()
+function [domain,option,cont_option]=DJLinitialise()
 
 % Dimension of problem
 dim=2;
@@ -25,10 +25,10 @@ coarsestgrid = 3;
 % after FMG
 option.num_vcycles=5;
 
-% Solver / solution tolerance
+% Linear solver / Newton tolerance
 option.tol=1e-12;
 option.Newtontol=1e-10;
-option.maxit=20;
+option.Newtonmaxit=20;
 
 % Relaxations on the up and down cycle during Multigrid
 option.Nd=1;
@@ -59,6 +59,28 @@ option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
 option.preconditioner=@FDmatrixsolve_2d;
 % Number of preconditioned relaxations
 option.prenumit=1;
+
+% -------------------------------------------------------------------------
+% Continuation Options here
+% -------------------------------------------------------------------------
+
+% Step size
+cont_option.ds=0.001;
+cont_option.ds_min=1e-6;
+cont_option.ds_max=0.05;
+
+% Iterations
+cont_option.N_opt=4;
+cont_option.Newtonmaxit=8;
+cont_option.Newtontol=1e-10;
+cont_option.steps=200;
+
+cont_option.jacobian=@jacobian_DJL;
+
+cont_option.operator=option.operator;
+cont_option.preconditioner=option.preconditioner;
+cont_option.prenumit=option.prenumit;
+cont_option.tol=option.tol;
 
 % -------------------------------------------------------------------------
 % Set up parameters

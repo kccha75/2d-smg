@@ -5,9 +5,9 @@
 % u - initial parameter
 % s - initial step size
 % ds - step size
-% dsmax
-% dsmin
-% DJL
+% ds_max - max step size
+% ds_min - min step size
+% DJL - DJL structure
 % domain
 % option
 %
@@ -15,35 +15,28 @@
 % v - solution vector at each parameter value 
 % u - parameter vector
 
-% function [v,lambda]=naturalparametercontinuation(v,u,du,domain)
+function [v,u]=naturalparametercontinuation(v,u,DJL,domain,cont_option)
+
 steps=cont_option.steps;
 ds=cont_option.ds;
 ds_min=cont_option.ds_min;
 ds_max=cont_option.ds_max;
 N_opt=cont_option.N_opt;
 
-N=domain.N;
-x=domain.x;
-dx=domain.dx;
-
-u(1)=pde.u;
+u(1)=u;
 
 j=1;
 v(:,:,1)=v;
+dv=0;
 
 while j<steps
     
     % Predictor
-    if j==1
-        v(:,:,j+1)=v(:,:,j);
-    else
-        v(:,:,j+1)=v(:,:,j)+(v(:,:,j)-v(:,:,j-1));
-    end
+    v(:,:,j+1)=v(:,:,j)+dv;
 
     u(j+1)=u(j)+ds;
 
     % Update variable
-    pde.u=u(j+1);
     DJL.u=u(j+1);
 
     % Update pde / jacobian
@@ -84,17 +77,9 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-            % Update variable for next Newton iteration
+            % Update for next Newton iteration
             j=j+1;
-            v(:,:,j+1)=v(:,:,j);
-            u(j+1)=u(j)+ds;
-        
-            % Update variable
-            pde.u=u(j+1);
-            DJL.u=u(j+1);
-
-            % Update pde / jacobian
-            [pde,domain]=DJL_pde_initialise(DJL,domain);
+            dv=(v(:,:,j)-v(:,:,j-1)); % simple dv estimate
 
     elseif flag==0 || max(abs(v(:)))<1e-10 % or 0 solution
         

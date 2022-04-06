@@ -6,26 +6,26 @@
 % pde - pde coefficients
 % domain.N 
 % option.jacobian - jacobian function
+% option.tol - linear residual tolerance
 % option.Newtontol - Newton set tolerance
-% option.maxit - Newton max iterations
+% option.Newtonmaxit - Newton max iterations
 %
 % Outputs:
 %
 % v - solution after Newton iterations
-% i - iterations required
+% numNewtonit - iterations required
 % flag - 1 if converged to tolerance
 %      - 0 if after max iteration did not reach tolerance  
 
-function [v,numNewtonit,flag]=NewtonSolve(v0,pde,domain,option)
+function [v,numNewtonit,flag]=NewtonSolve(v,pde,domain,option)
 
-v=v0;
 flag=0;
 
 % Error guess (keep at 0)
 e0=zeros(domain.N);
 
 tic
-for i=1:option.maxit
+for i=1:option.Newtonmaxit
     
     % Calculate Jacobian for linear equation
     jacobian=option.jacobian(v,pde,domain);
@@ -64,7 +64,7 @@ if rms(jacobian.f(:))>option.Newtontol
 
 elseif flag==0
 
-    fprintf('Converged after %d Newton Iterations \n',option.maxit)
+    fprintf('Converged after %d Newton Iterations \n',i)
     flag=1;
     
 end 
