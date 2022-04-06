@@ -46,7 +46,7 @@ while j<steps
     [v(:,:,j+1),i,flag]=NewtonSolve(v(:,:,j+1),pde,domain,cont_option);
     
     % Converged and not 0 solution
-    if flag==1 && max(abs(v(:)))>=1e-10
+    if flag==1 && max(max(abs(v(:,:,j+1))))>=1e-10
 
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
@@ -81,14 +81,13 @@ while j<steps
             j=j+1;
             dv=(v(:,:,j)-v(:,:,j-1)); % simple dv estimate
 
-    elseif flag==0 || max(abs(v(:)))<1e-10 % or 0 solution
+    elseif flag==0 || max(max(abs(v(:,:,j+1))))<1e-10 % or 0 solution
         
         if flag==0
             fprintf('Did not converge to required tolerance  after %d Newton Iterations at step %d\n',i,j)
         end
-        if max(abs(v(:)))<1e-10
+        if max(max(abs(v(:,:,j+1))))<1e-10
             fprintf('Did not converge to properer solution!!! Converged to 0 after %d Newton Iterations at step %d\n',i,j)
-            pause
         end
         % Halve step size
         ds=ds/2;
