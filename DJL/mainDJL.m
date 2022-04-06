@@ -18,7 +18,7 @@ DJL.mu = mu;
 DJL.L  = L;
 DJL.u = u;
 DJL.KAI = KAI;
-DJL.mode=1;
+DJL.mode=mode;
 
 % -------------------------------------------------------------------------
 % Initialise
