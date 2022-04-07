@@ -45,8 +45,8 @@ for i=1:option.Newtonmaxit
     
     % Solve linear equation
 %     option.tol=1e-3*r;
-    [e,r]=bicgstab(e0,jacobian,domain,option);
-%     [e,r]=mg(e0,jacobian,domain,option);
+%     [e,r]=bicgstab(e0,jacobian,domain,option);
+    [e,r]=mg(e0,jacobian,domain,option);
 
     % Update correction
     v=v+e;

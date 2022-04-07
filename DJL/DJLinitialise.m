@@ -14,7 +14,7 @@ dim=2;
 % 2 - Cheb
 discretisation=[1 2];
 
-finestgrid = [6,6];
+finestgrid = 8;
 coarsestgrid = 3;
 
 % -------------------------------------------------------------------------
@@ -35,7 +35,7 @@ option.Nd=1;
 option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='V-cycle';
+option.solver='FMG';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='Correction';
@@ -46,41 +46,19 @@ option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
 % Restriction
-x_restrict=@cheb_restrict;
-y_restrict=@fourier_restrict_filtered;
+x_restrict=@fourier_restrict_filtered;
+y_restrict=@cheb_restrict;
 option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
 
 % Prolongation
-x_prolong=@cheb_prolong;
-y_prolong=@fourier_prolong_filtered;
+x_prolong=@fourier_prolong_filtered;
+y_prolong=@cheb_prolong;
 option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
 
 % Preconditioner
 option.preconditioner=@FDmatrixsolve_2d;
 % Number of preconditioned relaxations
 option.prenumit=1;
-
-% -------------------------------------------------------------------------
-% Continuation Options here
-% -------------------------------------------------------------------------
-
-% Step size
-cont_option.ds=0.001;
-cont_option.ds_min=1e-6;
-cont_option.ds_max=0.05;
-
-% Iterations
-cont_option.N_opt=4;
-cont_option.Newtonmaxit=8;
-cont_option.Newtontol=1e-10;
-cont_option.steps=200;
-
-cont_option.jacobian=@jacobian_DJL;
-
-cont_option.operator=option.operator;
-cont_option.preconditioner=option.preconditioner;
-cont_option.prenumit=option.prenumit;
-cont_option.tol=option.tol;
 
 % -------------------------------------------------------------------------
 % Set up parameters
@@ -97,14 +75,14 @@ for i=1:length(discretisation)
 
         % Fourier discretisation
         case 1
-            N(i) = 2^finestgrid(i);
+            N(i) = 2^finestgrid;
             k{i} = [0:N(i)/2-1 -N(i)/2 -N(i)/2+1:-1]';
             x{i} = 2*pi*(-N(i)/2:N(i)/2-1)'/N(i);
             dx{i} = x{i}(2)-x{i}(1);
             
        % Chebyshev discretisation
         case 2
-            N(i) = 2^finestgrid(i)+1;
+            N(i) = 2^(finestgrid)+1;
             k{i} = (0:N(i)-1)';
             x{i} = cos(pi*k{i}/(N(i)-1));
             dx{i} = x{i}(1:end-1)-x{i}(2:end); % due to x(1)=1, x(end)=-1
@@ -131,3 +109,27 @@ option.grids=finestgrid-coarsestgrid+1;
 
 domain.x = x;
 domain.X = X;
+
+% -------------------------------------------------------------------------
+% Continuation Options here
+% -------------------------------------------------------------------------
+
+cont_option=option;
+
+% Step size
+cont_option.ds=0.001;
+cont_option.ds_min=1e-6;
+cont_option.ds_max=0.001;
+
+% Iterations
+cont_option.N_opt=4;
+cont_option.Newtonmaxit=8;
+cont_option.Newtontol=1e-9;
+cont_option.steps=200;
+
+cont_option.jacobian=@jacobian_DJL;
+
+cont_option.operator=option.operator;
+cont_option.preconditioner=option.preconditioner;
+cont_option.prenumit=option.prenumit;
+cont_option.tol=option.tol;

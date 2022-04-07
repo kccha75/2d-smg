@@ -32,7 +32,7 @@ dv=0;
 while j<steps
     
     % Predictor
-    v(:,:,j+1)=v(:,:,j)+dv;
+    v(:,:,j+1)=v(:,:,j)+dv*ds;
 
     u(j+1)=u(j)+ds;
 
@@ -57,6 +57,10 @@ while j<steps
             return
         end
 
+        % Update for next Newton iteration
+        dv=(v(:,:,j+1)-v(:,:,j))/ds; % simple dv estimate
+        j=j+1;
+
         % Optimal step length control for next step
             xi=N_opt/i;
             
@@ -77,9 +81,8 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-            % Update for next Newton iteration
-            j=j+1;
-            dv=(v(:,:,j)-v(:,:,j-1)); % simple dv estimate
+
+            
 
     elseif flag==0 || max(max(abs(v(:,:,j+1))))<1e-10 % or 0 solution
         

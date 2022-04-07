@@ -22,7 +22,7 @@
 
 function [v,r]=bicgstab(v,pde,domain,option)
 f=pde.f;
-maxit=1000;
+maxit=100;
 
 % Initial residual
 r=pde.f-option.operator(v,pde,domain);

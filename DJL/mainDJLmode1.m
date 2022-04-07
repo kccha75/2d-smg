@@ -10,7 +10,7 @@ mu=sqrt(epsilon);
 L=1; % non-dimensionalised length scale of topography
 u=0.24;
 KAI=20;
-mode=2;
+mode=1;
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
@@ -21,6 +21,8 @@ DJL.KAI = KAI;
 DJL.mode=mode;
 
 % -------------------------------------------------------------------------
+tic
+
 % Initialise
 [domain,option,cont_option]=DJLinitialise();
 
@@ -36,6 +38,7 @@ v0=DJLv0(DJL,domain);
 % Continuation
 [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
 
+toc
 % -------------------------------------------------------------------------
 % PLOTS
 % -------------------------------------------------------------------------
