@@ -23,7 +23,7 @@ coarsestgrid = 3;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=5;
+option.num_vcycles=2;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;

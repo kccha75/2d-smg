@@ -53,7 +53,7 @@ while j<steps
         % check overturning
         dv=2*ifct(chebdiff(fct(v(:,:,j+1)'),1));
         if max(dv(:))>1
-            fprintf('Overturning detected!')
+            fprintf('Overturning detected!\n')
             return
         end
 
@@ -80,9 +80,6 @@ while j<steps
                 return
             end
             fprintf('New step size to %f\n',ds)
-
-
-            
 
     elseif flag==0 || max(max(abs(v(:,:,j+1))))<1e-10 % or 0 solution
         

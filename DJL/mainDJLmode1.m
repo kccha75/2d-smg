@@ -21,7 +21,7 @@ DJL.KAI = KAI;
 DJL.mode=mode;
 
 % -------------------------------------------------------------------------
-tic
+time=tic;
 
 % Initialise
 [domain,option,cont_option]=DJLinitialise();
@@ -38,7 +38,8 @@ v0=DJLv0(DJL,domain);
 % Continuation
 [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
 
-toc
+dt=toc(time);
+fprintf('Elapsed Time is %f s\n',dt)
 % -------------------------------------------------------------------------
 % PLOTS
 % -------------------------------------------------------------------------
