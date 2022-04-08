@@ -1,4 +1,4 @@
-% Function calculates v0 initial guess for the DJL equation for N^2(e)=e
+% Function calculates v0 initial guess for the DJL equation
 %
 % Inputs:
 % 
@@ -10,6 +10,7 @@
 % DJL.u - given wave speed
 % DJL.KAI - DJL x domain size (sufficiently large)
 % DJL.mode - DJL solution mode
+% DJL.N2 - N^2 function
 %
 % Outputs:
 %
@@ -26,8 +27,10 @@ L = DJL.L;
 KAI = DJL.KAI;
 mode=DJL.mode;
 
+N2=DJL.N2;
+
 % -------------------------------------------------------------------------
-% Eigenvalues of phi_zz+z*lambda*phi=0
+% Eigenvalues of phi_zz+N^2(z)*lambda*phi=0
 % -------------------------------------------------------------------------
 
 % divided both sides by z first to get -D2/z*phi=lambda*phi
@@ -36,7 +39,7 @@ D2z=4*ifct(chebdiff(fct(eye(N(2),N(2))),2)); % 2x since change in domain to [0,1
 % z domain [0,1]
 z=(x{2}+1)/2;
 
-A=-D2z./z;
+A=-D2z./N2(z);
 
 % Boundary conditions
 A(1,:)=0;A(1,1)=1;

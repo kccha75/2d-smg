@@ -40,10 +40,10 @@ while j<steps
     DJL.u=u(j+1);
 
     % Update pde / jacobian
-    [pde,domain]=DJL_pde_initialise(DJL,domain);
+    [pde,domain]=DJLpdeinitialise(DJL,domain);
 
     % Newton iterations
-    [v(:,:,j+1),i,flag]=NewtonSolve(v(:,:,j+1),pde,domain,cont_option);
+    [v(:,:,j+1),i,flag]=NewtonSolve(v(:,:,j+1),DJL,pde,domain,cont_option);
     
     % Converged and not 0 solution
     if flag==1 && max(max(abs(v(:,:,j+1))))>=1e-10

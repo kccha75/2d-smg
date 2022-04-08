@@ -1,4 +1,22 @@
-function [pde,domain,option]=DJL_pde_initialise(DJL,domain,option)
+% Function initialises PDE parameters
+%
+% Inputs:
+%
+% domain.dim - dimension of problem
+% domain.X - ndgrid of x,y
+% DJL.mu
+% DJL.L
+% DJL.u - wave speed
+% DJL.KAI - x domain length
+% DJL.lin - linear operator coefficient in DJL
+%
+% Outputs:
+%
+% pde - structure of pde array coefficients
+% domain.BC - boundary conditions (4x2 cell)
+%
+
+function [pde,domain]=DJLpdeinitialise(DJL,domain)
 
 dim=domain.dim;
 X=domain.X;
@@ -8,6 +26,8 @@ L=DJL.L;
 u=DJL.u;
 pde.u=DJL.u;
 KAI=DJL.KAI;
+
+lin=DJL.lin;
 
 % -------------------------------------------------------------------------
 % Set up PDE
@@ -19,7 +39,7 @@ Ly=1/2; % [0 1] domain to [-1 1]
 
 a=@(X,Y) 1/Lx^2;
 b=@(X,Y) 1/Ly^2;
-c=@(X,Y) (Y+1)/2/u^2;
+c=@(X,Y) lin((Y+1)/2,u);
 
 % RHS
 f=@(X,Y) 0*X;
@@ -90,7 +110,4 @@ for i=1:domain.dim
     
 end
 
-% -------------------------------------------------------------------------
-% Jacobian
-% -------------------------------------------------------------------------
-option.jacobian=@jacobian_DJL;
+end

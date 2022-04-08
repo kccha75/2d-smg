@@ -12,6 +12,18 @@ u=0.1115;
 KAI=20;
 mode=2;
 
+% N^2 function
+N2=@(psi) psi;
+
+% (N^2)'
+N2d=@(psi) 0*psi+1;
+
+% Linear part of N^2 (if exist)
+lin=@(z,u) z/u^2;
+
+% Nonlinear part of N^2
+nonlin=@(z,v,u) -v.^2/u^2;
+
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
 DJL.mu = mu;
@@ -19,6 +31,11 @@ DJL.L  = L;
 DJL.u = u;
 DJL.KAI = KAI;
 DJL.mode=mode;
+
+DJL.N2=N2;
+DJL.N2d=N2d;
+DJL.lin=lin;
+DJL.nonlin=nonlin;
 
 % -------------------------------------------------------------------------
 time=tic;
@@ -30,10 +47,10 @@ time=tic;
 v0=DJLv0(DJL,domain);
 
 % Initialise PDE
-[pde,domain,option]=DJL_pde_initialise(DJL,domain,option);
+[pde,domain]=DJLpdeinitialise(DJL,domain);
 
 % Newton solve
-[v,i,flag]=NewtonSolve(v0,pde,domain,option);
+[v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
 
 % Continuation
 [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);

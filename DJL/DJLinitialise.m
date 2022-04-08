@@ -1,8 +1,10 @@
-% -------------------------------------------------------------------------
-% Solve DJL PDE A_xx+A_zz+(z-A)*A/u^2=0 using Fourier Cheb Spectral Multigrid
-% -------------------------------------------------------------------------
-% INPUT PARAMETERS
-% -------------------------------------------------------------------------
+% Function initialises DJL parameters for A_xx+A_zz+N^2(z-A)*A/u^2=0 
+%
+% Outputs:
+%
+% domain - structure of domain (see below)
+% option - structure of multigrid options (see below)
+% cont_option - structure of continuation options (see below)
 
 function [domain,option,cont_option]=DJLinitialise()
 
@@ -14,7 +16,7 @@ dim=2;
 % 2 - Cheb
 discretisation=[1 2];
 
-finestgrid = 8;
+finestgrid = 6;
 coarsestgrid = 3;
 
 % -------------------------------------------------------------------------
@@ -23,7 +25,7 @@ coarsestgrid = 3;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=2;
+option.num_vcycles=20;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
@@ -111,6 +113,12 @@ domain.x = x;
 domain.X = X;
 
 % -------------------------------------------------------------------------
+% Jacobian option
+% -------------------------------------------------------------------------
+
+option.jacobian=@jacobianDJL;
+
+% -------------------------------------------------------------------------
 % Continuation Options here
 % -------------------------------------------------------------------------
 
@@ -127,9 +135,8 @@ cont_option.Newtonmaxit=8;
 cont_option.Newtontol=1e-9;
 cont_option.steps=200;
 
-cont_option.jacobian=@jacobian_DJL;
-
 cont_option.operator=option.operator;
 cont_option.preconditioner=option.preconditioner;
 cont_option.prenumit=option.prenumit;
 cont_option.tol=option.tol;
+

@@ -3,6 +3,7 @@
 % Inputs:
 % 
 % v0 - initial guess
+% nonlinear - nonlinear functions for the jacobian and nonlinear residual
 % pde - pde coefficients
 % domain.N 
 % option.jacobian - jacobian function
@@ -17,7 +18,7 @@
 % flag - 1 if converged to tolerance
 %      - 0 if after max iteration did not reach tolerance  
 
-function [v,numNewtonit,flag]=NewtonSolve(v,pde,domain,option)
+function [v,numNewtonit,flag]=NewtonSolve(v,nonlinear,pde,domain,option)
 
 flag=0;
 
@@ -28,10 +29,10 @@ tic
 for i=1:option.Newtonmaxit
     
     % Calculate Jacobian for linear equation
-    jacobian=option.jacobian(v,pde,domain);
+    J=option.jacobian(v,nonlinear,pde,domain);
    
     % Check nonlinear residual
-    r=rms(jacobian.f(:));
+    r=rms(J.f(:));
     fprintf('Residual Newton = %d\n',r)
 
     if r<=option.Newtontol
@@ -45,8 +46,8 @@ for i=1:option.Newtonmaxit
     
     % Solve linear equation
 %     option.tol=1e-3*r;
-%     [e,r]=bicgstab(e0,jacobian,domain,option);
-    [e,r]=mg(e0,jacobian,domain,option);
+    [e,r]=bicgstab(e0,J,domain,option);
+%     [e,r]=mg(e0,J,domain,option);
 
     % Update correction
     v=v+e;
@@ -55,9 +56,9 @@ end
 
 % If converged final loop ...
 % Calculate Jacobian for linear equation
-jacobian=option.jacobian(v,pde,domain);
+J=option.jacobian(v,nonlinear,pde,domain);
 
-if rms(jacobian.f(:))>option.Newtontol
+if rms(J.f(:))>option.Newtontol
     
     fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
     flag=0;

@@ -8,21 +8,21 @@ epsilon=1;
 alpha=epsilon^2;
 mu=sqrt(epsilon);
 L=1; % non-dimensionalised length scale of topography
-u=0.24;
+u=0.32; %C=0.3057
 KAI=20;
 mode=1;
 
 % N^2 function
-N2=@(psi) psi;
+N2=@(psi) 1-0.1*sech(psi).^2;
 
 % (N^2)'
-N2d=@(psi) 0*psi+1;
+N2d=@(psi) 0.2*sech(psi).^2.*tanh(psi);
 
 % Linear part of N^2 (if exist)
-lin=@(z,u) z/u^2;
+lin=@(z,u) 0*z;
 
 % Nonlinear part of N^2
-nonlin=@(z,v,u) -v.^2/u^2;
+nonlin=@(z,v,u) 1-0.1*(sech(z-v).^2.*v)/u^2;
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
@@ -51,6 +51,13 @@ v0=DJLv0(DJL,domain);
 
 % Newton solve
 [v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
+
+if flag ==0
+
+    fprintf('no good ...\n')
+    return
+
+end
 
 % Continuation
 [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
