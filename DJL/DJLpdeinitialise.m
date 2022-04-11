@@ -8,7 +8,6 @@
 % DJL.L
 % DJL.u - wave speed
 % DJL.KAI - x domain length
-% DJL.lin - linear operator coefficient in DJL
 %
 % Outputs:
 %
@@ -27,7 +26,6 @@ u=DJL.u;
 pde.u=DJL.u;
 KAI=DJL.KAI;
 
-lin=DJL.lin;
 
 % -------------------------------------------------------------------------
 % Set up PDE
@@ -39,7 +37,7 @@ Ly=1/2; % [0 1] domain to [-1 1]
 
 a=@(X,Y) 1/Lx^2;
 b=@(X,Y) 1/Ly^2;
-c=@(X,Y) lin((Y+1)/2,u);
+c=@(X,Y) 0*X;
 
 % RHS
 f=@(X,Y) 0*X;

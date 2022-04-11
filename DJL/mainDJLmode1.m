@@ -9,7 +9,6 @@ alpha=epsilon^2;
 mu=sqrt(epsilon);
 L=1; % non-dimensionalised length scale of topography
 u=0.24;
-KAI=20;
 mode=1;
 
 % N^2 function
@@ -18,24 +17,15 @@ N2=@(psi) psi;
 % (N^2)'
 N2d=@(psi) 0*psi+1;
 
-% Linear part of N^2 (if exist)
-lin=@(z,u) z/u^2;
-
-% Nonlinear part of N^2
-nonlin=@(z,v,u) -v.^2/u^2;
-
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
 DJL.mu = mu;
 DJL.L  = L;
 DJL.u = u;
-DJL.KAI = KAI;
 DJL.mode=mode;
 
 DJL.N2=N2;
 DJL.N2d=N2d;
-DJL.lin=lin;
-DJL.nonlin=nonlin;
 
 % -------------------------------------------------------------------------
 time=tic;
@@ -44,13 +34,20 @@ time=tic;
 [domain,option,cont_option]=DJLinitialise();
 
 % Initial guess
-v0=DJLv0(DJL,domain);
+[v0,DJL]=DJLv0(DJL,domain);
 
 % Initialise PDE
 [pde,domain]=DJLpdeinitialise(DJL,domain);
 
 % Newton solve
 [v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
+
+if flag ==0
+
+    fprintf('Initial Newton did not converge ...\n')
+    return
+
+end
 
 % Continuation
 [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
@@ -60,6 +57,8 @@ fprintf('Elapsed Time is %f s\n',dt)
 % -------------------------------------------------------------------------
 % PLOTS
 % -------------------------------------------------------------------------
+KAI=DJL.KAI;
+
 X2=domain.X{1}/pi*KAI*L/mu;
 Y2=(domain.X{2}+1)/2;
 

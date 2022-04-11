@@ -7,7 +7,6 @@
 % Inputs:
 % DJL.N2 - N^2 function
 % DJL.N2d - dN^2 function
-% DJL.nonlin - nonlinear component of DJL
 % pde.a - coefficient in front of A_xx
 % pde.b - coefficient in front of A_zz
 % pde.c - coefficient in front of A
@@ -24,7 +23,6 @@ function J=jacobianDJL(v,DJL,pde,domain)
 
 N2=DJL.N2;
 N2d=DJL.N2d;
-nonlin=DJL.nonlin;
 
 u=pde.u;
 
@@ -33,6 +31,6 @@ z=(domain.X{2}+1)/2;
 J.a=pde.a;
 J.b=pde.b;
 J.c=(N2(z-v)-v.*N2d(z-v))/u^2;
-J.f=pde.f-(Lu_2d(v,pde,domain)+nonlin(z,v,u)); % nonlinear residual
+J.f=pde.f-(Lu_2d(v,pde,domain)+N2(z-v).*v/u^2); % nonlinear residual
 
 end

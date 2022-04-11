@@ -96,6 +96,8 @@ while j<steps
         % Break loop if minimum step size exceeded
         if ds<=ds_min
             fprintf('Minimum step length of %f exceeded, breaking loop\n',ds_min)
+            v(:,:,end)=[];
+            u(end)=[];
             return % end function
         end
 

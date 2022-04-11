@@ -8,15 +8,15 @@
 % DJL.epsilon - perturbation 
 % DJL.L - topography length scale
 % DJL.u - given wave speed
-% DJL.KAI - DJL x domain size (sufficiently large)
 % DJL.mode - DJL solution mode
 % DJL.N2 - N^2 function
 %
 % Outputs:
 %
 % v0 - DJL perturbation solution
+% DJL.KAI -DJL x domain size (sufficiently large)
 
-function v0=DJLv0(DJL,domain)
+function [v0,DJL]=DJLv0(DJL,domain)
 
 N=domain.N;
 x=domain.x;
@@ -24,7 +24,6 @@ x=domain.x;
 u=DJL.u;
 epsilon = DJL.epsilon;
 L = DJL.L;
-KAI = DJL.KAI;
 mode=DJL.mode;
 
 N2=DJL.N2;
@@ -46,11 +45,14 @@ A(1,:)=0;A(1,1)=1;
 A(end,:)=0;A(end,end)=1;
 
 % Find smallest eigenvectors
-[phi,lambda]=eigs(A,mode+2,'smallestabs');
+[phi,lambda]=eig(A);
 lambda=diag(lambda); % turn into vector
 
+% Sort
+[lambda,index]=sort(lambda);
+
 % disregarding the last 2 that do not satisfy BCs
-phi=phi(:,mode+2);
+phi=phi(:,index(mode+2));
 lambda=lambda(mode+2);
 
 % lambda=1/C^2
@@ -83,7 +85,7 @@ gamma=C/2*phiz0/int_phi_z_2;
 delta_star=delta*L^2/s;
 
 % KAI such that relative to max 10^-10 at fkdv solution ends
-% KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-12*delta_star/2));
+KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-12*delta_star/2));
 
 % KAI such that absolute min 10^-12 at fkdv solution ends
 % KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-10));
@@ -93,5 +95,7 @@ X=x{1}/pi*KAI; % X domain
 % fKdVsol for no forcing
 fKdVsol=delta_star/2*sech(sqrt(delta_star/2)*X).^2; % (X from -KAI to KAI)
 v0=epsilon*6*s/(r*L^2)*fKdVsol*phi';
+
+DJL.KAI=KAI;
 
 end
