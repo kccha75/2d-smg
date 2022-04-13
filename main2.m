@@ -1,4 +1,7 @@
 clear;close all;%clc
+%
+% Not so simple main for Cheb Fourier SMG, uses nonhomogenous BCs
+% 
 % -------------------------------------------------------------------------
 % Solve PDE au_xx + bu_yy + cu = f using Fourier Cheb Spectral Multigrid
 % -------------------------------------------------------------------------
@@ -13,23 +16,28 @@ dim=2;
 % 2 - Cheb
 discretisation=[2 1];
 
-% Boundary conditions for each discretisation
+% Boundary conditions for each discretisation (if fourier not used)
+% x(1) a11*u+b11*u'=rhs11 
+alpha1{1}=@(y) 0;
+beta1{1}=@(y) 1;
+BCRHS1{1}=@(y) 1+1/2*exp(sin(y))*sinh(1);
 
-% x(1) a1*u+b1*u'=0 x(end) a2*u+b2*u'=0
-alpha1{1}=@(X,Y) 0;
-beta1{1}=@(X,Y) 1;
-alpha2{1}=@(X,Y) 1;
-beta2{1}=@(X,Y) 0; 
+% x(end) a21*u+b21*u'= rhs21
+alpha2{1}=@(y) 1;
+beta2{1}=@(y) 0; 
+BCRHS2{1}=@(y) -1+exp(sin(y)).*(1-cosh(1));
 
-% Fourier ... not needed
-alpha1{2}=@(X,Y) 1;
-beta1{2}=@(X,Y) 0;
-alpha2{2}=@(X,Y) 1;
-beta2{2}=@(X,Y) 0;
+% y(1) a12*u+b12*u'=rhs12 
+alpha1{2}=@(x) -1;
+beta1{2}=@(x) -1;
+BCRHS1{2}=@(x) -23121;
 
-% Boundary condition values (column vector) (Non-fourier only)
-% BC=[0 0]; assume they are 0 for now ...
+% y(end) a22*u+b22*u'= rhs22
+alpha2{2}=@(x) -1;
+beta2{2}=@(x) -1;
+BCRHS2{2}=@(x) -2311;
 
+% Grid size
 finestgrid = 6;
 coarsestgrid = 3;
 
@@ -39,10 +47,10 @@ b=@(X,Y) 1;
 c=@(X,Y) 1;
 
 % RHS
-f=@(X,Y) 1/4*exp(sin(Y)).*(cosh(1/2*(-1+X)).*(5+4*cos(Y).^2-4*sin(Y))-4*cosh(1)*(1+cos(Y).^2-sin(Y)));
+f=@(X,Y) X+exp(sin(Y)).*cosh(1).*(-1-cos(Y).^2+sin(Y))-1/4*exp(sin(Y)).*cosh((1+X)/2).*(-5-4*cos(Y).^2+4*sin(Y));
 
 % Exact solution
-ue=@(X,Y) (cosh(1/2*(X-1))-cosh(1)).*exp(sin(Y));
+ue=@(X,Y) (cosh(1/2*(-X-1))-cosh(1)).*exp(sin(Y))+X;
 
 % Initial guess
 v0=@(X,Y) rand(size(X));
@@ -93,8 +101,8 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 N=zeros(1,dim);
 x=cell(1,dim);
-k=x;
-dx=x;
+k=cell(1,dim);
+dx=cell(1,dim);
 
 for i=1:length(discretisation)
     
@@ -132,13 +140,19 @@ v0=v0(X,Y);
 % Set up BCs
 % -------------------------------------------------------------------------
 BC=cell(4,dim);
+BCRHS=cell(2,dim);
+
+y=fliplr(x);
 
 for i=1:dim
     
-    BC{1,i}=alpha1{i}(X,Y);
-    BC{2,i}=beta1{i}(X,Y);
-    BC{3,i}=alpha2{i}(X,Y);
-    BC{4,i}=beta2{i}(X,Y);
+    BC{1,i}=alpha1{i}(x{i});
+    BC{2,i}=beta1{i}(x{i});
+    BC{3,i}=alpha2{i}(x{i});
+    BC{4,i}=beta2{i}(x{i});
+
+    BCRHS{1,i}=BCRHS1{i}(y{i});
+    BCRHS{2,i}=BCRHS2{i}(y{i});
     
 end
 
@@ -179,11 +193,12 @@ index{2,2}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
 for i=1:domain.dim
     
     if domain.discretisation(i)~=1 % If not Fourier, set BCs
-        pde.f(index{1,i})=0; % Assume 0 for now ...
-        pde.f(index{2,i})=0;
+        pde.f(index{1,i})=BCRHS{1,i}; % x(1) boundary
+        pde.f(index{2,i})=BCRHS{2,i}; % x(end) boundary
     end
     
 end
+
 
 % -------------------------------------------------------------------------
 % SOLVE HERE
@@ -201,4 +216,8 @@ option.numit=5;
 [vv,rr]=MRR(v0,pde,domain,option);
 disp(rms(r(:)))
 toc
-domain.BCflag=[2 1 3 3];
+
+surf(X,Y,v);xlabel('x');ylabel('y');title('Numerical solution of Poissons equation')
+figure;contour(X,Y,v);xlabel('x');ylabel('y')
+figure;surf(X,Y,abs(v-ue));xlabel('x');ylabel('y');title('Error compared to exact solution')
+

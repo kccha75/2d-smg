@@ -117,21 +117,22 @@ for i=1:domain.dim
     if domain.discretisation(i)~=1
         
         % Right neumann x(1) BC
-        BC_mat{i}(1,1)=-1/dx{i}(1)-1/(dx{i}(1)+dx{i}(2));
-        BC_mat{i}(1,2)=1/dx{i}(1)+1/dx{i}(2);
-        BC_mat{i}(1,3)=-dx{i}(1)/(dx{i}(2)*(dx{i}(1)+dx{i}(2)));
-        BC_mat{i}(1,:)=-BC_mat{i}(1,:).*domain.BC{2,i}; % BC coefficient
-        % -ve since x(1)=1 (actually backward difference)
+        BC_mat{i}(1,1)=1/dx{i}(1)+1/(dx{i}(1)+dx{i}(2));
+        BC_mat{i}(1,2)=-1/dx{i}(1)-1/dx{i}(2);
+        BC_mat{i}(1,3)=dx{i}(1)/(dx{i}(2)*(dx{i}(1)+dx{i}(2)));
+        BC_mat{i}(1,:)=BC_mat{i}(1,:).*domain.BC{2,i}; % BC coefficient
+        % (backward difference scheme i,i-1,i-2)
 
         % Dirichlet 
         BC_mat{i}(1,1)=BC_mat{i}(1,1)+domain.BC{1,i};
         
         % Left neumann x(end) BC
-        BC_mat{i}(end,end)=1/dx{i}(end)+1/(dx{i}(end)+dx{i}(end-1));
-        BC_mat{i}(end,end-1)=-1/dx{i}(end)-1/dx{i}(end-1);
-        BC_mat{i}(end,end-2)=dx{i}(end)/(dx{i}(end-1)*(dx{i}(end)+dx{i}(end-1)));
+        BC_mat{i}(end,end)=-1/dx{i}(end)-1/(dx{i}(end)+dx{i}(end-1));
+        BC_mat{i}(end,end-1)=1/dx{i}(end)+1/dx{i}(end-1);
+        BC_mat{i}(end,end-2)=-dx{i}(end)/(dx{i}(end-1)*(dx{i}(end)+dx{i}(end-1)));
         BC_mat{i}(end,:)=BC_mat{i}(end,:).*domain.BC{4,i}; % BC coefficient
-        
+        % (forward difference scheme i,i+1,i+2)
+
         % Dirichlet 
         BC_mat{i}(end,end)=BC_mat{i}(end,end)+domain.BC{3,i};
         

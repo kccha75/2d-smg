@@ -81,7 +81,7 @@ for i=1:domain.dim
         BC_mat{i}(1,:)=domain.BC{2,i}.*sum(fct(eye(N(i),N(i))).*k{i}.^2); % x(1) BC
         BC_mat{i}(1,1)=BC_mat{i}(1,1)+domain.BC{1,i};
         
-        BC_mat{i}(end,:)=domain.BC{4,i}.*sum((-1).^k{i}.*fct(eye(N(i),N(i))).*k{i}.^2);% x(end) BC
+        BC_mat{i}(end,:)=domain.BC{4,i}.*sum((-1).^(k{i}+1).*fct(eye(N(i),N(i))).*k{i}.^2);% x(end) BC
         BC_mat{i}(end,end)=BC_mat{i}(end,end)+domain.BC{3,i};
         
         for j=1:3

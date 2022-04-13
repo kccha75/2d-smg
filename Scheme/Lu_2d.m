@@ -66,7 +66,7 @@ for i=1:domain.dim
         f(index{1,i})=domain.BC{1,i}.*v(index{1,i})+ ...
             domain.BC{2,i}.*sum(fct(u{i}).*k{i}.^2); % x(1)
         f(index{2,i})=domain.BC{3,i}.*v(index{2,i})+ ... 
-            domain.BC{4,i}.*sum((-1).^k{i}.*fct(u{i}).*k{i}.^2); % x(end)
+            domain.BC{4,i}.*sum((-1).^(k{i}+1).*fct(u{i}).*k{i}.^2); % x(end)
     end
     
 end

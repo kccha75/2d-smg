@@ -1,7 +1,6 @@
 clear;close all;%clc
 %
-% Not so simple main for Cheb Fourier SMG, uses nonhomogenous BCs with
-% swapped directions for testing
+% Not so simple main for Cheb Cheb SMG
 % 
 % -------------------------------------------------------------------------
 % Solve PDE au_xx + bu_yy + cu = f using Fourier Cheb Spectral Multigrid
@@ -15,28 +14,28 @@ dim=2;
 % Discretisation flag for each dimension
 % 1 - Fourier
 % 2 - Cheb
-discretisation=[1 2];
+discretisation=[2 2];
 
 % Boundary conditions for each discretisation (if fourier not used)
 % x(1) a11*u+b11*u'=rhs11 
-alpha1{1}=@(y) 123123;
-beta1{1}=@(y) 123124;
-BCRHS1{1}=@(y) 1125125;
+alpha1{1}=@(y) 1;
+beta1{1}=@(y) 0;
+BCRHS1{1}=@(y) 1;
 
 % x(end) a21*u+b21*u'= rhs21
-alpha2{1}=@(y) 11231;
-beta2{1}=@(y) 124124; 
-BCRHS2{1}=@(y) 235235;
+alpha2{1}=@(y) 1;
+beta2{1}=@(y) 0; 
+BCRHS2{1}=@(y) -1+exp(sin(y)).*(1-cosh(1));
 
 % y(1) a12*u+b12*u'=rhs12 
-alpha1{2}=@(x) 0;
-beta1{2}=@(x) 1;
-BCRHS1{2}=@(x) 1+1/2*exp(sin(x))*sinh(1);
+alpha1{2}=@(x) 1;
+beta1{2}=@(x) 0;
+BCRHS1{2}=@(x) x+exp(sin(1)).*(-cosh(1)+cosh(1/2*(-1-x)));
 
 % y(end) a22*u+b22*u'= rhs22
 alpha2{2}=@(x) 1;
-beta2{2}=@(x) 0; 
-BCRHS2{2}=@(x) -1+exp(sin(x)).*(1-cosh(1));
+beta2{2}=@(x) 0;
+BCRHS2{2}=@(x) x+exp(-sin(1)).*(-cosh(1)+cosh(1/2*(-1-x)));
 
 % Grid size
 finestgrid = 6;
@@ -48,10 +47,10 @@ b=@(X,Y) 1;
 c=@(X,Y) 1;
 
 % RHS
-f=@(X,Y) Y+exp(sin(X)).*cosh(1).*(-1-cos(X).^2+sin(X))-1/4*exp(sin(X)).*cosh((1+Y)/2).*(-5-4*cos(X).^2+4*sin(X));
+f=@(X,Y) X+exp(sin(Y)).*cosh(1).*(-1-cos(Y).^2+sin(Y))-1/4*exp(sin(Y)).*cosh((1+X)/2).*(-5-4*cos(Y).^2+4*sin(Y));
 
 % Exact solution
-ue=@(X,Y) (cosh(1/2*(-Y-1))-cosh(1)).*exp(sin(X))+Y;
+ue=@(X,Y) (cosh(1/2*(-X-1))-cosh(1)).*exp(sin(Y))+X;
 
 % Initial guess
 v0=@(X,Y) rand(size(X));
@@ -62,7 +61,7 @@ v0=@(X,Y) rand(size(X));
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=5;
+option.num_vcycles=50;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -83,12 +82,12 @@ option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
 % Restriction
-x_restrict=@fourier_restrict_filtered;
+x_restrict=@cheb_restrict;
 y_restrict=@cheb_restrict;
 option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
 
 % Prolongation
-x_prolong=@fourier_prolong_filtered;
+x_prolong=@cheb_prolong;
 y_prolong=@cheb_prolong;
 option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
 
