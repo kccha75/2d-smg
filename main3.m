@@ -1,6 +1,6 @@
 clear;close all;%clc
 %
-% Not so simple main for Cheb Fourier SMG, uses nonhomogenous BCs
+% Simple main for Cheb Fourier SMG, uses homogenous Dirichlet BCs
 % 
 % -------------------------------------------------------------------------
 % Solve PDE au_xx + bu_yy + cu = f using Fourier Cheb Spectral Multigrid
@@ -14,28 +14,28 @@ dim=2;
 % Discretisation flag for each dimension
 % 1 - Fourier
 % 2 - Cheb
-discretisation=[2 2];
+discretisation=[2 1];
 
 % Boundary conditions for each discretisation (if fourier not used)
 % x(1) a11*u+b11*u'=rhs11 
 alpha1{1}=@(y) 1;
 beta1{1}=@(y) 0;
-BCRHS1{1}=@(y) 1+1/2*exp(sin(y))*sinh(1);
+BCRHS1{1}=@(y) 0;
 
 % x(end) a21*u+b21*u'= rhs21
 alpha2{1}=@(y) 1;
 beta2{1}=@(y) 0; 
-BCRHS2{1}=@(y) -1+exp(sin(y)).*(1-cosh(1));
+BCRHS2{1}=@(y) 0;
 
 % y(1) a12*u+b12*u'=rhs12 
-alpha1{2}=@(x) 1;
-beta1{2}=@(x) 0;
-BCRHS1{2}=@(x) x+exp(sin(1)).*(-cosh(1)+cosh(1/2*(-1-x)));
+alpha1{2}=@(x) -1;
+beta1{2}=@(x) -1;
+BCRHS1{2}=@(x) -23121;
 
 % y(end) a22*u+b22*u'= rhs22
-alpha2{2}=@(x) 1;
-beta2{2}=@(x) 0;
-BCRHS2{2}=@(x) 1-1/2*exp(-sin(1)).*sinh(1/2*(-1-x));
+alpha2{2}=@(x) -1;
+beta2{2}=@(x) -1;
+BCRHS2{2}=@(x) -2311;
 
 % Grid size
 finestgrid = 6;
@@ -47,10 +47,10 @@ b=@(X,Y) 1;
 c=@(X,Y) 1;
 
 % RHS
-f=@(X,Y) X+exp(sin(Y)).*cosh(1).*(-1-cos(Y).^2+sin(Y))-1/4*exp(sin(Y)).*cosh((1+X)/2).*(-5-4*cos(Y).^2+4*sin(Y));
+f=@(X,Y) exp(sin(Y)).*(cosh(X).*(2+cos(Y).^2-sin(Y))+cosh(1)*(-1-cos(Y).^2+sin(Y)));
 
 % Exact solution
-ue=@(X,Y) (cosh(1/2*(-X-1))-cosh(1)).*exp(sin(Y))+X;
+ue=@(X,Y) (cosh(X)-cosh(1)).*exp(sin(Y));
 
 % Initial guess
 v0=@(X,Y) rand(size(X));
@@ -74,25 +74,25 @@ option.Nu=1;
 option.solver='FMG';
 
 % Multigrid scheme: 'Correction' or 'FAS'
-option.mgscheme='Correction';
+option.mgscheme='FAS';
 
 % Operator, coarse grid solver, Relaxation
 option.operator=@Lu_2d;
 option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
-% Restriction
-x_restrict=@cheb_restrict;
-y_restrict=@cheb_restrict;
-option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
+% Restriction for pde coefficients
+option.restriction=@(vf) restrict_2d(vf,@cheb_restrict,@fourier_restrict_filtered);
+
+% Restriction for residual and RHS
+option.restriction_residual=@(vf) restrict_2d(vf,@cheb_restrict_residual,@fourier_restrict_filtered);
 
 % Prolongation
-x_prolong=@cheb_prolong;
-y_prolong=@cheb_prolong;
-option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
+option.prolongation=@(vc) prolong_2d(vc,@cheb_prolong,@fourier_prolong_filtered);
 
 % Preconditioner
 option.preconditioner=@FDmatrixsolve_2d;
+
 % Number of preconditioned relaxations
 option.prenumit=1;
 
@@ -199,7 +199,7 @@ for i=1:domain.dim
     
 end
 
-
+v0(1,:)=0;v0(end,:)=0;
 % -------------------------------------------------------------------------
 % SOLVE HERE
 % -------------------------------------------------------------------------

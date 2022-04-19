@@ -23,11 +23,11 @@ ds_min=cont_option.ds_min;
 ds_max=cont_option.ds_max;
 N_opt=cont_option.N_opt;
 
+% Initialise
 u(1)=u;
-
-j=1;
 v(:,:,1)=v;
-dv=0;
+j=1;
+dv=0; % Initial gradient guess ...
 
 while j<steps
     
@@ -46,7 +46,7 @@ while j<steps
     [v(:,:,j+1),i,flag]=NewtonSolve(v(:,:,j+1),DJL,pde,domain,cont_option);
     
     % Converged and not 0 solution
-    if flag==1 && max(max(abs(v(:,:,j+1))))>=1e-10
+    if flag==1 && max(max(abs(v(:,:,j+1))))>=1e-8
 
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
@@ -81,14 +81,15 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-    elseif flag==0 || max(max(abs(v(:,:,j+1))))<1e-10 % or 0 solution
+    elseif flag==0 || max(max(abs(v(:,:,j+1))))<1e-8 % not converged or 0 solution
         
         if flag==0
             fprintf('Did not converge to required tolerance  after %d Newton Iterations at step %d\n',i,j)
         end
-        if max(max(abs(v(:,:,j+1))))<1e-10
+        if max(max(abs(v(:,:,j+1))))<1e-8
             fprintf('Did not converge to properer solution!!! Converged to 0 after %d Newton Iterations at step %d\n',i,j)
         end
+        
         % Halve step size
         ds=ds/2;
         fprintf('Halving step size to %f\n',ds)
@@ -96,6 +97,7 @@ while j<steps
         % Break loop if minimum step size exceeded
         if ds<=ds_min
             fprintf('Minimum step length of %f exceeded, breaking loop\n',ds_min)
+            % Clear last non-converged step
             v(:,:,end)=[];
             u(end)=[];
             return % end function
@@ -103,6 +105,4 @@ while j<steps
 
     end
 
-
 end
-

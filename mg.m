@@ -16,7 +16,8 @@
 % option.mgscheme - multigrid scheme used 'Correction' or 'FAS'
 % option.operator - operator function to calculate L*u
 % option.coarsegridsolver - coarse grid solver function
-% option.relaxation - relaxation function
+% option.restriction - restriction operator for pde coefficients
+% option.restriction_residual - restriction operator for residual
 % option.restriction - restriction function
 % option.prolongation - prolongation function
 % option.preconditioner - preconditioner function
@@ -138,16 +139,16 @@ for p=1:option.num_vcycles
             case 'Correction'
                 
                 % Step down
-                pde(i+1).f=option.restriction(solution(i).r);
+                pde(i+1).f=option.restriction_residual(solution(i).r);
                 % clear v from previous loop
                 solution(i+1).v=zeros(domain(i+1).N);
                 
             case 'FAS'
 
                 % Step down solution
-                solution(i+1).v=option.restriction(solution(i).v);
+                solution(i+1).v=option.restriction_residual(solution(i).v);
                 % Calculate RHS
-                pde(i+1).f=option.operator(solution(i+1).v,pde(i+1),domain(i+1))+option.restriction(solution(i).r);
+                pde(i+1).f=option.operator(solution(i+1).v,pde(i+1),domain(i+1))+option.restriction_residual(solution(i).r);
                 
             otherwise
                 
@@ -188,7 +189,7 @@ for p=1:option.num_vcycles
             case 'FAS'
                 
                 % Step up and update guess
-                solution(i-1).v=solution(i-1).v+option.prolongation(solution(i).v-option.restriction(solution(i-1).v));
+                solution(i-1).v=solution(i-1).v+option.prolongation(solution(i).v-option.restriction_residual(solution(i-1).v));
                 
         end
 

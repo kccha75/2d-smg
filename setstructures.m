@@ -6,6 +6,8 @@
 % domain.N 
 % domain.k
 % domain.dx 
+% option.restriction - restriction operator for pde coefficients
+% option.restriction_residual - restriction operator for residual
 % option.discretisation - discretisation flags for each direction
 % option.grids - total number of grids in multigrid used
 %
@@ -49,7 +51,7 @@ for i=2:option.grids
     
     % Loop though all pde coefficients and restrict to coarse grid
     fn=fieldnames(pde);
-    for ii=1:numel(fn)
+    for ii=1:numel(fn)-1 % except pde.f
         
         % Constant coefficient check
         if length(pde(i-1).(fn{ii}))==1
@@ -59,6 +61,9 @@ for i=2:option.grids
         end
 
     end
+    
+    % Use alternative restriction for pde.f
+    pde(i).f=option.restriction_residual(pde(i-1).f);
     
 end
 

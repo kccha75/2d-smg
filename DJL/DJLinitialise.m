@@ -33,11 +33,11 @@ option.Newtontol=1e-10;
 option.Newtonmaxit=20;
 
 % Relaxations on the up and down cycle during Multigrid
-option.Nd=3;
-option.Nu=3;
+option.Nd=1;
+option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='V-cycle';
+option.solver='FMG';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='Correction';
@@ -47,18 +47,18 @@ option.operator=@Lu_2d;
 option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
-% Restriction
-x_restrict=@fourier_restrict_filtered;
-y_restrict=@cheb_restrict;
-option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
+% Restriction for pde coefficients
+option.restriction=@(vf) restrict_2d(vf,@cheb_restrict,@fourier_restrict_filtered);
+
+% Restriction for residual and RHS
+option.restriction_residual=@(vf) restrict_2d(vf,@cheb_restrict_residual,@fourier_restrict_filtered);
 
 % Prolongation
-x_prolong=@fourier_prolong_filtered;
-y_prolong=@cheb_prolong;
-option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
+option.prolongation=@(vc) prolong_2d(vc,@cheb_prolong,@fourier_prolong_filtered);
 
 % Preconditioner
 option.preconditioner=@FDmatrixsolve_2d;
+
 % Number of preconditioned relaxations
 option.prenumit=1;
 
@@ -132,11 +132,4 @@ cont_option.ds_max=0.001;
 % Iterations
 cont_option.N_opt=4;
 cont_option.Newtonmaxit=8;
-cont_option.Newtontol=1e-9;
 cont_option.steps=200;
-
-cont_option.operator=option.operator;
-cont_option.preconditioner=option.preconditioner;
-cont_option.prenumit=option.prenumit;
-cont_option.tol=option.tol;
-

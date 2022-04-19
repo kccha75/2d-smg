@@ -68,13 +68,16 @@ P=permute(P,[2,1,3]);
 P=clenshaw_curtis(2*P/pi*KAI*L/mu); % Integrate y
 P=permute(P,[3,1,2]);
 
+% u vs momentum
 plot(U,P)
 xlabel('u');ylabel('Momentum');title('mode 1 DJL')
 
+% Contour of final solution
 figure
 contour(X2,Y2,Y2-V(:,:,end),100)
 title("C=" + U(end))
 
+% Plot(s) of final solution
 figure;
 plot(X2,Y2-V(:,:,end))
 title("C=" + U(end))

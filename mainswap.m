@@ -2,7 +2,6 @@ clear;close all;%clc
 %
 % Not so simple main for Cheb Fourier SMG, uses nonhomogenous BCs with
 % swapped directions for testing
-% 
 % -------------------------------------------------------------------------
 % Solve PDE au_xx + bu_yy + cu = f using Fourier Cheb Spectral Multigrid
 % -------------------------------------------------------------------------
@@ -62,7 +61,7 @@ v0=@(X,Y) rand(size(X));
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=5;
+option.num_vcycles=1;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -82,18 +81,18 @@ option.operator=@Lu_2d;
 option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
-% Restriction
-x_restrict=@fourier_restrict_filtered;
-y_restrict=@cheb_restrict;
-option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
+% Restriction for pde coefficients
+option.restriction=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@cheb_restrict);
+
+% Restriction for residual and RHS
+option.restriction_residual=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@cheb_restrict_residual);
 
 % Prolongation
-x_prolong=@fourier_prolong_filtered;
-y_prolong=@cheb_prolong;
-option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
+option.prolongation=@(vc) prolong_2d(vc,@fourier_prolong_filtered,@cheb_prolong);
 
 % Preconditioner
 option.preconditioner=@FDmatrixsolve_2d;
+
 % Number of preconditioned relaxations
 option.prenumit=1;
 

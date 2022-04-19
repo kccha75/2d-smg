@@ -8,14 +8,14 @@ epsilon=1;
 alpha=epsilon^2;
 mu=sqrt(epsilon);
 L=1; % non-dimensionalised length scale of topography
-u=0.285; %C=0.2817
+u=0.305; % CHECK WITH v0 TO MAKE SURE
 mode=1;
 
 % N^2 function
-N2=@(psi) sech(psi).^2;
+N2=@(psi) sech(psi-0.2).^2;
 
 % (N^2)'
-N2d=@(psi) -2*sech(psi).^2.*tanh(psi);
+N2d=@(psi) -2*sech(psi-0.2).^2.*tanh(psi-0.2);
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
@@ -68,13 +68,16 @@ P=permute(P,[2,1,3]);
 P=clenshaw_curtis(2*P/pi*KAI*L/mu); % Integrate y
 P=permute(P,[3,1,2]);
 
+% u vs momentum
 plot(U,P)
 xlabel('u');ylabel('Momentum');title('mode 1 DJL')
 
+% Contour of final solution
 figure
 contour(X2,Y2,Y2-V(:,:,end),100)
 title("C=" + U(end))
 
+% Plot(s) of final solution
 figure;
 plot(X2,Y2-V(:,:,end))
 title("C=" + U(end))
