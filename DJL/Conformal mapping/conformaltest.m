@@ -30,11 +30,11 @@ beta2{2}=@(X,Y) 0;
 % Boundary condition values (column vector) (Non-fourier only)
 % BC=[0 0]; assume they are 0 for now ...
 
-finestgrid = [9,7];
-coarsestgrid = 3;
+finestgrid = 9;
+coarsestgrid = 5;
 
 % PDE Parameters
-a=@(X,Y) 1/4;
+a=@(X,Y) 1;
 b=@(X,Y) 1;
 c=@(X,Y) 0;
 
@@ -63,7 +63,7 @@ option.Nd=1;
 option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='FMG';
+option.solver='V-cycle';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='Correction';
@@ -74,14 +74,12 @@ option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
 % Restriction
-y_restrict=@cheb_restrict;
-x_restrict=@fourier_restrict_filtered;
-option.restriction=@(vf) restrict_2d(vf,x_restrict,y_restrict);
+option.restriction=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@cheb_restrict);
+
+option.restriction_residual=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@cheb_restrict_residual);
 
 % Prolongation
-y_prolong=@cheb_prolong;
-x_prolong=@fourier_prolong_filtered;
-option.prolongation=@(vc) prolong_2d(vc,x_prolong,y_prolong);
+option.prolongation=@(vc) prolong_2d(vc,@fourier_prolong_filtered,@cheb_prolong);
 
 % Preconditioner
 option.preconditioner=@FDmatrixsolve_2d;
@@ -102,14 +100,14 @@ for i=1:length(discretisation)
 
         % Fourier discretisation
         case 1
-            N(i) = 2^finestgrid(i);
+            N(i) = 2^finestgrid;
             k{i} = [0:N(i)/2-1 -N(i)/2 -N(i)/2+1:-1]';
             x{i} = 2*pi*(-N(i)/2:N(i)/2-1)'/N(i);
             dx{i} = x{i}(2)-x{i}(1);
             
        % Chebyshev discretisation
         case 2
-            N(i) = 2^finestgrid(i)+1;
+            N(i) = 2^(finestgrid-2)+1;
             k{i} = (0:N(i)-1)';
             x{i} = cos(pi*k{i}/(N(i)-1));
             dx{i} = x{i}(1:end-1)-x{i}(2:end); % due to x(1)=1, x(end)=-1
@@ -202,7 +200,7 @@ kinv=[0;1./(1i*k{1}(2:N(1)))];
 for i=1:loops
     
     y_bc=h(x_old); % assume initially x=u 
-    L=H0-trapint(y_bc,x{1})/(2*pi); % New L value (see boundary integral) extra terms due to Fourier periodic
+    L=H0-trapI(y_bc,dx{1})/(2*pi); % New L value (see boundary integral) extra terms due to Fourier periodic
    
     v=L/2*(x{2}+1); % To set the new domain to be [0 L] (needs fixing)
     
@@ -212,12 +210,16 @@ for i=1:loops
     h_uu=real(ifft(-k{1}.^2.*fft(y_bc)));
     [U,V]=ndgrid(u,v);
     
-    pde.b=(L/2)^2;
+    pde.b=1/(L/2)^2;
+%     pde.b=1;
     pde.f=-h_uu.*(1-V/L);
+
+    % BCs
+    pde.f(index{1,2})=0;
+    pde.f(index{2,2})=0;
     
     % Solve here
-    option.numit=20;
-    [Y,r]=bicgstab(v0,pde,domain,option);
+    [Y,r]=mg(v0,pde,domain,option);
     
     % Transform back to original coordinates
     y=y_bc.*(1-V/L)+H0*V/L+Y;
