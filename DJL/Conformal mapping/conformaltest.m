@@ -30,7 +30,7 @@ beta2{2}=@(X,Y) 0;
 % Boundary condition values (column vector) (Non-fourier only)
 % BC=[0 0]; assume they are 0 for now ...
 
-finestgrid = 9;
+finestgrid = 8;
 coarsestgrid = 5;
 
 % PDE Parameters
@@ -191,7 +191,7 @@ h = @(x) .1*(1-tanh((x-.5)/.1).^2)+.1*(1-tanh((x+.5)/.1).^2); % Bump function
 
 H0=1; % initial height
 
-loops=10;
+loops=30;
 
 u=x{1};
 x_old=u;
@@ -210,8 +210,8 @@ for i=1:loops
     h_uu=real(ifft(-k{1}.^2.*fft(y_bc)));
     [U,V]=ndgrid(u,v);
     
+    pde.a=4; % for comparison to [0,pi] domain
     pde.b=1/(L/2)^2;
-%     pde.b=1;
     pde.f=-h_uu.*(1-V/L);
 
     % BCs
@@ -219,22 +219,21 @@ for i=1:loops
     pde.f(index{2,2})=0;
     
     % Solve here
-    [Y,r]=mg(v0,pde,domain,option);
+    [Y,r]=bicgstab(v0,pde,domain,option);
     
     % Transform back to original coordinates
     y=y_bc.*(1-V/L)+H0*V/L+Y;
 
     % find dy/dv on domain
-    dY=2*ifct(chebdiff(fct(Y'),1));
-    dY=dY';
-    dy=dY*2/L-1;
+    dy=2/L*ifct(chebdiff(fct(y'),1));
+    dy=dy';
+
+    % Bottom boundary plot
+    dybc=dy(:,end);
     
-    % find new x integrate wrt u
-    x_new=real(ifft(kinv.*fft(dy)));
-    
-    % look at x on bottom boundary
-    x_new=x_new(index{2,2});
-    
+    % find new x integrate wrt u at bottom boundary
+    x_new=mean(dybc)*(u+pi)-pi+real(ifft(kinv.*fft(dybc)));
+      
     % compare old x with new x, break if tol met, loop otherwise
     if norm(x_new - x_old) < 1e-8
         fprintf('Linear residual is %d\n',rms(r(:)))

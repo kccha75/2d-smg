@@ -156,12 +156,12 @@ D2yy=kron(Dxx{2},speye(N(1)));
 A=a_mat{1}(:).*D2xx+a_mat{2}(:).*D2yy+a_mat{3}(:).*speye(Nx*Ny)+BC2_mat;
 % -------------------------------------------------------------------------
 % Check if Poisson type problem, then solve for mean 0 solution
-if max(abs(pde.c(:)))<1e-12
+% if max(abs(pde.c(:)))<1e-12
 
-    A(1,:)=1;
-    pde.f(1)=0;
+%     A(1,:)=1;
+%     pde.f(1)=0;
     
-end
+% end
 
 v=A\pde.f(:);
 v=reshape(v,Nx,Ny);
