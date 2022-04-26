@@ -30,8 +30,8 @@ beta2{2}=@(X,Y) 0;
 % Boundary condition values (column vector) (Non-fourier only)
 % BC=[0 0]; assume they are 0 for now ...
 
-finestgrid = 8;
-coarsestgrid = 5;
+finestgrid = 9;
+coarsestgrid = 6;
 
 % PDE Parameters
 a=@(X,Y) 1;
@@ -63,7 +63,7 @@ option.Nd=1;
 option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='V-cycle';
+option.solver='FMG';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='Correction';
@@ -191,18 +191,17 @@ h = @(x) .1*(1-tanh((x-.5)/.1).^2)+.1*(1-tanh((x+.5)/.1).^2); % Bump function
 
 H0=1; % initial height
 
-loops=30;
+loops=100;
 
 u=x{1};
 x_old=u;
-kinv=[0;1./(1i*k{1}(2:N(1)))];
+kinv=[0;1./(1i*k{1}(2:N(1)))]; % mean 0, avoid dividing by 0
 
 for i=1:loops
     
     y_bc=h(x_old); % assume initially x=u 
-    L=H0-trapI(y_bc,dx{1})/(2*pi); % New L value (see boundary integral) extra terms due to Fourier periodic
-   
-    v=L/2*(x{2}+1); % To set the new domain to be [0 L] (needs fixing)
+    L=H0-trapI(y_bc,dx{1})/(2*pi); % New L value (see boundary integral)
+    v=L/2*(x{2}+1); % To set the new domain to be [0 L]
     
     % Solve laplace's equation, poisson's after transformation
     % need to change coefficients a,b
@@ -210,41 +209,47 @@ for i=1:loops
     h_uu=real(ifft(-k{1}.^2.*fft(y_bc)));
     [U,V]=ndgrid(u,v);
     
-    pde.a=4; % for comparison to [0,pi] domain
+    pde.a=1; % for comparison to [0,pi] domain ... but should be 1 ...
     pde.b=1/(L/2)^2;
     pde.f=-h_uu.*(1-V/L);
-
+    
+%     pde.f=-Lu_2d(y_bc+(H0-y_bc).*V/L,pde,domain);
     % BCs
     pde.f(index{1,2})=0;
     pde.f(index{2,2})=0;
     
     % Solve here
-    [Y,r]=bicgstab(v0,pde,domain,option);
+    [Y,r]=mg(v0,pde,domain,option);
     
     % Transform back to original coordinates
     y=y_bc.*(1-V/L)+H0*V/L+Y;
 
-    % find dy/dv on domain
+    % find dy/dv
     dy=2/L*ifct(chebdiff(fct(y'),1));
     dy=dy';
 
-    % Bottom boundary plot
+    % at Bottom boundary
     dybc=dy(:,end);
-    
-    % find new x integrate wrt u at bottom boundary
-    x_new=mean(dybc)*(u+pi)-pi+real(ifft(kinv.*fft(dybc)));
-      
+
+    % solve for correction e=int(dy/dv-1)du
+    epsilon=real(ifft(kinv.*fft(dybc-1))); % mean 0 solution
+
+    % find new x, x=u+e
+    x_new=u+epsilon;
+
     % compare old x with new x, break if tol met, loop otherwise
-    if norm(x_new - x_old) < 1e-8
+    if rms(x_new - x_old) < 1e-10
         fprintf('Linear residual is %d\n',rms(r(:)))
-        fprintf('x diff is %d\n',norm(x_new - x_old))
+        fprintf('x diff is %d\n',rms(x_new - x_old))
         fprintf('Reached tolerance after %d iterations!\n',i)
         break;
     end
     
     fprintf('Linear residual is %d\n',rms(r(:)))
-    fprintf('x diff is %d\n',norm(x_new - x_old))
+    fprintf('x diff is %d\n',rms(x_new - x_old))
     
-    x_old=x_new;
+    if i~=loops
+        x_old=x_new;
+    end
     
 end
