@@ -191,7 +191,7 @@ h = @(x) .1*(1-tanh((x-.5)/.1).^2)+.1*(1-tanh((x+.5)/.1).^2); % Bump function
 
 H0=1; % initial height
 
-loops=100;
+loops=50;
 
 u=x{1};
 x_old=u;
@@ -212,7 +212,6 @@ for i=1:loops
     pde.a=1; % for comparison to [0,pi] domain ... but should be 1 ...
     pde.b=1/(L/2)^2;
     pde.f=-h_uu.*(1-V/L);
-    
 %     pde.f=-Lu_2d(y_bc+(H0-y_bc).*V/L,pde,domain);
     % BCs
     pde.f(index{1,2})=0;
@@ -253,3 +252,20 @@ for i=1:loops
     end
     
 end
+
+% check laplacian!
+
+pde.a=1;
+pde.b=1/(L/2)^2;
+pde.c=0;
+
+
+YY=Lu_2d_nobc(y,pde,domain);
+
+ee=real(ifft(kinv.*fft(dy-1)));
+
+EE=Lu_2d_nobc(ee,pde,domain);
+
+% xx=U+ee;
+% XX=Lu_2d_nobc(xx,pde,domain);
+
