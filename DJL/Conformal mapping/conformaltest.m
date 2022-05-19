@@ -191,7 +191,7 @@ h = @(x) .1*(1-tanh((x-.5)/.1).^2)+.1*(1-tanh((x+.5)/.1).^2); % Bump function
 
 H0=1; % initial height
 
-loops=50;
+loops=100;
 
 u=x{1};
 x_old=u;
@@ -232,7 +232,7 @@ for i=1:loops
 
     % solve for correction e=int(dy/dv-1)du
     epsilon=real(ifft(kinv.*fft(dybc-1))); % mean 0 solution
-
+    epsilon(1)=0;
     % find new x, x=u+e
     x_new=u+epsilon;
 

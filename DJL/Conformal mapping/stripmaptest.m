@@ -31,7 +31,7 @@ beta2{2}=@(X,Y) 0;
 % BC=[0 0]; assume they are 0 for now ...
 
 finestgrid = 9;
-coarsestgrid = 5;
+coarsestgrid = 6;
 
 % PDE Parameters
 a=@(X,Y) 1;
@@ -183,72 +183,104 @@ for i=1:domain.dim
     
 end
 
-% -------------------------------------------------------------------------
-% Conformal mapping test...
-% -------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 
-h = @(x) .1*(1-tanh((x-.5)/.1).^2)+.1*(1-tanh((x+.5)/.1).^2); % Bump function
+%
+% add:
+% documentation
+% calculation of Jacobian = x_u^2+y_v^2
+%
+NI = 10;
+%
+N = 512;
+M = 128;
+H0 = 1;
+h = @(x) .1*(1-tanh((x-.5)/.1).^2)+.1*(1-tanh((x+.5)/.1).^2);
+% h = @(x) .5*(1-tanh(x/.25).^2);
+% h = @(x) .25*exp(-(x/.25).^2);
 
-H0=1; % initial height
+u = -pi+2*pi*(0:N-1)/N;
+K = 1i*[0:N/2-1 -N/2:-1];
+Kinv = [.0 1./K(2:N)];
+xi = .5*(1-cos(pi*(0:M)/M));
+L1 = [0:M];
+%
+xb = u;
+for nit = 1:NI
+	yb = h(xb);
+	L = H0-1/N*sum(yb);
+	v = L*xi;
+	LL = -2/L*L1;
+	[U,V] = ndgrid(u,v);
+	F = zeros(N,M+1);
+	for ix = 1:N
+		F(ix,:) = yb(ix)+(H0-yb(ix)).*V(ix,:)/L;
+	end
+	G = zeros(N,M+1);
+	%
+	% initialize the RHS
+	%
+	F = reshape(F,[N*(M+1),1]);
+	nabF = -HelmholtzOpFC(F,G,u,v,K',LL,N,M+1);
+	nabF = reshape(nabF,[N,M+1]);
+	nabF(:,1:M:M+1) = .0;
+	%
 
-loops=10;
 
-u=x{1};
-x_old=u;
-kinv=[0;1./(1i*k{1}(2:N(1)))];
-
-for i=1:loops
-    
-    y_bc=h(x_old); % assume initially x=u 
-    L=H0-trapI(y_bc,dx{1})/(2*pi); % New L value (see boundary integral) extra terms due to Fourier periodic
-   
-    v=L/2*(x{2}+1); % To set the new domain to be [0 L] (needs fixing)
-    
-    % Solve laplace's equation, poisson's after transformation
-    % need to change coefficients a,b
-    % define new RHS, change to homogeneous BCs
-    
-    [U,V]=ndgrid(u,v);
-    Y=y_bc+(H0-y_bc).*V/L;
-
-    pde.a=1;
-    pde.b=1/(L/2)^2;;
-    pde.f=-Lu_2d(Y,pde,domain);
-
+	[Y,R] = SpecMG(1,u,v,G,nabF,@HelmholtzOpFD,@HelmholtzOpFC);
+    pde.a=4;
     pde.b=1/(L/2)^2;
-    % BCs
-    pde.f(index{1,2})=0;
-    pde.f(index{2,2})=0;
-    
-    % Solve here
-    [Y,r]=mg(v0,pde,domain,option);
-    
-    % Transform back to original coordinates
-    y=y_bc.*(1-V/L)+H0*V/L+Y;
+    pde.c=0;
+    pde.f=-nabF;
+%     [Y,R]=mg(v0,pde,domain,option);
 
-    % find dy/dv on domain
-    dy=2/L*ifct(chebdiff(fct(y'),1));
-    dy=dy';
-    
-    % find new x integrate wrt u
+%     disp(rms(rms(Y-Y1)))
 
-    % look at x on bottom boundary
-    xx=dy(:,end);
-    x_new=mean(xx)*(x{1}+pi)-pi+real(ifft(kinv.*fft(xx)));
-    
 
-    
-    % compare old x with new x, break if tol met, loop otherwise
-    if norm(x_new - x_old) < 1e-8
-        fprintf('Linear residual is %d\n',rms(r(:)))
-        fprintf('x diff is %d\n',norm(x_new - x_old))
-        fprintf('Reached tolerance after %d iterations!\n',i)
-        break;
-    end
-    
-    fprintf('Linear residual is %d\n',rms(r(:)))
-    fprintf('x diff is %d\n',norm(x_new - x_old))
-    
-    x_old=x_new;
-    
+	Yn = Y+reshape(F,[N,M+1]);
+	Yt = Yn';
+	Dy = ChebBackward(ChebDeriv(ChebForward(Yt),LL,1));
+	Dx = Dy(1,:);
+	Ix = mean(Dx)*(u+pi)-pi+real(ifft(Kinv.*fft(Dx)));
+%    Ix = 2*pi/N*(cumsum(Dx)-Dx(1))-pi;
+    fprintf('Change in x = %g \n',norm(Ix-xb));
+	if norm(Ix-xb) < 1.e-8
+		break;
+	end
+	xb = Ix;
 end
+%
+Dx = Dy(M+1,:);
+% fo = mean(Dx);
+xt = mean(Dx)*(u+pi)-pi+real(ifft(Kinv.*fft(Dx)));
+% xt = 2*pi/N*(cumsum(Dx)-Dx(1))-pi;
+xbp = xb-u;
+xtp = xt-u;
+F = zeros(N,M+1);
+for ix = 1:N
+	F(ix,:) = xbp(ix)+(xtp(ix)-xbp(ix)).*V(ix,:)/L;
+end
+F = reshape(F,[N*(M+1),1]);
+nabF = -HelmholtzOpFC(F,G,u,v,K',LL,N,M+1);
+nabF = reshape(nabF,[N,M+1]);
+nabF(:,1:M:M+1) = .0;
+% X = HelmholtzOpFD(G,reshape(nabF,[N*(M+1),1]),u,v,K',LL,N,M+1);
+[X,R] = SpecMG(1,u,v,G,nabF,@HelmholtzOpFD,@HelmholtzOpFC);
+Xn = X+reshape(F,[N,(M+1)]);
+XF = Xn+U;
+YF = Yn;
+%
+clf
+subplot(211)
+contour(XF,YF,U,40); 
+hold on 
+contour(XF,YF,V,40)
+xlabel('x')
+ylabel('y')
+plot(xb,h(xb))
+subplot(212)
+contour(U,V,XF,40); 
+hold on 
+contour(U,V,YF,40)
+xlabel('u')
+ylabel('v')
