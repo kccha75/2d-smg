@@ -48,13 +48,13 @@ option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
 % Restriction for pde coefficients
-option.restriction=@(vf) restrict_2d(vf,@cheb_restrict,@fourier_restrict_filtered);
+option.restriction=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@cheb_restrict);
 
 % Restriction for residual and RHS
-option.restriction_residual=@(vf) restrict_2d(vf,@cheb_restrict_residual,@fourier_restrict_filtered);
+option.restriction_residual=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@cheb_restrict_residual);
 
 % Prolongation
-option.prolongation=@(vc) prolong_2d(vc,@cheb_prolong,@fourier_prolong_filtered);
+option.prolongation=@(vc) prolong_2d(vc,@fourier_prolong_filtered,@cheb_prolong);
 
 % Preconditioner
 option.preconditioner=@FDmatrixsolve_2d;
