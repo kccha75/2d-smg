@@ -26,8 +26,6 @@ epsilon = DJL.epsilon;
 mode=DJL.mode;
 N2=DJL.N2;
 
-% Topography and solution to fKdV
-topography=sech(x{1}/pi*10).^2;
 % -------------------------------------------------------------------------
 % Eigenvalues of phi_zz+N^2(z)*lambda*phi=0
 % -------------------------------------------------------------------------
@@ -84,6 +82,11 @@ gamma=C/2*phiz0/int_phi_z_2;
 % -------------------------------------------------------------------------
 % fKdVsol for no forcing
 % -------------------------------------------------------------------------
+
+% Topography and solution to fKdV
+KAI=20;
+topography=sech(x{1}/pi*KAI).^2;
+
 if abs(max(topography))==0
     
     % DJL parameters
@@ -117,8 +120,7 @@ else
     % determine delta_star from hydraulic fall plot
     delta_star=0;
     
-    % Domain and solution of fkdv equation
-    KAI=20;
+    % Solution of fkdv equation
     X=x{1}/pi*KAI;
     fKdVsol=2*sech(X).^2;
     

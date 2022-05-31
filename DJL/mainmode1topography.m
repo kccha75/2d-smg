@@ -31,7 +31,7 @@ DJL.N2d=N2d;
 time=tic;
 
 % Initialise
-[domain,option,cont_option]=DJLinitialisetopography();
+[domain,option,cont_option]=DJLinitialise();
 
 % Initial guess
 [v0,DJL]=DJLv0_topography(DJL,domain);
