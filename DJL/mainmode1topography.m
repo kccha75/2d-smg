@@ -31,13 +31,19 @@ DJL.N2d=N2d;
 time=tic;
 
 % Initialise
-[domain,option,cont_option]=DJLinitialise();
+[domain,option,cont_option]=DJLinitialisetopography();
 
 % Initial guess
 [v0,DJL]=DJLv0_topography(DJL,domain);
 
 % Initialise PDE
 [pde,domain]=DJLpdeinitialise(DJL,domain);
+
+% Conformal mapping???
+% load('Xx.mat');
+% load('Yy.mat');
+% domain.X{1}=Xx;
+% domain.X{2}=Yy;
 
 % Newton solve
 [v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
@@ -50,7 +56,7 @@ if flag ==0
 end
 
 % Continuation
-[V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
+% [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)

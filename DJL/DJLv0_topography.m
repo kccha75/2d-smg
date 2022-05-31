@@ -22,9 +22,7 @@ N=domain.N;
 x=domain.x;
 
 % DJL parameters
-u=DJL.u;
 epsilon = DJL.epsilon;
-L = DJL.L;
 mode=DJL.mode;
 N2=DJL.N2;
 
@@ -80,14 +78,21 @@ int_phi_z_3=clenshaw_curtis(dphi.^3)/2;
 % fKdV coefficients
 r=3*C/2*int_phi_z_3/int_phi_z_2;
 s=C/2*int_phi_2/int_phi_z_2;
-delta=(u-C)/epsilon; % v=c+delta*epsilon
+
 gamma=C/2*phiz0/int_phi_z_2;
 
 % -------------------------------------------------------------------------
 % fKdVsol for no forcing
 % -------------------------------------------------------------------------
 if abs(max(topography))==0
-
+    
+    % DJL parameters
+    u=DJL.u;
+    L = DJL.L;
+    
+    % Delta 
+    delta=(u-C)/epsilon; % v=c+delta*epsilon
+    
     % fKdV solution (after rescaling)
     delta_star=delta*L^2/s;
 
@@ -111,14 +116,21 @@ else
 
     % determine delta_star from hydraulic fall plot
     delta_star=0;
-    X=x{1}/pi*10; % domain of fkdv solution ......
+    
+    % Domain and solution of fkdv equation
+    KAI=20;
+    X=x{1}/pi*KAI;
     fKdVsol=2*sech(X).^2;
-
+    
     % find delta
     delta=delta_star*s/L^2;
 
     % find u
     u=delta*epsilon+C;
+    
+    DJL.u=u;
+    DJL.KAI=KAI;
+    DJL.L=L;
 end
 
 v0=epsilon*6*s/(r*L^2)*fKdVsol*phi';
