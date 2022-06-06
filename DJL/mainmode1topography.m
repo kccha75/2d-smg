@@ -31,7 +31,7 @@ DJL.N2d=N2d;
 time=tic;
 
 % Initialise
-[domain,option,cont_option]=DJLinitialise();
+[domain,option,cont_option]=DJLinitialise_topography();
 
 % Initial guess
 [v0,DJL]=DJLv0_topography(DJL,domain);
@@ -39,12 +39,15 @@ time=tic;
 % Initialise PDE
 [pde,domain]=DJLpdeinitialise(DJL,domain);
 
-% Conformal mapping???
-% load('Xx.mat');
-% load('Yy.mat');
-% domain.X{1}=Xx;
-% domain.X{2}=Yy;
+% Conformal mapping and interpolation
+load('XX.mat');
+load('YY.mat');
 
+v1=interp2(domain.X{2},domain.X{1},v0,YY,XX);
+% 
+% domain.X{1}=XX;
+% domain.X{2}=YY;
+v0(1,:)=0;
 % Newton solve
 [v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
 

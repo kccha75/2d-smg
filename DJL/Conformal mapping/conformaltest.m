@@ -30,7 +30,7 @@ beta2{2}=@(X,Y) 0;
 % Boundary condition values (column vector) (Non-fourier only)
 % BC=[0 0]; assume they are 0 for now ...
 
-finestgrid = 9;
+finestgrid = 8;
 coarsestgrid = 6;
 
 % PDE Parameters
@@ -197,6 +197,9 @@ u=x{1};
 x_old=u;
 kinv=[0;1./(1i*k{1}(2:N(1)))]; % mean 0, avoid dividing by 0
 
+% initial guess
+Y=v0;
+
 for i=1:loops
     
     y_bc=h(x_old); % assume initially x=u 
@@ -218,7 +221,7 @@ for i=1:loops
     pde.f(index{2,2})=0;
     
     % Solve here
-    [Y,r]=mg(v0,pde,domain,option);
+    [Y,r]=mg(Y,pde,domain,option);
     
     % Transform back to original coordinates
     y=y_bc.*(1-V/L)+H0*V/L+Y;
