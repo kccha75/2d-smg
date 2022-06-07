@@ -184,21 +184,30 @@ for i=1:domain.dim
 end
 
 % -------------------------------------------------------------------------
-% Conformal mapping test...
+% Conformal mapping
 % -------------------------------------------------------------------------
+gamma=0;
+dg=0.1;
 
-h = @(x) 0.1^2*sech(x).^2; % Bump function
+h = @(x) gamma*sech(x).^2; % Bump function
 
 H0=1; % initial height
-L=H0;
 loops=100;
 
 u=x{1};
 x_old=u;
+x_new=u;
 kinv=[0;1./(1i*k{1}(2:N(1)))]; % mean 0, avoid dividing by 0
 
 % initial guess
 Y=v0;
+
+for j=1:9
+
+    x_old=x_new;
+    gamma=gamma+dg;
+    h = @(x) gamma*sech(x).^2; % Bump function
+    fprintf('New gamma value at %d!\n',gamma)
 
 for i=1:loops
     
@@ -254,6 +263,8 @@ for i=1:loops
         x_old=x_new;
     end
     
+end
+
 end
 
 % check laplacian!
