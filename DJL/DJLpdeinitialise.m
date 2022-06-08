@@ -21,8 +21,6 @@ dim=domain.dim;
 X=domain.X;
 
 mu=DJL.mu;
-L=DJL.L;
-u=DJL.u;
 pde.u=DJL.u;
 KAI=DJL.KAI;
 
@@ -32,7 +30,7 @@ KAI=DJL.KAI;
 % -------------------------------------------------------------------------
 % PDE Parameters
 
-Lx=KAI*L/mu/pi; % ?? domain to [-pi pi]
+Lx=KAI/mu^2/pi; % ?? domain to [-pi pi]
 Ly=1/2; % [0 1] domain to [-1 1]
 
 a=@(X,Y) 1/Lx^2;

@@ -4,10 +4,9 @@ clear;close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=1;
+epsilon=1587;
 alpha=epsilon^2;
 mu=sqrt(epsilon);
-L=1; % non-dimensionalised length scale of topography
 u=0.305; % CHECK WITH v0 TO MAKE SURE
 mode=1;
 
@@ -20,7 +19,6 @@ N2d=@(psi) -2*sech(psi-0.2).^2.*tanh(psi-0.2);
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
 DJL.mu = mu;
-DJL.L  = L;
 DJL.u = u;
 DJL.mode=mode;
 
@@ -59,13 +57,13 @@ fprintf('Elapsed Time is %f s\n',dt)
 % -------------------------------------------------------------------------
 KAI=DJL.KAI;
 
-X2=domain.X{1}/pi*KAI*L/mu;
+X2=domain.X{1}/pi*KAI/mu^2;
 Y2=(domain.X{2}+1)/2;
 
 % Calculate momentum
 P=trapI(V.^2,domain.dx{1}); % Integrate x
 P=permute(P,[2,1,3]);
-P=clenshaw_curtis(2*P/pi*KAI*L/mu); % Integrate y
+P=clenshaw_curtis(2*P/pi*KAI/mu^2); % Integrate y
 P=permute(P,[3,1,2]);
 
 % u vs momentum
@@ -87,4 +85,4 @@ dv=2*ifct(chebdiff(fct(V(:,:,end)'),1));
 max(dv(:))
 min(dv(:))
 
-fprintf('Domain is %d\n',KAI*L/mu)
+fprintf('Domain is %d\n',KAI/mu^2)

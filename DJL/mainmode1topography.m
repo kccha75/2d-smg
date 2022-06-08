@@ -4,10 +4,9 @@ clear;close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=1;
+epsilon=sqrt(0.1);
 alpha=epsilon^2;
 mu=sqrt(epsilon);
-L=1; % non-dimensionalised length scale of topography
 u=0.24;
 mode=1;
 
@@ -20,7 +19,6 @@ N2d=@(psi) 0*psi+1;
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
 DJL.mu = mu;
-DJL.L  = L;
 DJL.u = u;
 DJL.mode=mode;
 
@@ -43,11 +41,8 @@ time=tic;
 load('XX.mat');
 load('YY.mat');
 
-v1=interp2(domain.X{2},domain.X{1},v0,YY,XX);
-% 
-% domain.X{1}=XX;
-% domain.X{2}=YY;
-v0(1,:)=0;
+v0=interp2((domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'spline');
+
 % Newton solve
 [v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
 
@@ -68,13 +63,13 @@ fprintf('Elapsed Time is %f s\n',dt)
 % -------------------------------------------------------------------------
 KAI=DJL.KAI;
 
-X2=domain.X{1}/pi*KAI*L/mu;
+X2=domain.X{1}/pi*KAI/mu^2;
 Y2=(domain.X{2}+1)/2;
 
 % Calculate momentum
 P=trapI(V.^2,domain.dx{1}); % Integrate x
 P=permute(P,[2,1,3]);
-P=clenshaw_curtis(2*P/pi*KAI*L/mu); % Integrate y
+P=clenshaw_curtis(2*P/pi*KAI/mu^2); % Integrate y
 P=permute(P,[3,1,2]);
 
 % u vs momentum
@@ -96,4 +91,4 @@ dv=2*ifct(chebdiff(fct(V(:,:,end)'),1));
 max(dv(:))
 min(dv(:))
 
-fprintf('Domain is %d\n',KAI*L/mu)
+fprintf('Domain is %d\n',KAI/mu^2)

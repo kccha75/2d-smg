@@ -23,7 +23,7 @@ x=domain.x;
 
 u=DJL.u;
 epsilon = DJL.epsilon;
-L = DJL.L;
+mu=DJL.mu;
 mode=DJL.mode;
 
 N2=DJL.N2;
@@ -82,7 +82,7 @@ delta=(u-C)/epsilon; % v=c+delta*epsilon
 gamma=C/2*phiz0/int_phi_z_2;
 
 % fKdV solution (after rescaling)
-delta_star=delta*L^2/s;
+delta_star=delta/(s*mu^2);
 
 % KAI such that relative to max 10^-10 at fkdv solution ends
 KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-12*delta_star/2));
@@ -94,7 +94,7 @@ X=x{1}/pi*KAI; % X domain
 
 % fKdVsol for no forcing
 fKdVsol=delta_star/2*sech(sqrt(delta_star/2)*X).^2; % (X from -KAI to KAI)
-v0=epsilon*6*s/(r*L^2)*fKdVsol*phi';
+v0=epsilon*6*s*mu^2/r*fKdVsol*phi';
 
 DJL.KAI=KAI;
 
