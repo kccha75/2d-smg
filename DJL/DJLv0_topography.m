@@ -23,8 +23,9 @@ x=domain.x;
 
 % DJL parameters
 epsilon = DJL.epsilon;
-mode=DJL.mode;
-N2=DJL.N2;
+alpha = DJL.alpha;
+mode = DJL.mode;
+N2 = DJL.N2;
 
 % -------------------------------------------------------------------------
 % Eigenvalues of phi_zz+N^2(z)*lambda*phi=0
@@ -91,13 +92,12 @@ if abs(max(topography))==0
     
     % DJL parameters
     u=DJL.u;
-    L = DJL.L;
     
     % Delta 
     delta=(u-C)/epsilon; % v=c+delta*epsilon
     
     % fKdV solution (after rescaling)
-    delta_star=delta*L^2/s;
+    delta_star=delta/(s*mu^2);
 
     % KAI such that relative to max 10^-10 at fkdv solution ends
     KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-12*delta_star/2));
@@ -114,8 +114,9 @@ else
 
     % pick specific gamma
     gamma_star=-8;
-    % Solve for L
-    L=(gamma_star*6*s^2/(gamma*r))^(1/4);
+
+    % Solve for mu
+    mu=(gamma*r*alpha/(6*s^2*gamma_star))^(1/4);
 
     % determine delta_star from hydraulic fall plot
     delta_star=0;
@@ -125,17 +126,18 @@ else
     fKdVsol=2*sech(X).^2;
     
     % find delta
-    delta=delta_star*s/L^2;
+    delta=delta_star*s*mu^2;
 
     % find u
     u=delta*epsilon+C;
     
     DJL.u=u;
     DJL.KAI=KAI;
-    DJL.L=L;
+    DJL.mu=mu;
+
 end
 
-v0=epsilon*6*s/(r*L^2)*fKdVsol*phi';
+v0=epsilon*6*s*mu^2/r*fKdVsol*phi';
 
 
 end

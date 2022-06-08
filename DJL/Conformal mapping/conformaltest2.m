@@ -187,7 +187,7 @@ end
 % Conformal mapping test...
 % -------------------------------------------------------------------------
 
-h = @(x) 0.1^2*sech(x).^2; % Bump function
+h = @(x) 0.1*sech(x).^2; % Bump function
 
 H0=1; % initial height
 L=H0;
