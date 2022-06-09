@@ -5,7 +5,7 @@
 % domain.dim - dimension of problem
 % domain.X - ndgrid of x,y
 % DJL.mu
-% DJL.L
+% DJL.L - conformal mapping domain
 % DJL.u - wave speed
 % DJL.KAI - x domain length
 %
@@ -15,7 +15,7 @@
 % domain.BC - boundary conditions (4x2 cell)
 %
 
-function [pde,domain]=DJLpdeinitialise(DJL,domain)
+function [pde,domain]=DJLpdeinitialise_topography(DJL,domain)
 
 dim=domain.dim;
 x=domain.x;
@@ -24,7 +24,7 @@ X=domain.X;
 mu=DJL.mu;
 pde.u=DJL.u;
 KAI=DJL.KAI;
-
+L=DJL.L;
 
 % -------------------------------------------------------------------------
 % Set up PDE
@@ -32,7 +32,7 @@ KAI=DJL.KAI;
 % PDE Parameters
 
 Lx=KAI/mu^2/pi; % ?? domain to [-pi pi]
-Ly=1/2; % [0 1] domain to [-1 1]
+Ly=L/2; % [0 L] domain to [-1 1]
 
 a=@(X,Y) 1/Lx^2;
 b=@(X,Y) 1/Ly^2;
@@ -65,7 +65,7 @@ BCRHS1{2}=@(x) 0*x;
 % y(end) a22*u+b22*u'= rhs22
 alpha2{2}=@(x) 1;
 beta2{2}=@(x) 0;
-BCRHS2{2}=@(x) 0*x;
+BCRHS2{2}=@(x) DJL.topography(x*DJL.KAI/pi); % topography BC
 
 BC=cell(4,dim);
 BCRHS=cell(2,dim);

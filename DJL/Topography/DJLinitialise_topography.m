@@ -6,7 +6,7 @@
 % option - structure of multigrid options (see below)
 % cont_option - structure of continuation options (see below)
 
-function [domain,option,cont_option]=DJLinitialisetopography()
+function [domain,option,cont_option]=DJLinitialise_topography()
 
 % Dimension of problem
 dim=2;
@@ -25,7 +25,7 @@ coarsestgrid = 6;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=5;
+option.num_vcycles=10;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;

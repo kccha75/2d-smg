@@ -27,6 +27,8 @@ alpha = DJL.alpha;
 mode = DJL.mode;
 N2 = DJL.N2;
 
+topography = DJL.topography;
+
 % -------------------------------------------------------------------------
 % Eigenvalues of phi_zz+N^2(z)*lambda*phi=0
 % -------------------------------------------------------------------------
@@ -84,14 +86,11 @@ gamma=C/2*phiz0/int_phi_z_2;
 % fKdVsol for no forcing
 % -------------------------------------------------------------------------
 
-% Topography and solution to fKdV
-KAI=20;
-topography=sech(x{1}/pi*KAI).^2;
-
-if abs(max(topography))==0
+if topography(x{1})==0 % no topography?
     
     % DJL parameters
     u=DJL.u;
+    mu=DJL.mu;
     
     % Delta 
     delta=(u-C)/epsilon; % v=c+delta*epsilon
@@ -111,6 +110,9 @@ if abs(max(topography))==0
     fKdVsol=delta_star/2*sech(sqrt(delta_star/2)*X).^2; % (X from -KAI to KAI)
     
 else
+
+    % Topography length
+    KAI=10;
 
     % pick specific gamma
     gamma_star=-8;
@@ -135,9 +137,9 @@ else
     DJL.KAI=KAI;
     DJL.mu=mu;
 
+
 end
 
 v0=epsilon*6*s*mu^2/r*fKdVsol*phi';
-
 
 end
