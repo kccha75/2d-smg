@@ -5,22 +5,21 @@ clear;close all;%clc
 % -------------------------------------------------------------------------
 
 alpha=0.01;
-epsilon=sqrt(alpha);
-mu=sqrt(epsilon);
+% epsilon=sqrt(alpha);
+% mu=sqrt(epsilon);
 
-u=0.24;
 mode=1;
 
 % N^2 function
-N2=@(psi) psi;
+N2=@(psi) 1-0.7*sech(psi-0.1).^2;
 
 % (N^2)'
-N2d=@(psi) 0*psi+1;
+N2d=@(psi) 0.7*2*sech(psi-0.1).^2.*tanh(psi-0.1);
 
-DJL.epsilon = epsilon;
+% DJL.epsilon = epsilon;
 DJL.alpha = alpha;
-DJL.mu = mu;
-DJL.u = u;
+% DJL.mu = mu;
+
 DJL.mode=mode;
 
 DJL.N2=N2;

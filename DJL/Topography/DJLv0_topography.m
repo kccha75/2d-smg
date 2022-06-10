@@ -22,7 +22,7 @@ N=domain.N;
 x=domain.x;
 
 % DJL parameters
-epsilon = DJL.epsilon;
+% epsilon = DJL.epsilon;
 alpha = DJL.alpha;
 mode = DJL.mode;
 N2 = DJL.N2;
@@ -83,33 +83,8 @@ s=C/2*int_phi_2/int_phi_z_2;
 gamma=C/2*phiz0/int_phi_z_2;
 
 % -------------------------------------------------------------------------
-% fKdVsol for no forcing
+% fKdVsol for forcing
 % -------------------------------------------------------------------------
-
-if topography(x{1})==0 % no topography?
-    
-    % DJL parameters
-    u=DJL.u;
-    mu=DJL.mu;
-    
-    % Delta 
-    delta=(u-C)/epsilon; % v=c+delta*epsilon
-    
-    % fKdV solution (after rescaling)
-    delta_star=delta/(s*mu^2);
-
-    % KAI such that relative to max 10^-10 at fkdv solution ends
-    KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-12*delta_star/2));
-    
-    % KAI such that absolute min 10^-12 at fkdv solution ends
-    % KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-10));
-    
-    X=x{1}/pi*KAI; % X domain
-    DJL.KAI=KAI;
-
-    fKdVsol=delta_star/2*sech(sqrt(delta_star/2)*X).^2; % (X from -KAI to KAI)
-    
-else
 
     % Topography length
     KAI=10;
@@ -119,6 +94,7 @@ else
 
     % Solve for mu
     mu=(gamma*r*alpha/(6*s^2*gamma_star))^(1/4);
+    epsilon=mu^2;
 
     % determine delta_star from hydraulic fall plot
     delta_star=0;
@@ -136,9 +112,7 @@ else
     DJL.u=u;
     DJL.KAI=KAI;
     DJL.mu=mu;
-
-
-end
+    DJL.epsilon=epsilon;
 
 v0=epsilon*6*s*mu^2/r*fKdVsol*phi';
 
