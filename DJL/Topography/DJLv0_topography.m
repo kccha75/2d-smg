@@ -22,12 +22,10 @@ N=domain.N;
 x=domain.x;
 
 % DJL parameters
-% epsilon = DJL.epsilon;
+epsilon = DJL.epsilon;
 alpha = DJL.alpha;
 mode = DJL.mode;
 N2 = DJL.N2;
-
-topography = DJL.topography;
 
 % -------------------------------------------------------------------------
 % Eigenvalues of phi_zz+N^2(z)*lambda*phi=0
@@ -94,7 +92,7 @@ gamma=C/2*phiz0/int_phi_z_2;
 
     % Solve for mu
     mu=(gamma*r*alpha/(6*s^2*gamma_star))^(1/4);
-    epsilon=mu^2;
+%     epsilon=mu^2;
 
     % determine delta_star from hydraulic fall plot
     delta_star=0;
