@@ -16,7 +16,7 @@
 % v0 - DJL perturbation solution
 % DJL.KAI -DJL x domain size (sufficiently large)
 
-function [v0,DJL]=DJLv0(DJL,domain)
+function [v,DJL]=DJLv0(DJL,domain)
 
 N=domain.N;
 x=domain.x;
@@ -45,15 +45,16 @@ A(1,:)=0;A(1,1)=1;
 A(end,:)=0;A(end,end)=1;
 
 % Find smallest eigenvectors
-[phi,lambda]=eig(A);
-lambda=diag(lambda); % turn into vector
+[phis,lambdas]=eig(A);
+lambdas=diag(lambdas); % turn into vector
 
 % Sort
-[lambda,index]=sort(lambda);
+[lambdas,index]=sort(lambdas,'ascend');
+phis=phis(:,index);
 
 % disregarding the last 2 that do not satisfy BCs
-phi=phi(:,index(mode+2));
-lambda=lambda(mode+2);
+phi=phis(:,mode+2);
+lambda=lambdas(mode+2);
 
 % lambda=1/C^2
 C=1/sqrt(lambda);
@@ -93,9 +94,63 @@ KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-12*delta_star/2));
 X=x{1}/pi*KAI; % X domain
 
 % fKdVsol for no forcing
-fKdVsol=delta_star/2*sech(sqrt(delta_star/2)*X).^2; % (X from -KAI to KAI)
-v0=epsilon*6*s*mu^2/r*fKdVsol*phi';
+B=delta_star/2*sech(sqrt(delta_star/2)*X).^2; % (X from -KAI to KAI)
+
+% back to original compatibility equation
+A=6*s*mu^2/r*B;
+
+% psi_0 solution
+v0=epsilon*A*phi';
 
 DJL.KAI=KAI;
+
+% -------------------------------------------------------------------------
+% Test for order 1 solution
+% -------------------------------------------------------------------------
+
+% remove the bad solutions
+phis=phis(:,3:end);
+lambdas=lambdas(3:end)';
+
+% Take only 10 modes ...
+phis=phis(:,1:10);
+lambdas=lambdas(1:10);
+
+% phi_n'
+phi_z=2*ifct(chebdiff(fct(phis),1));
+
+% % phi_n'(0)
+% phi_z_0=phi_z(end,:);
+
+% int phi_N * phi_n
+int1=1/2*clenshaw_curtis(phis.*phis(:,mode).^2);
+
+% int (phi_N')^2 * phi_n'
+int2=1/2*clenshaw_curtis(phi_z.*phi_z(:,mode).^2);
+
+% int (phi_n')^2
+int3=1/2*clenshaw_curtis(phi_z.^2);
+
+% c_n/c_N
+cn=1./sqrt(lambdas);
+cN=1/sqrt(lambdas(mode));
+cncN2=(cn/cN).^2;
+
+% beta
+beta=-ifft(-domain.k{1}.^2.*fft(A))*int1+A.^2*((1/2*1./cncN2.^2-2).*int2);
+beta=beta./int3;
+
+% coefficients
+an=beta./(lambdas(mode)-lambdas);
+
+% n=N filter
+an(:,mode)=0;
+
+% v1
+v1=an*phis';
+
+% solution!
+
+v=v0+epsilon*v1;
 
 end
