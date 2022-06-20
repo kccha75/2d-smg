@@ -4,7 +4,7 @@ clear;close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=1587;
+epsilon=1;
 alpha=epsilon^2;
 mu=sqrt(epsilon);
 u=0.305; % CHECK WITH v0 TO MAKE SURE
@@ -36,6 +36,8 @@ time=tic;
 
 % Initialise PDE
 [pde,domain]=DJLpdeinitialise(DJL,domain);
+
+disp(rms(rms(pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2))))
 
 % Newton solve
 [v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);

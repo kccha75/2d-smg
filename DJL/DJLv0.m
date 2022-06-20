@@ -85,16 +85,16 @@ gamma=C/2*phiz0/int_phi_z_2;
 % fKdV solution (after rescaling)
 delta_star=delta/(s*mu^2);
 
-% KAI such that relative to max 10^-10 at fkdv solution ends
-KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-12*delta_star/2));
+% KAI such that relative to max 10^-8 at fkdv solution ends
+KAI=2/sqrt(delta_star)*asech(sqrt((2/delta_star)*1e-8*delta_star/2));
 
 % KAI such that absolute min 10^-12 at fkdv solution ends
-% KAI=sqrt(2/delta_star)*asech(sqrt((2/delta_star)*1e-10));
+% KAI=2/sqrt(delta_star)*asech(sqrt((2/delta_star)*1e-12));
 
 X=x{1}/pi*KAI; % X domain
 
 % fKdVsol for no forcing
-B=delta_star/2*sech(sqrt(delta_star/2)*X).^2; % (X from -KAI to KAI)
+B=delta_star/2*sech(sqrt(delta_star)/2*X).^2; % (X from -KAI to KAI)
 
 % back to original compatibility equation
 A=6*s*mu^2/r*B;
@@ -123,34 +123,32 @@ phi_z=2*ifct(chebdiff(fct(phis),1));
 % phi_z_0=phi_z(end,:);
 
 % int phi_N * phi_n
-int1=1/2*clenshaw_curtis(phis.*phis(:,mode).^2);
+int1=1/2*clenshaw_curtis(phis.*phis(:,mode));
 
 % int (phi_N')^2 * phi_n'
-int2=1/2*clenshaw_curtis(phi_z.*phi_z(:,mode).^2);
+int2=1/2*clenshaw_curtis(phi_z(:,mode).^2.*phi_z);
 
 % int (phi_n')^2
 int3=1/2*clenshaw_curtis(phi_z.^2);
 
 % c_n/c_N
-cn=1./sqrt(lambdas);
-cN=1/sqrt(lambdas(mode));
-cncN2=(cn/cN).^2;
+cn2=1./lambdas;
+cN2=1/lambdas(mode);
 
 % beta
-beta=-ifft(-domain.k{1}.^2.*fft(A))*int1+A.^2*((1/2*1./cncN2.^2-2).*int2);
-beta=beta./int3;
+beta=-ifft(-(pi/KAI*domain.k{1}).^2.*fft(A))*int1+A.^2*(((cN2./(2*cn2)-2).*int2));
+beta=beta./(cn2.*int3);
 
 % coefficients
-an=beta./(lambdas(mode)-lambdas);
+an=beta./(lambda(mode)-lambdas);
 
-% n=N filter
+% n=N case
 an(:,mode)=0;
 
 % v1
 v1=an*phis';
 
 % solution!
-
-v=v0+epsilon*v1;
-
+v=v0+epsilon^2*v1;
+% v=v0;
 end
