@@ -53,7 +53,7 @@ lambdas=diag(lambdas); % turn into vector
 phis=phis(:,index);
 
 % disregarding the last 2 that do not satisfy BCs
-phi=phis(:,mode+2);
+phi=phis(:,mode+2)*0.001;
 lambda=lambdas(mode+2);
 
 % lambda=1/C^2
@@ -86,7 +86,7 @@ gamma=C/2*phiz0/int_phi_z_2;
 delta_star=delta/(s*mu^2);
 
 % KAI such that relative to max 10^-8 at fkdv solution ends
-KAI=2/sqrt(delta_star)*asech(sqrt((2/delta_star)*1e-8*delta_star/2));
+KAI=2/sqrt(delta_star)*asech(sqrt(1e-8));
 
 % KAI such that absolute min 10^-12 at fkdv solution ends
 % KAI=2/sqrt(delta_star)*asech(sqrt((2/delta_star)*1e-12));
@@ -136,19 +136,19 @@ cn2=1./lambdas;
 cN2=1/lambdas(mode);
 
 % beta
-beta=-ifft(-(pi/KAI*domain.k{1}).^2.*fft(A))*int1+A.^2*(((cN2./(2*cn2)-2).*int2));
+beta=-ifft(-(pi/KAI*domain.k{1}).^2.*fft(A))*int1+(A).^2*((cN2./(2*cn2)-2).*int2);
 beta=beta./(cn2.*int3);
 
 % coefficients
-an=beta./(lambda(mode)-lambdas);
+an=beta./(lambdas(mode)-lambdas);
 
 % n=N case
 an(:,mode)=0;
 
 % v1
-v1=an*phis';
+v1=epsilon^2*an*phis';
 
 % solution!
-v=v0+epsilon^2*v1;
+v=v0+v1;
 % v=v0;
 end
