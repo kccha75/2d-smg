@@ -4,7 +4,7 @@ clear;close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=1;
+epsilon=4;
 alpha=epsilon^2;
 mu=sqrt(epsilon);
 u=0.24;u=0.34;u=0.324816891176339+0.01;

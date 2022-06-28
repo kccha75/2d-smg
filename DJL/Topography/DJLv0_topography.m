@@ -37,22 +37,28 @@ D2z=4*ifct(chebdiff(fct(eye(N(2),N(2))),2)); % 2x since change in domain to [0,1
 % z domain [0,1]
 z=(x{2}+1)/2;
 
+% spectral matrix
 A=-D2z./N2(z);
 
 % Boundary conditions
 A(1,:)=0;A(1,1)=1;
 A(end,:)=0;A(end,end)=1;
 
-% Find smallest eigenvectors
-[phi,lambda]=eig(A);
-lambda=diag(lambda); % turn into vector
+% Find eigenvalues and eigenvectors
+[phis,lambdas]=eig(A);
+lambdas=diag(lambdas); % turn into vector
 
 % Sort
-[lambda,index]=sort(lambda);
+[lambdas,index]=sort(lambdas,'ascend');
+phis=phis(:,index);
 
-% disregarding the last 2 that do not satisfy BCs
-phi=phi(:,index(mode+2));
-lambda=lambda(mode+2);
+% Disregarding the last 2 that do not satisfy BCs
+phis=phis(:,3:end);
+lambdas=lambdas(3:end)';
+
+% Specific interested mode
+phi=phis(:,mode);
+lambda=lambdas(mode);
 
 % lambda=1/C^2
 C=1/sqrt(lambda);
@@ -81,37 +87,86 @@ s=C/2*int_phi_2/int_phi_z_2;
 gamma=C/2*phiz0/int_phi_z_2;
 
 % -------------------------------------------------------------------------
-% fKdVsol for forcing
+% Order 1 fKdVsol for forcing
 % -------------------------------------------------------------------------
 
-    % Topography length
-    KAI=10;
+% Topography length
+KAI=10;
 
-    % pick specific gamma
-    gamma_star=-8;
+% pick specific gamma
+gamma_star=-8;
 
-    % Solve for mu
-    mu=(gamma*r*alpha/(6*s^2*gamma_star))^(1/4);
-%     epsilon=mu^2;
+% Solve for mu
+mu=(gamma*r*alpha/(6*s^2*gamma_star))^(1/4);
+epsilon=mu^2;
 
-    % determine delta_star from hydraulic fall plot
-    delta_star=0;
+% determine delta_star from hydraulic fall plot
+delta_star=0;
     
-    % Solution of fkdv equation
-    X=x{1}/pi*KAI;
-    fKdVsol=2*sech(X).^2;
+% Solution of fkdv equation
+X=x{1}/pi*KAI;
+A=2*sech(X).^2;
     
-    % find delta
-    delta=delta_star*s*mu^2;
+% find delta
+delta=delta_star*s*mu^2;
 
-    % find u
-    u=delta*epsilon+C;
+% find u
+u=delta*epsilon+C;
     
-    DJL.u=u;
-    DJL.KAI=KAI;
-    DJL.mu=mu;
-    DJL.epsilon=epsilon;
+DJL.u=u;
+DJL.KAI=KAI;
+DJL.mu=mu;
+DJL.epsilon=epsilon;
 
-v0=epsilon*6*s*mu^2/r*fKdVsol*phi';
+v0=epsilon*6*s*mu^2/r*A*phi';
+
+% -------------------------------------------------------------------------
+% Order epsilon solution
+% -------------------------------------------------------------------------
+
+% Take only 10 modes ...
+phis=phis(:,1:10);
+lambdas=lambdas(1:10);
+
+% phi_n'
+phi_z=2*ifct(chebdiff(fct(phis),1));
+
+% % phi_n'(0)
+phi_z_0=phi_z(end,:);
+
+% int phi_N * phi_n
+int1=1/2*clenshaw_curtis(phis.*phi);
+
+% int (phi_N')^2 * phi_n'
+int2=1/2*clenshaw_curtis(dphi.^2.*phi_z);
+
+% int (phi_n')^2
+int3=1/2*clenshaw_curtis(phi_z.^2);
+
+% c_n/c_N
+cn2=1./lambdas;
+cN2=1/lambda;
+
+% A_xx in x domain (KAI/mu)
+A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
+
+b=alpha*sech(x).^2;
+
+% beta
+beta=-cn2./cN2*b*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
+
+beta=beta./(cn2.*int3);
+
+% coefficients
+an=beta./(lambdas(mode)-lambdas);
+
+% n=N case
+an(:,mode)=0;
+
+% O(e) solution
+v1=epsilon^2*an*phis';
+
+% solution!
+v=v0+v1;
 
 end
