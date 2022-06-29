@@ -11,10 +11,10 @@ epsilon=sqrt(alpha);
 mode=1;
 
 % N^2 function
-N2=@(psi) sech(0.4*(psi-0.9)).^2;
+N2=@(psi) sech(psi-0.8).^2;
 
 % (N^2)'
-N2d=@(psi) -2*0.4*sech(0.4*(psi-0.9)).^2.*tanh(0.4*(psi-0.9));
+N2d=@(psi) -2*sech(psi-0.8).^2.*tanh(psi-0.8);
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
@@ -45,7 +45,7 @@ DJL.L = L;
 % Initialise PDE
 [pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
-v0=interp2((domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'makima');
+v0=interp2((domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'spline');
 
 % initial residual ..?
 disp(rms(rms(pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2))))

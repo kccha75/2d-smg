@@ -16,13 +16,13 @@
 % v0 - DJL perturbation solution
 % DJL.KAI -DJL x domain size (sufficiently large)
 
-function [v0,DJL]=DJLv0_topography(DJL,domain)
+function [v,DJL]=DJLv0_topography(DJL,domain)
 
 N=domain.N;
 x=domain.x;
 
 % DJL parameters
-epsilon = DJL.epsilon;
+% epsilon = DJL.epsilon;
 alpha = DJL.alpha;
 mode = DJL.mode;
 N2 = DJL.N2;
@@ -105,7 +105,7 @@ delta_star=0;
     
 % Solution of fkdv equation
 X=x{1}/pi*KAI;
-A=2*sech(X).^2;
+A=2*sech(X/mu).^2;
     
 % find delta
 delta=delta_star*s*mu^2;
@@ -150,10 +150,10 @@ cN2=1/lambda;
 % A_xx in x domain (KAI/mu)
 A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
 
-b=alpha*sech(x).^2;
+b=alpha*sech(X/mu).^2;
 
 % beta
-beta=-cn2./cN2*b*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
+beta=-b*cn2./cN2.*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
 
 beta=beta./(cn2.*int3);
 
