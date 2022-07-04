@@ -22,7 +22,7 @@ N=domain.N;
 x=domain.x;
 
 % DJL parameters
-% epsilon = DJL.epsilon;
+epsilon = DJL.epsilon;
 alpha = DJL.alpha;
 mode = DJL.mode;
 N2 = DJL.N2;
@@ -91,14 +91,14 @@ gamma=C/2*phiz0/int_phi_z_2;
 % -------------------------------------------------------------------------
 
 % Topography length
-KAI=10;
+KAI=20;
 
 % pick specific gamma
 gamma_star=-8;
 
 % Solve for mu
 mu=(gamma*r*alpha/(6*s^2*gamma_star))^(1/4);
-epsilon=mu^2;
+% epsilon=mu^2;
 
 % determine delta_star from hydraulic fall plot
 delta_star=0;
@@ -150,7 +150,7 @@ cN2=1/lambda;
 % A_xx in x domain (KAI/mu)
 A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
 
-b=alpha*sech(X/mu).^2;
+b=sech(X/mu).^2;
 
 % beta
 beta=-b*cn2./cN2.*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
@@ -164,9 +164,12 @@ an=beta./(lambdas(mode)-lambdas);
 an(:,mode)=0;
 
 % O(e) solution
-v1=epsilon^2*an*phis';
+v1=an*phis';
+
+% Back to zai coordinates
+zai=epsilon^2*(v1-b*(z-1)');
 
 % solution!
-v=v0+v1;
-
+v=v0+zai;
+v=v0;
 end

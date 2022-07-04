@@ -53,7 +53,7 @@ v0=@(X,Y) 0*X;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=12;
+option.num_vcycles=20;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -186,12 +186,13 @@ end
 % -------------------------------------------------------------------------
 % Conformal mapping test...
 % -------------------------------------------------------------------------
-
-h = @(x) 0.1*sech(x).^2; % Bump function
+l=10;
+alpha=0.05;
+h = @(x) alpha*(sech(x*200/2/pi+l).^2+sech(x*200/2/pi-l).^2); % Bump function
 
 H0=1; % initial height
 L=H0;
-loops=100;
+loops=200;
 
 u=x{1};
 x_old=u;

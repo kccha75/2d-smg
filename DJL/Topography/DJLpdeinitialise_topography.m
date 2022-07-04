@@ -65,7 +65,7 @@ BCRHS1{2}=@(x) 0*x;
 % y(end) a22*u+b22*u'= rhs22
 alpha2{2}=@(x) 1;
 beta2{2}=@(x) 0;
-BCRHS2{2}=@(x) DJL.alpha*DJL.topography(x*DJL.KAI/pi); % topography BC
+BCRHS2{2}=@(x) DJL.topography(x*(DJL.KAI/mu)/2/pi); % topography BC
 
 BC=cell(4,dim);
 BCRHS=cell(2,dim);

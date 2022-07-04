@@ -11,10 +11,10 @@ epsilon=sqrt(alpha);
 mode=1;
 
 % N^2 function
-N2=@(psi) sech(psi-0.8).^2;
+N2=@(psi) sech(psi-1).^2;
 
 % (N^2)'
-N2d=@(psi) -2*sech(psi-0.8).^2.*tanh(psi-0.8);
+N2d=@(psi) -2*sech(psi-1).^2.*tanh(psi-1);
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
