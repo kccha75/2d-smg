@@ -16,7 +16,7 @@
 % v0 - DJL perturbation solution
 % DJL.KAI -DJL x domain size (sufficiently large)
 
-function [v,DJL]=DJLv0_topography(DJL,domain)
+function [v,DJL]=DJLv0_topography_test(DJL,domain)
 
 N=domain.N;
 x=domain.x;
@@ -93,23 +93,15 @@ gamma=C/2*phiz0/int_phi_z_2;
 % Topography length
 KAI=20;
 
-% pick specific gamma
-gamma_star=-8;
+% Solve for gamma_star, requiring that alpha=mu^(1/4)
+gamma_star=gamma*r/(6*s^2);
 
-% determine delta_star from hydraulic fall plot
-delta_star=0;
-
-% Solve for mu
-mu=(gamma*r*alpha/(6*s^2*gamma_star))^(1/4);
-% epsilon=mu^2;
+% Delta_star from fkdv equation given gamma_star
+delta_star=???;
     
 % Solution of fkdv equation
-X=x{1}/pi*KAI; % -KAI to KAI
-B=2*sech(X).^2;
+A=???
     
-% back to original compatibility equation
-A=6*s*mu^2/r*B;
-
 % find delta
 delta=delta_star*s*mu^2;
 
@@ -121,7 +113,7 @@ DJL.KAI=KAI;
 DJL.mu=mu;
 DJL.epsilon=epsilon;
 
-v0=epsilon*A*phi';
+v0=epsilon*6*s*mu^2/r*A*phi';
 
 % -------------------------------------------------------------------------
 % Order epsilon solution
