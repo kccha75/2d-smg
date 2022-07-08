@@ -1,43 +1,55 @@
-clear;close all;%clc
+clear;%close all;%clc
 
 % -------------------------------------------------------------------------
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=4;
-alpha=epsilon^2;
-mu=sqrt(epsilon);
-u=0.24;
+alpha=0.001;
+epsilon=sqrt(alpha);
+mu=alpha^(1/4);
+
 mode=1;
 
 % N^2 function
-N2=@(psi) psi;
+N2=@(psi) sech((psi-0.6)/10).^2;
 
 % (N^2)'
-N2d=@(psi) 0*psi+1;
+N2d=@(psi) -2*sech((psi-0.6)/10).^2.*tanh((psi-0.6)/10);
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
 DJL.mu = mu;
-DJL.u = u;
+
 DJL.mode=mode;
 
 DJL.N2=N2;
 DJL.N2d=N2d;
 
+DJL.topography=@(x) sech(x).^2;
+
 % -------------------------------------------------------------------------
 time=tic;
 
 % Initialise
-[domain,option,cont_option]=DJLinitialise();
+[domain,option,cont_option]=DJLinitialise_topography();
 
 % Initial guess
-[v0,DJL]=DJLv0(DJL,domain);
+[v0,DJL]=DJLv0_topography_test(DJL,domain);
+
+% Conformal mapping and interpolation
+load('XX.mat');
+load('YY.mat');
+load('L.mat');
+DJL.L = L;
 
 % Initialise PDE
-[pde,domain]=DJLpdeinitialise(DJL,domain);
+[pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
-disp(rms(rms(pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2))))
+% v0=interp2((domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'spline');
+
+% initial residual ..?
+r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
+disp(rms(rms(r)))
 
 % Newton solve
 [v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
@@ -50,7 +62,7 @@ if flag ==0
 end
 
 % Continuation
-[V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
+% [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)

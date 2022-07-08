@@ -24,6 +24,7 @@ x=domain.x;
 % DJL parameters
 epsilon = DJL.epsilon;
 alpha = DJL.alpha;
+mu = DJL.mu;
 mode = DJL.mode;
 N2 = DJL.N2;
 
@@ -91,16 +92,20 @@ gamma=C/2*phiz0/int_phi_z_2;
 % -------------------------------------------------------------------------
 
 % Topography length
-KAI=20;
+KAI=30;
 
-% Solve for gamma_star, requiring that alpha=mu^(1/4)
+% Solve for gamma_star, requiring that alpha=mu^4
 gamma_star=gamma*r/(6*s^2);
 
-% Delta_star from fkdv equation given gamma_star
-delta_star=???;
+% Delta_star from fkdv equation given gamma_star for solitary wave
+delta_star=1/2*(gamma_star+8);
     
 % Solution of fkdv equation
-A=???
+X=x{1}/pi*KAI; % -KAI to KAI
+B=2*sech(X).^2;
+
+% back to original compatibility equation
+A=6*s*mu^2/r*B;
     
 % find delta
 delta=delta_star*s*mu^2;
@@ -113,7 +118,7 @@ DJL.KAI=KAI;
 DJL.mu=mu;
 DJL.epsilon=epsilon;
 
-v0=epsilon*6*s*mu^2/r*A*phi';
+v0=epsilon*A*phi';
 
 % -------------------------------------------------------------------------
 % Order epsilon solution
@@ -145,7 +150,7 @@ cN2=1/lambda;
 % A_xx in x domain (KAI/mu)
 A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
 
-b=sech(X/mu).^2;
+b=sech(X).^2;
 
 % beta
 beta=-b*cn2./cN2.*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
@@ -166,5 +171,5 @@ zai=epsilon^2*(v1+b*(1-z)');
 
 % solution!
 v=v0+zai;
-% v=v0;
+
 end
