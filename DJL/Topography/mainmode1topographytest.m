@@ -4,17 +4,17 @@ clear;%close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-alpha=0.001;
+alpha=0.05;
 epsilon=sqrt(alpha);
 mu=alpha^(1/4);
 
 mode=1;
 
 % N^2 function
-N2=@(psi) sech((psi-0.6)/10).^2;
+N2=@(psi) sech((psi-0.6)/1).^2;
 
 % (N^2)'
-N2d=@(psi) -2*sech((psi-0.6)/10).^2.*tanh((psi-0.6)/10);
+N2d=@(psi) -2*sech((psi-0.6)/1).^2.*tanh((psi-0.6)/1);
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
