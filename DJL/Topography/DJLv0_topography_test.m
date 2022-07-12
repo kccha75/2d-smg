@@ -88,11 +88,11 @@ s=C/2*int_phi_2/int_phi_z_2;
 gamma=C/2*phiz0/int_phi_z_2;
 
 % -------------------------------------------------------------------------
-% Order 1 fKdVsol for forcing
+% Order 1 fKdVsol for forcing, picking alpha and mu^4
 % -------------------------------------------------------------------------
 
 % Topography length
-KAI=30;
+KAI=20;
 
 % Solve for gamma_star, requiring that alpha=mu^4
 gamma_star=gamma*r/(6*s^2*mu^4);
@@ -150,7 +150,7 @@ cN2=1/lambda;
 % A_xx in x domain (KAI/mu)
 A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
 
-b=sech(X/mu).^2;
+b=sech(X).^2;
 
 % beta
 beta=-b*cn2./cN2.*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
