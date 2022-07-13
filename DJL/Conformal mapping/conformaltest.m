@@ -1,4 +1,4 @@
-clear;close all;%clc
+% clear;%close all;%clc
 % -------------------------------------------------------------------------
 % Solve PDE au_xx + bu_yy + cu = f using Fourier Cheb Spectral Multigrid
 % -------------------------------------------------------------------------
@@ -186,9 +186,9 @@ end
 % -------------------------------------------------------------------------
 % Conformal mapping test...
 % -------------------------------------------------------------------------
-alpha=0.05;
-KAI=20;
-h = @(x) alpha*sech(x*KAI/pi).^2; % Bump function
+% alpha=0.05;
+% KAI=20;
+h = @(x) DJL.alpha*sech(x*DJL.KAI/DJL.mu/pi).^2; % Bump function
 
 H0=1; % initial height
 
