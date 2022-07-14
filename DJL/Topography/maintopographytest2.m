@@ -12,10 +12,10 @@ epsilon=0.2;
 mode=1;
 
 % N^2 function
-N2=@(psi) sech((psi-0.6)/1).^2;
+N2=@(psi) sech((psi-1)/1).^2;
 
 % (N^2)'
-N2d=@(psi) -2*sech((psi-0.6)/1).^2.*tanh((psi-0.6)/1);
+N2d=@(psi) -2*sech((psi-1)/1).^2.*tanh((psi-1)/1);
 
 DJL.epsilon = epsilon;
 % DJL.alpha = alpha;
@@ -38,15 +38,13 @@ time=tic;
 [v0,DJL]=DJLv0_topography_test2(DJL,domain);
 
 % Conformal mapping and interpolation
-load('XX.mat');
-load('YY.mat');
-load('L.mat');
-DJL.L = L;
+[XX,YY,L]=conformalmapping(DJL,domain,option);
+DJL.L=L;
 
 % Initialise PDE
 [pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
-v0=interp2((domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'spline');
+v0=interp2(L*pi*DJL.mu^2/DJL.KAI*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'spline');
 
 % initial residual ..?
 r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
