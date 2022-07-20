@@ -4,7 +4,7 @@
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
 
-function [XX,YY,L]=conformalmapping(DJL,domain,option)
+function [mapping]=conformalmapping(DJL,domain,option)
 
 alpha=DJL.alpha;
 KAI=DJL.KAI;
@@ -96,7 +96,7 @@ for i=1:loops
     x_new=u+epsilon;
 
     % compare old x with new x, break if tol met, loop otherwise
-    if rms(x_new - x_old) < 1e-14
+    if rms(x_new - x_old) < 1e-12
         fprintf('Linear residual is %d\n',rms(r(:)))
         fprintf('x diff is %d\n',rms(x_new - x_old))
         fprintf('Reached tolerance after %d iterations!\n',i)
@@ -113,8 +113,11 @@ for i=1:loops
 end
 
 ee=real(ifft(kinv.*fft(dy-1)));
-YY=y;
-XX=U+ee;
+
+% X,Y map outputs
+mapping.YY=y;
+mapping.XX=U+ee;
+mapping.L=L;
 
 % check laplacian!
 
@@ -135,10 +138,10 @@ XX=U+ee;
 ex=ee;
 
 % dx/du
-dxdu=ifft(1i*domain.k{1}.*fft(ee));
+dxdu=ifft(1i*domain.k{1}.*fft(ex));
 
 % dx/dv
-dxdv=ifct(2/L*chebdiff(fct(ee'),1));
+dxdv=ifct(2/L*chebdiff(fct(ex'),1));
 dxdv=dxdv';
 
 ey=y-V;
@@ -150,5 +153,14 @@ dzdu=ifft(1i*domain.k{1}.*fft(ey));
 % dz/dv
 dzdv=ifct(2/L*chebdiff(fct(ey'),1));
 dzdv=dzdv';
+
+surf(real(dxdu)-dzdv)
+figure;
+surf(real(dzdu)+dxdv)
+
+% Jacobian
+jac=real(dxdu).^2+dxdv.^2;
+mapping.jac=jac;
+mapping.H=H0;
 
 end

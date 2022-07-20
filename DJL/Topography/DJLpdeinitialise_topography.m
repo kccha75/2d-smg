@@ -26,18 +26,20 @@ X=domain.X;
 mu=DJL.mu;
 pde.u=DJL.u;
 KAI=DJL.KAI;
-L=DJL.L;
+alpha=DJL.alpha;
+topography=DJL.topography;
+% L=DJL.L;
 
 % -------------------------------------------------------------------------
 % Set up PDE
 % -------------------------------------------------------------------------
 % PDE Parameters
 
-Lx=KAI/mu^2/pi; % ?? domain to [-pi pi]
-Ly=L/2; % [0 L] domain to [-1 1]
+% Lx=KAI/mu^2/pi; % ?? domain to [-pi pi]
+% Ly=L/2; % [0 L] domain to [-1 1]
 
-a=@(X,Y) 1/Lx^2;
-b=@(X,Y) 1/Ly^2;
+a=@(X,Y) 1/DJL.Lx^2;
+b=@(X,Y) 1/DJL.Ly^2;
 c=@(X,Y) 0*X;
 
 % RHS
@@ -67,7 +69,7 @@ BCRHS1{2}=@(x) 0*x;
 % y(end) a22*u+b22*u'= rhs22
 alpha2{2}=@(x) 1;
 beta2{2}=@(x) 0;
-BCRHS2{2}=@(x) DJL.alpha*DJL.topography(x*DJL.KAI/mu^2/pi); % topography BC
+BCRHS2{2}=@(x) alpha*topography(x*KAI/mu^2/pi); % topography BC
 
 BC=cell(4,dim);
 BCRHS=cell(2,dim);

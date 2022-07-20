@@ -95,7 +95,7 @@ gamma=C/2*phiz0/int_phi_z_2;
 KAI=15;
 
 % Pick Delta and mu
-delta=0.00;
+delta=0.01;
 mu=0.5;
 
 % Solve for alpha ...??????
@@ -158,12 +158,12 @@ b=sech(X/mu).^2;
 
 % beta
 beta=-b*cn2./cN2.*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
-% beta=A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
+beta=A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
 beta=beta./(cn2.*int3);
 
 % coefficients
 an=beta./(lambdas(mode)-lambdas);
-% an=an-b.*phi_z_0.*(cN2-cn2)./cN2;
+an=an+
 % n=N case
 an(:,mode)=0;
 
