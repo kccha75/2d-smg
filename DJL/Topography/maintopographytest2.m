@@ -39,7 +39,10 @@ time=tic;
 
 % Conformal mapping and interpolation
 [XX,YY,L]=conformalmapping(DJL,domain,option);
+
 DJL.L=L;
+DJL.Lx=KAI/mu^2/pi;
+DJL.Ly=L/2;
 
 % Initialise PDE
 [pde,domain]=DJLpdeinitialise_topography(DJL,domain);

@@ -96,7 +96,7 @@ for i=1:loops
     x_new=u+epsilon;
 
     % compare old x with new x, break if tol met, loop otherwise
-    if rms(x_new - x_old) < 1e-10
+    if rms(x_new - x_old) < 1e-14
         fprintf('Linear residual is %d\n',rms(r(:)))
         fprintf('x diff is %d\n',rms(x_new - x_old))
         fprintf('Reached tolerance after %d iterations!\n',i)
@@ -111,9 +111,6 @@ for i=1:loops
     end
     
 end
-
-% scaling back ...
-L=L/(pi*mu^2/KAI);
 
 ee=real(ifft(kinv.*fft(dy-1)));
 YY=y;
@@ -134,5 +131,24 @@ XX=U+ee;
 % 
 % xx=U+ee;
 % XX=Lu_2d_nobc(xx,pde,domain);
+
+ex=ee;
+
+% dx/du
+dxdu=ifft(1i*domain.k{1}.*fft(ee));
+
+% dx/dv
+dxdv=ifct(2/L*chebdiff(fct(ee'),1));
+dxdv=dxdv';
+
+ey=y-V;
+
+% dz/du
+dzdu=ifft(1i*domain.k{1}.*fft(ey));
+
+
+% dz/dv
+dzdv=ifct(2/L*chebdiff(fct(ey'),1));
+dzdv=dzdv';
 
 end

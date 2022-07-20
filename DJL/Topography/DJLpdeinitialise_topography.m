@@ -5,6 +5,8 @@
 % domain.dim - dimension of problem
 % domain.X - ndgrid of x,y
 % DJL.mu
+% DJL.Lx
+% DJL.Ly
 % DJL.L - conformal mapping domain
 % DJL.u - wave speed
 % DJL.KAI - x domain length
