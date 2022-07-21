@@ -4,12 +4,11 @@
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
 
-function [mapping]=conformalmapping(DJL,domain,option)
+function [mapping,DJL]=conformalmapping(DJL,domain,option)
 
 alpha=DJL.alpha;
-KAI=DJL.KAI;
-mu=DJL.mu;
 topography=DJL.topography;
+Lx=DJL.Lx;
 
 N=domain.N;
 x=domain.x;
@@ -42,9 +41,9 @@ domain.BC{4,2}=0;
 % -------------------------------------------------------------------------
 % Conformal Mapping here
 % -------------------------------------------------------------------------
-H0=pi*mu^2/KAI; % to keep aspect ratio correct
+H0=2*pi/Lx; % to keep aspect ratio correct
 
-h = @(x) alpha*H0*topography(x*KAI/mu^2/pi); % Bump function
+h = @(x) alpha*H0*topography(x*DJL.Lx/(2*pi)); % Bump function
 
 loops=100;
 
@@ -68,7 +67,7 @@ for i=1:loops
     [U,V]=ndgrid(u,v);
     
     pde.a=1;
-    pde.b=1/(L/2)^2;
+    pde.b=(2/L)^2;
     pde.c=0;
     pde.f=-h_uu.*(1-V/L);
 %     pde.f=-Lu_2d(y_bc+(H0-y_bc).*V/L,pde,domain);
@@ -92,6 +91,7 @@ for i=1:loops
     % solve for correction e=int(dy/dv-1)du
     epsilon=real(ifft(kinv.*fft(dybc-1))); % mean 0 solution
     epsilon(1)=0;
+
     % find new x, x=u+e
     x_new=u+epsilon;
 
@@ -112,54 +112,52 @@ for i=1:loops
     
 end
 
-ee=real(ifft(kinv.*fft(dy-1)));
+% x=u+e
+ex=real(ifft(kinv.*fft(dy-1)));
+
+% Outputs
+XX=U+ex;
+YY=y;
 
 % X,Y map outputs
-mapping.YY=y;
-mapping.XX=U+ee;
-mapping.L=L;
+mapping.YY=YY;
+mapping.XX=XX;
+DJL.Ly=L;
 
-% check laplacian!
-
+% % check laplacian!
 % pde.a=1;
 % pde.b=1/(L/2)^2;
 % pde.c=0;
-
-
+% 
 % YY=Lu_2d_nobc(y,pde,domain);
 % 
 % ee=real(ifft(kinv.*fft(dy-1)));
 % 
 % EE=Lu_2d_nobc(ee,pde,domain);
-% 
-% xx=U+ee;
-% XX=Lu_2d_nobc(xx,pde,domain);
 
-ex=ee;
+% -------------------------------------------------------------------------
+% Jacobian Calculation
+% -------------------------------------------------------------------------
 
 % dx/du
-dxdu=ifft(1i*domain.k{1}.*fft(ex));
-
+dxdu=1+ifft(1i*domain.k{1}.*fft(ex));
 % dx/dv
 dxdv=ifct(2/L*chebdiff(fct(ex'),1));
 dxdv=dxdv';
-
-ey=y-V;
-
 % dz/du
-dzdu=ifft(1i*domain.k{1}.*fft(ey));
-
-
+dzdu=ifft(1i*domain.k{1}.*fft(y));
 % dz/dv
-dzdv=ifct(2/L*chebdiff(fct(ey'),1));
+dzdv=ifct(2/L*chebdiff(fct(y'),1));
 dzdv=dzdv';
 
-surf(real(dxdu)-dzdv)
-figure;
-surf(real(dzdu)+dxdv)
+% Check Cauchy-Riemann
+% surf(real(dxdu)-dzdv)
+% figure;
+% surf(real(dzdu)+dxdv)
 
 % Jacobian
-jac=real(dxdu).^2+dxdv.^2;
+jac=real(dzdv).^2+real(dzdu).^2;
+
 mapping.jac=jac;
 mapping.H=H0;
 

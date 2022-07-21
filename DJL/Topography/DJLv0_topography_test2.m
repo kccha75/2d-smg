@@ -56,7 +56,7 @@ phis=phis(:,index);
 % Disregarding the last 2 that do not satisfy BCs
 phis=phis(:,3:end);
 lambdas=lambdas(3:end)';
-
+phis=phis./max(abs(phis));
 % Specific interested mode
 phi=phis(:,mode);
 lambda=lambdas(mode);
@@ -102,10 +102,10 @@ mu=0.5;
 alpha=12*s*mu^2/(gamma*r)*(delta-4*s*mu^2);
 DJL.alpha=alpha;
 
-delta_star=delta/(s*mu^2);
-disp(delta_star)
-gamma_star=gamma*alpha*r/(6*s^2*mu^4);
-disp(gamma_star)
+% delta_star=delta/(s*mu^2);
+% disp(delta_star)
+% gamma_star=gamma*alpha*r/(6*s^2*mu^4);
+% disp(gamma_star)
 
 % Solution of fkdv equation
 X=x{1}/pi*KAI; % -KAI to KAI
@@ -116,11 +116,11 @@ A=6*s*mu^2/r*B;
 
 % find u
 u=delta*epsilon+C;
-    
+ 
+DJL.mu=mu;
 DJL.u=u;
 DJL.KAI=KAI;
-DJL.mu=mu;
-DJL.epsilon=epsilon;
+DJL.Lx=2*KAI/mu^2;
 
 v0=epsilon*A*phi';
 
@@ -129,8 +129,8 @@ v0=epsilon*A*phi';
 % -------------------------------------------------------------------------
 
 % Take only 10 modes ...
-phis=phis(:,1:10);
-lambdas=lambdas(1:10);
+phis=phis(:,1:20);
+lambdas=lambdas(1:20);
 
 % phi_n'
 phi_z=2*ifct(chebdiff(fct(phis),1));
@@ -157,7 +157,7 @@ A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
 b=sech(X/mu).^2;
 
 % beta
-beta=-b*cn2./cN2.*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
+beta=-alpha*b*cn2./cN2.*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
 % beta=A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
 beta=beta./(cn2.*int3);
 
