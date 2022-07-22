@@ -154,7 +154,7 @@ cN2=1/lambda;
 % A_xx in x domain (KAI/mu)
 A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
 
-b=sech(X/mu).^2;
+b=sech(X/mu).^2;b=sech(X).^2;
 
 % beta
 beta=-alpha*b*cn2./cN2.*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);

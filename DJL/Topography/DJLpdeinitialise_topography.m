@@ -71,7 +71,7 @@ BCRHS1{2}=@(x) 0*x;
 % y(end) a22*u+b22*u'= rhs22
 alpha2{2}=@(x) 1;
 beta2{2}=@(x) 0;
-BCRHS2{2}=@(x) alpha*topography(x/H); % topography BC
+BCRHS2{2}=@(x) alpha*topography(x*KAI/pi); % topography BC
 
 BC=cell(4,dim);
 BCRHS=cell(2,dim);
