@@ -43,7 +43,7 @@ domain.BC{4,2}=0;
 % -------------------------------------------------------------------------
 H0=2*pi/Lx; % to keep aspect ratio correct
 
-h = @(x) alpha*H0*topography(x*DJL.Lx/(2*pi)); % Bump function
+h = @(x) alpha*H0*topography(x*DJL.KAI/pi); % Bump function
 
 loops=100;
 

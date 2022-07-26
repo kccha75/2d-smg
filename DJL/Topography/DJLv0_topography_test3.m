@@ -92,20 +92,20 @@ gamma=C/2*phiz0/int_phi_z_2;
 % -------------------------------------------------------------------------
 
 % Topography length
-KAI=15;
+KAI=25;
 
 % Pick Delta and mu
-delta=0.00;
+delta=0.01;
 mu=0.5;
 
 % Solve for alpha ...??????
 alpha=12*s*mu^2/(gamma*r)*(delta-4*s*mu^2);
 DJL.alpha=alpha;
 
-% delta_star=delta/(s*mu^2);
-% disp(delta_star)
-% gamma_star=gamma*alpha*r/(6*s^2*mu^4);
-% disp(gamma_star)
+delta_star=delta/(s*mu^2);
+disp(delta_star)
+gamma_star=gamma*alpha*r/(6*s^2*mu^4);
+disp(gamma_star)
 
 % Solution of fkdv equation
 X=x{1}/pi*KAI; % -KAI to KAI
