@@ -4,9 +4,9 @@ clear;%close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-% alpha=0.05;
+alpha=0.05;
 % epsilon=sqrt(alpha);
-epsilon=1;
+epsilon=0.2;
 % mu=alpha^(1/4);
 
 mode=1;
@@ -18,7 +18,7 @@ N2=@(psi) sech((psi-0.6)/1).^2;N2=@(psi) psi;
 N2d=@(psi) -2*sech((psi-0.6)/1).^2.*tanh((psi-0.6)/1);N2d=@(psi) 1+0*psi;
 
 DJL.epsilon = epsilon;
-% DJL.alpha = alpha;
+DJL.alpha = alpha;
 % DJL.mu = mu;
 
 DJL.mode=mode;

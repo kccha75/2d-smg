@@ -6,9 +6,9 @@ clear;%close all;%clc
 
 % alpha=0.05;
 % epsilon=sqrt(alpha);
-epsilon=0.2;
+epsilon=0.3;
 % mu=alpha^(1/4);
-
+% converges on e=1 (bit weird),e=0.02 (weird solution), e=0.3
 mode=1;
 
 % N^2 function
@@ -71,7 +71,7 @@ if flag ==0
 end
 
 % Continuation
-% [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
+% [V,U]=naturalparametercontinuation(v,DJL.u,DJL,domain,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)

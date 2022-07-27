@@ -1,3 +1,5 @@
+% old file, calculates eigenfunctions together 
+
 % Function calculates v0 initial guess for the DJL equation
 %
 % Inputs:
@@ -16,9 +18,6 @@
 % v0 - DJL perturbation solution
 % DJL.KAI -DJL x domain size (sufficiently large)
 
-% -------------------------------------------------------------------------
-% PICK alpha and gamma_star
-% -------------------------------------------------------------------------
 function [v,DJL]=DJLv0_topography_test2(DJL,domain)
 
 N=domain.N;
@@ -26,7 +25,7 @@ x=domain.x;
 
 % DJL parameters
 epsilon = DJL.epsilon;
-alpha = DJL.alpha;
+% alpha = DJL.alpha;
 % mu = DJL.mu;
 mode = DJL.mode;
 N2 = DJL.N2;
@@ -95,22 +94,20 @@ gamma=C/2*phiz0/int_phi_z_2;
 % -------------------------------------------------------------------------
 
 % Topography length
-KAI=25;
+KAI=15;
 
-% Picked gamma_star
-gamma_star=-8.3;
+% Pick Delta and mu
+delta=0.00;
+mu=0.5;
 
-% Solve for delta_star
-delta_star=1/2*(gamma_star+8);
+% Solve for alpha ...??????
+alpha=12*s*mu^2/(gamma*r)*(delta-4*s*mu^2);
+DJL.alpha=alpha;
 
-% Solve for mu
-mu=(gamma*r/(6*s^2*gamma_star))^(1/4);
-
-% Solve for delta
-delta=delta_star*(s*mu^2);
-
-% Solve for u
-u=C+epsilon*delta;
+% delta_star=delta/(s*mu^2);
+% disp(delta_star)
+% gamma_star=gamma*alpha*r/(6*s^2*mu^4);
+% disp(gamma_star)
 
 % Solution of fkdv equation
 X=x{1}/pi*KAI; % -KAI to KAI
@@ -118,6 +115,9 @@ B=2*sech(X).^2;
 
 % back to original compatibility equation
 A=6*s*mu^2/r*B;
+
+% find u
+u=delta*epsilon+C;
  
 DJL.mu=mu;
 DJL.u=u;
@@ -156,20 +156,16 @@ cN2=1/lambda;
 % A_xx in x domain (KAI/mu)
 A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
 
-b=sech(X).^2;
+b=sech(X/mu).^2;b=sech(X).^2;
 
-% A_xx coefficient
-a1=-int1./int3.*cN2./(cn2-cN2);
+% beta
+beta=-alpha*b*cn2./cN2.*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
+% beta=A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
+beta=beta./(cn2.*int3);
 
-% A^2 coefficient
-a2=(cN2./(2*cn2)-2).*cN2./(cn2-cN2).*int2./int3;
-
-% b coefficient
-a3=-cn2./(cn2-cN2).*phi_z_0./int3;
-
-% an
-an=epsilon^2*(A_xx*a1+A.^2*a2)+alpha*b*a3;
-
+% coefficients
+an=beta./(lambdas(mode)-lambdas);
+% an=an-b.*phi_z_0.*(cN2-cn2)./cN2;
 % n=N case
 an(:,mode)=0;
 
@@ -177,41 +173,9 @@ an(:,mode)=0;
 v1=an*phis';
 
 % Back to zai coordinates
-zai=v1+alpha*b*(1-z)';
-
+zai=epsilon^2*(v1)+alpha*b*(1-z)';
+% zai=epsilon^2*(v1+b*(1-z)');
 % solution!
 v=v0+zai;
 % v=v0;
-
-% -------------------------------------------------------------------------
-% PRINT CHECKS:
-% -------------------------------------------------------------------------
-
-fprintf('delta_star\n')
-disp(delta_star)
-
-fprintf('gamma_star\n')
-disp(gamma_star)
-
-fprintf('delta\n')
-disp(delta)
-
-fprintf('gamma\n')
-disp(gamma)
-
-fprintf('alpha\n')
-disp(alpha)
-
-fprintf('epsilon\n')
-disp(epsilon)
-
-fprintf('mu\n')
-disp(mu)
-
-fprintf('c\n')
-disp(C)
-
-fprintf('u\n')
-disp(u)
-
 end

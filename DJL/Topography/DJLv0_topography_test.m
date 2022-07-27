@@ -16,6 +16,9 @@
 % v0 - DJL perturbation solution
 % DJL.KAI -DJL x domain size (sufficiently large)
 
+% -------------------------------------------------------------------------
+% PICK mu
+% -------------------------------------------------------------------------
 function [v,DJL]=DJLv0_topography_test(DJL,domain)
 
 N=domain.N;
@@ -24,7 +27,7 @@ x=domain.x;
 % DJL parameters
 epsilon = DJL.epsilon;
 alpha = DJL.alpha;
-mu = DJL.mu;
+% mu = DJL.mu;
 mode = DJL.mode;
 N2 = DJL.N2;
 
@@ -56,7 +59,7 @@ phis=phis(:,index);
 % Disregarding the last 2 that do not satisfy BCs
 phis=phis(:,3:end);
 lambdas=lambdas(3:end)';
-
+phis=phis./max(abs(phis));
 % Specific interested mode
 phi=phis(:,mode);
 lambda=lambdas(mode);
@@ -88,27 +91,30 @@ s=C/2*int_phi_2/int_phi_z_2;
 gamma=C/2*phiz0/int_phi_z_2;
 
 % -------------------------------------------------------------------------
-% Order 1 fKdVsol for forcing, picking alpha and mu^4
+% Order 1 fKdVsol for forcing, picking delta and mu
 % -------------------------------------------------------------------------
 
 % Topography length
 KAI=20;
 
-% Solve for gamma_star, requiring that alpha=mu^4
+% Pick mu
+mu=0.5;
+
+% gamma_star
 gamma_star=gamma*r/(6*s^2*mu^4);
 
-% Delta_star from fkdv equation given gamma_star for solitary wave
+% delta_star
 delta_star=1/2*(gamma_star+8);
-    
+
+% find delta
+delta=delta_star*s*mu^2;
+
 % Solution of fkdv equation
 X=x{1}/pi*KAI; % -KAI to KAI
 B=2*sech(X).^2;
 
 % back to original compatibility equation
 A=6*s*mu^2/r*B;
-    
-% find delta
-delta=delta_star*s*mu^2;
 
 % find u
 u=delta*epsilon+C;
@@ -120,13 +126,14 @@ DJL.epsilon=epsilon;
 
 v0=epsilon*A*phi';
 
+
 % -------------------------------------------------------------------------
 % Order epsilon solution
 % -------------------------------------------------------------------------
 
 % Take only 10 modes ...
-phis=phis(:,1:10);
-lambdas=lambdas(1:10);
+phis=phis(:,1:20);
+lambdas=lambdas(1:20);
 
 % phi_n'
 phi_z=2*ifct(chebdiff(fct(phis),1));
@@ -152,13 +159,17 @@ A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
 
 b=sech(X).^2;
 
-% beta
-beta=-b*cn2./cN2.*phi_z_0-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
+% A_xx coefficient
+a1=-int1./int3.*cN2./(cn2-cN2);
 
-beta=beta./(cn2.*int3);
+% A^2 coefficient
+a2=(cN2./(2*cn2)-2).*cN2./(cn2-cN2).*int2./int3;
 
-% coefficients
-an=beta./(lambdas(mode)-lambdas);
+% b coefficient
+a3=-cn2./(cn2-cN2).*phi_z_0./int3;
+
+% an
+an=epsilon^2*(A_xx*a1+A.^2*a2)+alpha*b*a3;
 
 % n=N case
 an(:,mode)=0;
@@ -167,9 +178,41 @@ an(:,mode)=0;
 v1=an*phis';
 
 % Back to zai coordinates
-zai=epsilon^2*(v1+b*(1-z)');
+zai=v1+alpha*b*(1-z)';
 
 % solution!
 v=v0+zai;
+% v=v0;
+
+% -------------------------------------------------------------------------
+% PRINT CHECKS:
+% -------------------------------------------------------------------------
+
+fprintf('delta_star\n')
+disp(delta_star)
+
+fprintf('gamma_star\n')
+disp(gamma_star)
+
+fprintf('delta\n')
+disp(delta)
+
+fprintf('gamma\n')
+disp(gamma)
+
+fprintf('alpha\n')
+disp(alpha)
+
+fprintf('epsilon\n')
+disp(epsilon)
+
+fprintf('mu\n')
+disp(mu)
+
+fprintf('c\n')
+disp(C)
+
+fprintf('u\n')
+disp(u)
 
 end

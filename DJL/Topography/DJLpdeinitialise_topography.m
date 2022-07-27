@@ -127,5 +127,5 @@ for i=1:domain.dim
     end
     
 end
-
+pde.f(:,end)=alpha*topography(mapping.XX(:,end)*KAI/pi).^2;
 end

@@ -16,6 +16,9 @@
 % v0 - DJL perturbation solution
 % DJL.KAI -DJL x domain size (sufficiently large)
 
+% -------------------------------------------------------------------------
+% PICK Delta and mu
+% -------------------------------------------------------------------------
 function [v,DJL]=DJLv0_topography_test3(DJL,domain)
 
 N=domain.N;
@@ -102,11 +105,6 @@ mu=0.5;
 alpha=12*s*mu^2/(gamma*r)*(delta-4*s*mu^2);
 DJL.alpha=alpha;
 
-delta_star=delta/(s*mu^2);
-disp(delta_star)
-gamma_star=gamma*alpha*r/(6*s^2*mu^4);
-disp(gamma_star)
-
 % Solution of fkdv equation
 X=x{1}/pi*KAI; % -KAI to KAI
 B=2*sech(X).^2;
@@ -180,4 +178,25 @@ zai=v1+alpha*b*(1-z)';
 % solution!
 v=v0+zai;
 % v=v0;
+
+
+% CHECKS:
+delta_star=delta/(s*mu^2);
+fprintf('delta_star=%d\n',delta_star)
+
+gamma_star=gamma*alpha*r/(6*s^2*mu^4);
+fprintf('gamma_star=%d\n',gamma_star)
+
+fprintf('delta=%d\n',delta)
+
+gamma=gamma_star*6*s^2*mu^4/r;
+fprintf('gamma=%d\n',gamma)
+
+fprintf('alpha=%d\n',alpha)
+fprintf('epsilon=%d\n',epsilon)
+fprintf('mu=%d\n',mu)
+fprintf('c=%d\n',C)
+fprintf('u=%d\n',u)
+
+
 end
