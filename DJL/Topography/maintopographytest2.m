@@ -4,11 +4,11 @@ clear;%close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-alpha=0.05;
+% alpha=0.05;
 % epsilon=sqrt(alpha);
-epsilon=0.2;
+epsilon=1;
 % mu=alpha^(1/4);
-
+% converges on e=1 (bit weird),e=0.02 (weird solution), e=0.3
 mode=1;
 
 % N^2 function
@@ -18,7 +18,7 @@ N2=@(psi) sech((psi-0.6)/1).^2;N2=@(psi) psi;
 N2d=@(psi) -2*sech((psi-0.6)/1).^2.*tanh((psi-0.6)/1);N2d=@(psi) 1+0*psi;
 
 DJL.epsilon = epsilon;
-DJL.alpha = alpha;
+% DJL.alpha = alpha;
 % DJL.mu = mu;
 
 DJL.mode=mode;
@@ -71,7 +71,7 @@ if flag ==0
 end
 
 % Continuation
-% [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
+% [V,U]=naturalparametercontinuation(v,DJL.u,DJL,domain,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)

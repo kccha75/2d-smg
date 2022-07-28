@@ -17,7 +17,7 @@
 % DJL.KAI -DJL x domain size (sufficiently large)
 
 % -------------------------------------------------------------------------
-% PICK mu
+% fix scaling from 3, now chooses alpha and delta ... to do
 % -------------------------------------------------------------------------
 function [v,DJL]=DJLv0_topography_test(DJL,domain)
 
@@ -25,8 +25,8 @@ N=domain.N;
 x=domain.x;
 
 % DJL parameters
-epsilon = DJL.epsilon;
-alpha = DJL.alpha;
+% epsilon = DJL.epsilon;
+% alpha = DJL.alpha;
 % mu = DJL.mu;
 mode = DJL.mode;
 N2 = DJL.N2;
@@ -95,19 +95,14 @@ gamma=C/2*phiz0/int_phi_z_2;
 % -------------------------------------------------------------------------
 
 % Topography length
-KAI=20;
+KAI=25;
 
-% Pick mu
-mu=0.5;
+% Pick alpha and delta
+alpha=0.001;
+delta=0.001;
 
-% gamma_star
-gamma_star=gamma*r/(6*s^2*mu^4);
+% Solve for mu
 
-% delta_star
-delta_star=1/2*(gamma_star+8);
-
-% find delta
-delta=delta_star*s*mu^2;
 
 % Solution of fkdv equation
 X=x{1}/pi*KAI; % -KAI to KAI
@@ -117,15 +112,14 @@ B=2*sech(X).^2;
 A=6*s*mu^2/r*B;
 
 % find u
-u=delta*epsilon+C;
-    
+u=C+delta;
+ 
+DJL.mu=mu;
 DJL.u=u;
 DJL.KAI=KAI;
-DJL.mu=mu;
-DJL.epsilon=epsilon;
+DJL.Lx=2*KAI/mu^2;
 
-v0=epsilon*A*phi';
-
+v0=A*phi';
 
 % -------------------------------------------------------------------------
 % Order epsilon solution
@@ -169,7 +163,7 @@ a2=(cN2./(2*cn2)-2).*cN2./(cn2-cN2).*int2./int3;
 a3=-cn2./(cn2-cN2).*phi_z_0./int3;
 
 % an
-an=epsilon^2*(A_xx*a1+A.^2*a2)+alpha*b*a3;
+an=A_xx*a1+A.^2*a2+alpha*b*a3;
 
 % n=N case
 an(:,mode)=0;
@@ -184,35 +178,23 @@ zai=v1+alpha*b*(1-z)';
 v=v0+zai;
 % v=v0;
 
-% -------------------------------------------------------------------------
-% PRINT CHECKS:
-% -------------------------------------------------------------------------
 
-fprintf('delta_star\n')
-disp(delta_star)
+% CHECKS:
+delta_star=delta/(s*mu^2);
+fprintf('delta_star=%d\n',delta_star)
 
-fprintf('gamma_star\n')
-disp(gamma_star)
+gamma_star=gamma*alpha*r/(6*s^2*mu^4);
+fprintf('gamma_star=%d\n',gamma_star)
 
-fprintf('delta\n')
-disp(delta)
+fprintf('delta=%d\n',delta)
 
-fprintf('gamma\n')
-disp(gamma)
+fprintf('gamma=%d\n',gamma)
 
-fprintf('alpha\n')
-disp(alpha)
+fprintf('alpha=%d\n',alpha)
+% fprintf('epsilon=%d\n',epsilon)
+fprintf('mu=%d\n',mu)
+fprintf('c=%d\n',C)
+fprintf('u=%d\n',u)
 
-fprintf('epsilon\n')
-disp(epsilon)
-
-fprintf('mu\n')
-disp(mu)
-
-fprintf('c\n')
-disp(C)
-
-fprintf('u\n')
-disp(u)
 
 end
