@@ -17,7 +17,7 @@
 % DJL.KAI -DJL x domain size (sufficiently large)
 
 % -------------------------------------------------------------------------
-% fix scaling from 3, now chooses alpha and delta ... to do
+% fix scaling from 3, 2 but pick alpha=mu^4
 % -------------------------------------------------------------------------
 function [v,DJL]=DJLv0_topography_test(DJL,domain)
 
@@ -91,20 +91,23 @@ s=C/2*int_phi_2/int_phi_z_2;
 gamma=C/2*phiz0/int_phi_z_2;
 
 % -------------------------------------------------------------------------
-% Order 1 fKdVsol for forcing, picking delta and mu
+% Order 1 fKdVsol for forcing, picking alphaand mu ...
 % -------------------------------------------------------------------------
 
-% Topography length
-KAI=25;
-
-% Pick alpha and delta
 alpha=0.001;
-delta=0.001;
+mu=alpha^(1/4);
 
-% Solve for mu
+% Pick alpha=mu^4
+gamma_star=gamma*r/(6*s^2);
+delta_star=1/2*(gamma_star+8);
+delta=delta_star*s*mu^2;
 
+DJL.alpha=alpha;
 
 % Solution of fkdv equation
+% KAI such that relative to max 10^-8 at fkdv solution ends
+KAI=asech(sqrt(1e-12));
+
 X=x{1}/pi*KAI; % -KAI to KAI
 B=2*sech(X).^2;
 
@@ -180,21 +183,28 @@ v=v0+zai;
 
 
 % CHECKS:
-delta_star=delta/(s*mu^2);
-fprintf('delta_star=%d\n',delta_star)
+fprintf('delta_star=\n')
+disp(delta_star)
 
-gamma_star=gamma*alpha*r/(6*s^2*mu^4);
-fprintf('gamma_star=%d\n',gamma_star)
+fprintf('gamma_star=\n')
+disp(gamma_star)
 
-fprintf('delta=%d\n',delta)
+fprintf('delta=\n')
+disp(delta)
 
-fprintf('gamma=%d\n',gamma)
+fprintf('gamma=\n')
+disp(gamma)
 
-fprintf('alpha=%d\n',alpha)
-% fprintf('epsilon=%d\n',epsilon)
-fprintf('mu=%d\n',mu)
-fprintf('c=%d\n',C)
-fprintf('u=%d\n',u)
+fprintf('alpha=\n')
+disp(alpha)
 
+fprintf('mu=\n')
+disp(mu)
+
+fprintf('c=\n')
+disp(C)
+
+fprintf('u=\n')
+disp(u)
 
 end

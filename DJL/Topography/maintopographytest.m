@@ -4,28 +4,29 @@ clear;%close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-alpha=0.05;
-epsilon=sqrt(alpha);
-mu=alpha^(1/4);
-
+% alpha=0.05;
+% epsilon=sqrt(alpha);
+epsilon=0.02;
+% mu=alpha^(1/4);
+% converges on e=1 (bit weird),e=0.02 (weird solution), e=0.3
 mode=1;
 
 % N^2 function
-N2=@(psi) sech((psi-0.6)/1).^2;
+N2=@(psi) sech((psi-0)/1).^2;%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) -2*sech((psi-0.6)/1).^2.*tanh((psi-0.6)/1);
+N2d=@(psi) -2*sech((psi-0)/1).^2.*tanh((psi-0)/1);%N2d=@(psi) 1+0*psi;
 
 DJL.epsilon = epsilon;
-DJL.alpha = alpha;
-DJL.mu = mu;
+% DJL.alpha = alpha;
+% DJL.mu = mu;
 
 DJL.mode=mode;
 
 DJL.N2=N2;
 DJL.N2d=N2d;
 
-DJL.topography=@(x) sech(x).^2;
+DJL.topography=@(X) sech(X).^2; % in KAI domain ...
 
 % -------------------------------------------------------------------------
 time=tic;
@@ -37,15 +38,23 @@ time=tic;
 [v0,DJL]=DJLv0_topography_test(DJL,domain);
 
 % Conformal mapping and interpolation
-load('XX.mat');
-load('YY.mat');
-load('L.mat');
-DJL.L = L;
+[mapping,DJL]=conformalmapping(DJL,domain,option);
+
+
+KAI=DJL.KAI;
+mu=DJL.mu;
+Lx=DJL.Lx;
+Ly=DJL.Ly;
+
+XX=mapping.XX;
+YY=mapping.YY;
+jac=mapping.jac;
+H=mapping.H;
 
 % Initialise PDE
-[pde,domain]=DJLpdeinitialise_topography(DJL,domain);
+[pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain);
 
-% v0=interp2((domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'spline');
+v0=interp2(Ly*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'spline');
 
 % initial residual ..?
 r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
@@ -62,7 +71,7 @@ if flag ==0
 end
 
 % Continuation
-% [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
+% [V,U]=naturalparametercontinuation(v,DJL.u,DJL,domain,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)

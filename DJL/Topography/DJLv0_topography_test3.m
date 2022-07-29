@@ -182,21 +182,32 @@ v=v0+zai;
 
 % CHECKS:
 delta_star=delta/(s*mu^2);
-fprintf('delta_star=%d\n',delta_star)
 
 gamma_star=gamma*alpha*r/(6*s^2*mu^4);
-fprintf('gamma_star=%d\n',gamma_star)
+% CHECKS:
+fprintf('delta_star=\n')
+disp(delta_star)
 
-fprintf('delta=%d\n',delta)
+fprintf('gamma_star=\n')
+disp(gamma_star)
 
-gamma=gamma_star*6*s^2*mu^4/r;
-fprintf('gamma=%d\n',gamma)
+fprintf('delta=\n')
+disp(delta)
 
-fprintf('alpha=%d\n',alpha)
-fprintf('epsilon=%d\n',epsilon)
-fprintf('mu=%d\n',mu)
-fprintf('c=%d\n',C)
-fprintf('u=%d\n',u)
+fprintf('gamma=\n')
+disp(gamma)
+
+fprintf('alpha=\n')
+disp(alpha)
+
+fprintf('mu=\n')
+disp(mu)
+
+fprintf('c=\n')
+disp(C)
+
+fprintf('u=\n')
+disp(u)
 
 
 end

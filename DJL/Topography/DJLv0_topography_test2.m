@@ -179,25 +179,30 @@ zai=v1+alpha*b*(1-z)';
 v=v0+zai;
 % v=v0;
 
-
 % CHECKS:
-delta_star=delta/(s*mu^2);
-fprintf('delta_star=%d\n',delta_star)
+fprintf('delta_star=\n')
+disp(delta_star)
 
-gamma_star=gamma*alpha*r/(6*s^2*mu^4);
-fprintf('gamma_star=%d\n',gamma_star)
+fprintf('gamma_star=\n')
+disp(gamma_star)
 
-fprintf('delta=%d\n',delta)
+fprintf('delta=\n')
+disp(delta)
 
-fprintf('gamma=%d\n',gamma)
+fprintf('gamma=\n')
+disp(gamma)
 
-fprintf('alpha=%d\n',alpha)
-% fprintf('epsilon=%d\n',epsilon)
+fprintf('alpha=\n')
+disp(alpha)
 
+fprintf('mu=\n')
+disp(mu)
 
-fprintf('mu=%d\n',mu)
-fprintf('c=%d\n',C)
-fprintf('u=%d\n',u)
+fprintf('c=\n')
+disp(C)
+
+fprintf('u=\n')
+disp(u)
 
 
 end

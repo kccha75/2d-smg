@@ -6,7 +6,7 @@ clear;%close all;%clc
 
 % alpha=0.05;
 % epsilon=sqrt(alpha);
-epsilon=1;
+epsilon=0.4;
 % mu=alpha^(1/4);
 % converges on e=1 (bit weird),e=0.02 (weird solution), e=0.3
 mode=1;
