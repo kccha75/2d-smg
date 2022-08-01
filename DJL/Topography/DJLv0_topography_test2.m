@@ -95,11 +95,11 @@ gamma=C/2*phiz0/int_phi_z_2;
 % -------------------------------------------------------------------------
 
 % Topography length
-KAI=20;
+KAI=15;
 
 % Pick Delta and mu
-delta=0.001;
-mu=0.3;
+delta=0.000;
+mu=0.35;
 
 % Solve for alpha ...??????
 alpha=12*s*mu^2/(gamma*r)*(delta-4*s*mu^2);
@@ -180,9 +180,11 @@ v=v0+zai;
 % v=v0;
 
 % CHECKS:
+delta_star=delta/(s*mu^2);
 fprintf('delta_star=\n')
 disp(delta_star)
 
+gamma_star=gamma*r*alpha/(6*s^2*mu^4);
 fprintf('gamma_star=\n')
 disp(gamma_star)
 

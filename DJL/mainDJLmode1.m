@@ -4,9 +4,9 @@ clear;close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=4;
-alpha=epsilon^2;
-mu=sqrt(epsilon);
+epsilon=0.5;
+alpha=epsilon^2; % no dependence on alpha (since no topography ...)
+mu=sqrt(epsilon);mu=1;% no dependence on mu at all for v0... but does have dependence on newton ...
 u=0.24;
 mode=1;
 
