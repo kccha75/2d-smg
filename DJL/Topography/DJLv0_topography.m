@@ -94,7 +94,7 @@ gamma=C/2*phiz0/int_phi_z_2;
 KAI=20;
 
 % pick specific gamma
-gamma_star=-12;
+gamma_star=-0.01;
 
 % determine delta_star from hydraulic fall plot
 delta_star=1/2*(gamma_star+8);

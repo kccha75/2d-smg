@@ -16,14 +16,15 @@
 % v0 - DJL perturbation solution
 % DJL.KAI -DJL x domain size (sufficiently large)
 
-function [v,DJL]=DJLv0(DJL,domain)
+function [v,DJL]=DJLv0cordsforce(DJL,domain)
 
 N=domain.N;
 x=domain.x;
 
 % DJL parameters
-u=DJL.u;
+% u=DJL.u;
 epsilon = DJL.epsilon;
+alpha=DJL.alpha;
 mu=DJL.mu;
 mode=DJL.mode;
 N2=DJL.N2;
@@ -84,34 +85,58 @@ int_phi_z_3=clenshaw_curtis(dphi.^3)/2;
 % fKdV coefficients
 r=3*C/2*int_phi_z_3/int_phi_z_2;
 s=C/2*int_phi_2/int_phi_z_2;
-delta=(u-C)/epsilon; % v=c+delta*epsilon
+% delta=(u-C)/epsilon; % v=c+delta*epsilon delta pick here ?
 gamma=C/2*phiz0/int_phi_z_2;
 
+% in DJL coordinates
+r_hat=r;
+s_hat=s*epsilon/mu^2;
+gamma_hat=gamma*epsilon^2/alpha;
+% delta_hat=epsilon*delta;
+
 % fKdV solution (after rescaling)
-delta_star=delta/(s*mu^2);
+% delta_hat_star=delta_hat/(s*mu^2);
 
-% KAI such that relative to max 10^-8 at fkdv solution ends
-KAI=2/sqrt(delta_star)*asech(sqrt(1e-8));
+% KAI set
+KAI_hat=20;
 
-% KAI such that absolute min 10^-12 at fkdv solution ends
-% KAI=2/sqrt(delta_star)*asech(sqrt((2/delta_star)*1e-12));
+gamma_star=gamma*r/(6*s^2);
+disp('gamma_star')
+disp(gamma_star)
 
-X=x{1}/pi*KAI; % X domain
+delta_star=1/2*(gamma_star+8); % from relation!
+disp('delta_star')
+disp(delta_star)
+
+delta=delta_star*s;
+disp('delta')
+disp(delta)
+
+u=delta*epsilon+C;
+disp('u')
+disp(u)
+
+X=x{1}/pi*KAI_hat; % X domain
 
 % fKdVsol for no forcing
-B=delta_star/2*sech(sqrt(delta_star)/2*X).^2; % (X from -KAI to KAI)
+B_hat=2*sech(X).^2;
 
 % back to original compatibility equation
-A=6*s*mu^2/r*B;
+A_hat=6*s*epsilon/r*B_hat;
 
 % O(1) solution
-v0=epsilon*A*phi';
+v0=A_hat*phi';
 
-DJL.KAI=KAI;
+DJL.u=u;
+DJL.KAI=KAI_hat;
+DJL.Lx=2*KAI_hat/mu;
 
 % -------------------------------------------------------------------------
 % Order epsilon solution
 % -------------------------------------------------------------------------
+
+%
+A=A_hat/epsilon;
 
 % Take only 10 modes ...
 phis=phis(:,1:20);
@@ -121,7 +146,7 @@ lambdas=lambdas(1:20);
 phi_z=2*ifct(chebdiff(fct(phis),1));
 
 % % phi_n'(0)
-% phi_z_0=phi_z(end,:);
+phi_z_0=phi_z(end,:);
 
 % int phi_N * phi_n
 int1=1/2*clenshaw_curtis(phis.*phi);
@@ -137,23 +162,32 @@ cn2=1./lambdas;
 cN2=1/lambda;
 
 % A_xx in x domain (KAI/mu)
-A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
+A_xx=ifft(-(pi/KAI_hat*domain.k{1}).^2.*fft(A));
 
-% beta
-beta=-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
+b=sech(X).^2;
 
-beta=beta./(cn2.*int3);
+% A_xx coefficient
+a1=-int1./int3.*cN2./(cn2-cN2);
 
-% coefficients
-an=beta./(lambdas(mode)-lambdas);
+% A^2 coefficient
+a2=(cN2./(2*cn2)-2).*cN2./(cn2-cN2).*int2./int3;
+
+% b coefficient
+a3=-cn2./(cn2-cN2).*phi_z_0./int3;
+
+% an
+an=epsilon^2*(A_xx*a1+A.^2*a2)+alpha*b*a3;
 
 % n=N case
 an(:,mode)=0;
 
 % O(e) solution
-v1=epsilon^2*an*phis';
+v1=an*phis';
+
+% Back to zai coordinates
+zai=v1+alpha*b*(1-z)';
 
 % solution!
-v=v0+v1;
-
+v=v0+zai;
+v=v0;
 end

@@ -4,9 +4,9 @@ clear;close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=0.5;
+epsilon=0.5; % appears no epsilon dependence on gamma_hat_star, delta delta_hat_star ...
 alpha=epsilon^2; % no dependence on alpha (since no topography ...)
-mu=sqrt(epsilon);% no dependence on mu at all for v0... but does have dependence on newton ...
+mu=sqrt(epsilon); % appears no mu dependence on gamma_hat_star, delta delta_hat_star ...
 u=0.24;
 mode=1;
 
@@ -32,10 +32,10 @@ time=tic;
 [domain,option,cont_option]=DJLinitialise();
 
 % Initial guess
-[v0,DJL]=DJLv0(DJL,domain);
+[v0,DJL]=DJLv0cords(DJL,domain);
 
 % Initialise PDE
-[pde,domain]=DJLpdeinitialise(DJL,domain);
+[pde,domain]=DJLpdeinitialisecords(DJL,domain);
 
 disp(rms(rms(pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2))))
 
@@ -59,13 +59,13 @@ fprintf('Elapsed Time is %f s\n',dt)
 % -------------------------------------------------------------------------
 KAI=DJL.KAI;
 
-X2=domain.X{1}/pi*KAI/mu^2;
+X2=domain.X{1}/pi*KAI/mu;
 Y2=(domain.X{2}+1)/2;
 
 % Calculate momentum
 P=trapI(V.^2,domain.dx{1}); % Integrate x
 P=permute(P,[2,1,3]);
-P=clenshaw_curtis(2*P/pi*KAI/mu^2); % Integrate y
+P=clenshaw_curtis(2*P/pi*KAI/mu); % Integrate y
 P=permute(P,[3,1,2]);
 
 % u vs momentum
@@ -87,4 +87,4 @@ dv=2*ifct(chebdiff(fct(V(:,:,end)'),1));
 max(dv(:))
 min(dv(:))
 
-fprintf('Domain is %d\n',KAI/mu^2)
+fprintf('Domain is %d\n',KAI/mu)

@@ -4,27 +4,28 @@ clear;close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=0.5;
-alpha=epsilon^2; % no dependence on alpha (since no topography ...)
-mu=sqrt(epsilon);% no dependence on mu at all for v0... but does have dependence on newton ...
-u=0.24;
+epsilon=52; % appears no epsilon dependence on gamma_hat_star, delta delta_hat_star ...
+alpha=epsilon^2; % hmm
+mu=sqrt(epsilon); % appears no mu dependence on gamma_hat_star, delta delta_hat_star ...
+% u=0.24;
 mode=1;
 
 % N^2 function
-N2=@(psi) psi;
+N2=@(psi) sech((psi-0.775)/1).^2;N2=@(psi) sech((psi-0.4)/1).^2;
 
 % (N^2)'
-N2d=@(psi) 0*psi+1;
+N2d=@(psi) -2*sech((psi-0.775)/1).^2.*tanh((psi-0.775)/1);N2d=@(psi) -2*sech((psi-0.4)/1).^2.*tanh((psi-0.4)/1);
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
 DJL.mu = mu;
-DJL.u = u;
+% DJL.u = u;
 DJL.mode=mode;
 
 DJL.N2=N2;
 DJL.N2d=N2d;
 
+DJL.topography=@(X) sech(X).^2; % in KAI domain ...
 % -------------------------------------------------------------------------
 time=tic;
 
@@ -32,12 +33,29 @@ time=tic;
 [domain,option,cont_option]=DJLinitialise();
 
 % Initial guess
-[v0,DJL]=DJLv0(DJL,domain);
+[v0,DJL]=DJLv0cordsforce(DJL,domain);
+
+% Conformal mapping and interpolation
+[mapping,DJL]=conformalmapping(DJL,domain,option);
+
+KAI=DJL.KAI;
+mu=DJL.mu;
+Lx=DJL.Lx;
+Ly=DJL.Ly;
+
+XX=mapping.XX;
+YY=mapping.YY;
+jac=mapping.jac;
+H=mapping.H;
 
 % Initialise PDE
-[pde,domain]=DJLpdeinitialise(DJL,domain);
+[pde,domain]=DJLpdeinitialisecordsforce(DJL,mapping,domain);
 
-disp(rms(rms(pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2))))
+v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'spline');
+
+% initial residual ..?
+r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
+disp(rms(rms(r)))
 
 % Newton solve
 [v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);

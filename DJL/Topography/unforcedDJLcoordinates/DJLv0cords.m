@@ -16,7 +16,7 @@
 % v0 - DJL perturbation solution
 % DJL.KAI -DJL x domain size (sufficiently large)
 
-function [v,DJL]=DJLv0(DJL,domain)
+function [v,DJL]=DJLv0cords(DJL,domain)
 
 N=domain.N;
 x=domain.x;
@@ -24,6 +24,7 @@ x=domain.x;
 % DJL parameters
 u=DJL.u;
 epsilon = DJL.epsilon;
+alpha=DJL.alpha;
 mu=DJL.mu;
 mode=DJL.mode;
 N2=DJL.N2;
@@ -87,8 +88,14 @@ s=C/2*int_phi_2/int_phi_z_2;
 delta=(u-C)/epsilon; % v=c+delta*epsilon
 gamma=C/2*phiz0/int_phi_z_2;
 
+% in DJL coordinates
+r_hat=r;
+s_hat=s*epsilon/mu^2;
+gamma_hat=gamma*epsilon/alpha;
+delta_hat=epsilon*delta;
+
 % fKdV solution (after rescaling)
-delta_star=delta/(s*mu^2);
+delta_star=delta/s;
 
 % KAI such that relative to max 10^-8 at fkdv solution ends
 KAI=2/sqrt(delta_star)*asech(sqrt(1e-8));
@@ -99,19 +106,22 @@ KAI=2/sqrt(delta_star)*asech(sqrt(1e-8));
 X=x{1}/pi*KAI; % X domain
 
 % fKdVsol for no forcing
-B=delta_star/2*sech(sqrt(delta_star)/2*X).^2; % (X from -KAI to KAI)
+B_hat=delta_star/2*sech(sqrt(delta_star)/2*X).^2; % (X from -KAI to KAI)
 
 % back to original compatibility equation
-A=6*s*mu^2/r*B;
+A_hat=6*s*epsilon/r*B_hat;
 
 % O(1) solution
-v0=epsilon*A*phi';
+v0=A_hat*phi';
 
 DJL.KAI=KAI;
 
 % -------------------------------------------------------------------------
 % Order epsilon solution
 % -------------------------------------------------------------------------
+
+%
+A=A_hat/epsilon;
 
 % Take only 10 modes ...
 phis=phis(:,1:20);
@@ -121,7 +131,7 @@ lambdas=lambdas(1:20);
 phi_z=2*ifct(chebdiff(fct(phis),1));
 
 % % phi_n'(0)
-% phi_z_0=phi_z(end,:);
+phi_z_0=phi_z(end,:);
 
 % int phi_N * phi_n
 int1=1/2*clenshaw_curtis(phis.*phi);
@@ -137,23 +147,32 @@ cn2=1./lambdas;
 cN2=1/lambda;
 
 % A_xx in x domain (KAI/mu)
-A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
+A_xx=ifft(-(pi/KAI*domain.k{1}).^2.*fft(A));
 
-% beta
-beta=-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
+b=0*X;
 
-beta=beta./(cn2.*int3);
+% A_xx coefficient
+a1=-int1./int3.*cN2./(cn2-cN2);
 
-% coefficients
-an=beta./(lambdas(mode)-lambdas);
+% A^2 coefficient
+a2=(cN2./(2*cn2)-2).*cN2./(cn2-cN2).*int2./int3;
+
+% b coefficient
+a3=-cn2./(cn2-cN2).*phi_z_0./int3;
+
+% an
+an=epsilon^2*(A_xx*a1+A.^2*a2)+alpha*b*a3;
 
 % n=N case
 an(:,mode)=0;
 
 % O(e) solution
-v1=epsilon^2*an*phis';
+v1=an*phis';
+
+% Back to zai coordinates
+zai=v1+alpha*b*(1-z)';
 
 % solution!
-v=v0+v1;
+v=v0+zai;
 
 end
