@@ -4,9 +4,9 @@ clear;close all;%clc
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=52; % appears no epsilon dependence on gamma_hat_star, delta delta_hat_star ...
-alpha=epsilon^2; % hmm
-mu=sqrt(epsilon); % appears no mu dependence on gamma_hat_star, delta delta_hat_star ...
+epsilon=0.01; % appears no epsilon dependence on gamma_hat_star, delta delta_hat_star ...
+alpha=0.005; % hmm
+mu=0.7; % appears no mu dependence on gamma_hat_star, delta delta_hat_star ...
 % u=0.24;
 mode=1;
 
@@ -50,12 +50,13 @@ H=mapping.H;
 
 % Initialise PDE
 [pde,domain]=DJLpdeinitialisecordsforce(DJL,mapping,domain);
-
+v=v0;
 v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'spline');
 
 % initial residual ..?
 r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
 disp(rms(rms(r)))
+disp(max(abs(r(:)))/max(abs(v0(:))))
 
 % Newton solve
 [v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);

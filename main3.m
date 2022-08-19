@@ -61,7 +61,7 @@ v0=@(X,Y) rand(size(X));
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=5;
+option.num_vcycles=1;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -77,8 +77,8 @@ option.solver='FMG';
 option.mgscheme='FAS';
 
 % Operator, coarse grid solver, Relaxation
-option.operator=@Lu_2d;
-option.coarsegridsolver=@specmatrixsolve_2d;
+option.operator=@Lu;
+option.coarsegridsolver=@specmatrixsolve;
 option.relaxation=@MRR;
 
 % Restriction for pde coefficients
@@ -91,7 +91,7 @@ option.restriction_residual=@(vf) restrict_2d(vf,@cheb_restrict_residual,@fourie
 option.prolongation=@(vc) prolong_2d(vc,@cheb_prolong,@fourier_prolong_filtered);
 
 % Preconditioner
-option.preconditioner=@FDmatrixsolve_2d;
+option.preconditioner=@FDmatrixsolve;
 
 % Number of preconditioned relaxations
 option.prenumit=1;
@@ -120,7 +120,7 @@ for i=1:length(discretisation)
             N(i) = 2^finestgrid+1;
             k{i} = (0:N(i)-1)';
             x{i} = cos(pi*k{i}/(N(i)-1));
-            dx{i} = x{i}(1:end-1)-x{i}(2:end); % due to x(1)=1, x(end)=-1
+            dx{i} = x{i}(2:end)-x{i}(1:end-1); % is negative but ok :)
             
     end
     
@@ -211,13 +211,7 @@ tic
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
 disp(rms(r(:)))
-tic
-option.numit=5;
-[vv,rr]=MRR(v0,pde,domain,option);
-disp(rms(r(:)))
-toc
 
 surf(X,Y,v);xlabel('x');ylabel('y');title('Numerical solution of Poissons equation')
 figure;contour(X,Y,v);xlabel('x');ylabel('y')
 figure;surf(X,Y,abs(v-ue));xlabel('x');ylabel('y');title('Error compared to exact solution')
-
