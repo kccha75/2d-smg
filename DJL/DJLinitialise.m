@@ -43,8 +43,8 @@ option.solver='FMG';
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
-option.operator=@Lu_2d;
-option.coarsegridsolver=@specmatrixsolve_2d;
+option.operator=@Lu;
+option.coarsegridsolver=@specmatrixsolve;
 option.relaxation=@MRR;
 
 % Restriction for pde coefficients
@@ -57,7 +57,7 @@ option.restriction_residual=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@che
 option.prolongation=@(vc) prolong_2d(vc,@fourier_prolong_filtered,@cheb_prolong);
 
 % Preconditioner
-option.preconditioner=@FDmatrixsolve_2d;
+option.preconditioner=@FDmatrixsolve;
 
 % Number of preconditioned relaxations
 option.prenumit=1;
@@ -87,7 +87,7 @@ for i=1:length(discretisation)
             N(i) = 2^(finestgrid)+1;
             k{i} = (0:N(i)-1)';
             x{i} = cos(pi*k{i}/(N(i)-1));
-            dx{i} = x{i}(1:end-1)-x{i}(2:end); % due to x(1)=1, x(end)=-1
+            dx{i} = x{i}(2:end)-x{i}(1:end-1); % is negative but ok :)
             
     end
     

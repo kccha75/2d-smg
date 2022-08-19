@@ -31,6 +31,6 @@ z=(domain.X{2}+1)/2;
 J.a=pde.a;
 J.b=pde.b;
 J.c=(N2(z-v)-v.*N2d(z-v))/u^2;
-J.f=pde.f-(Lu_2d(v,pde,domain)+N2(z-v).*v/u^2); % nonlinear residual
+J.f=pde.f-(Lu(v,pde,domain)+N2(z-v).*v/u^2); % nonlinear residual
 
 end
