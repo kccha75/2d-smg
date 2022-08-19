@@ -15,7 +15,7 @@
 % V - solution vector at each parameter value 
 % U - parameter vector
 
-function [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option)
+function [V,U]=pseudocont(v,u,DJL,domain,cont_option)
 
 steps=cont_option.steps;
 ds=cont_option.ds;
@@ -34,7 +34,7 @@ while j<steps
     % Predictor
     V(:,:,j+1)=V(:,:,j)+dv*ds;
 
-    U(j+1)=U(j)+ds;
+    U(j+1)=U(j)+du*ds;
 
     % Update variable
     DJL.u=U(j+1);
@@ -43,10 +43,23 @@ while j<steps
     [pde,domain]=DJLpdeinitialise(DJL,domain);
 
     % Newton iterations
-    [V(:,:,j+1),i,flag]=NewtonSolve(V(:,:,j+1),DJL,pde,domain,cont_option);
+    RHS1=
+    RHS2=
+    z1=solve
+    z2=solve
+
+    deltau=(ds-dot(dv,(v(:,j+1)-v(:,j)))-du*(U(j+1)-U(j))-dot(dv,z1)) ...
+        /(du-dot(dv,z2));
+    deltav=z1-deltau*z2; 
     
+    v=v+deltav;
+    u=u+deltau;
+%     [V(:,:,j+1),i,flag]=NewtonSolve(V(:,:,j+1),DJL,pde,domain,cont_option);
+  
+    % update parameter etcccc
+
     % Converged and not 0 solution
-    if flag==1 && max(max(abs(V(:,:,j+1))))>=1e-8
+    if flag==1 && max(max(abs(V(:,:,j+1))))>=1e-8 % check 0 solution ...
 
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
@@ -58,7 +71,14 @@ while j<steps
         end
 
         % Update for next Newton iteration
-        dv=(V(:,:,j+1)-V(:,:,j))/ds; % simple dv estimate
+        du=1/(du-dot(dv,z2));
+        dv=-du*z2;
+
+        % Normalise
+        mag=sqrt(dot(dv,dv)+du^2);
+        du=du/mag;
+        dv=dv/mag;
+
         j=j+1;
 
         % Optimal step length control for next step
