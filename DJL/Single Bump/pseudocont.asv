@@ -15,65 +15,113 @@
 % V - solution vector at each parameter value 
 % U - parameter vector
 
-function [V,U]=pseudocont(v,u,DJL,domain,cont_option)
+function [V,U]=pseudocont(v,u,fKdV,domain,cont_option)
 
+topography=fKdV.topography;
+X=domain.X;
+
+cont_option.Newtonmaxit
 steps=cont_option.steps;
 ds=cont_option.ds;
 ds_min=cont_option.ds_min;
 ds_max=cont_option.ds_max;
 N_opt=cont_option.N_opt;
 
+
 % Initialise
-U(1)=u;
-V(:,:,1)=v;
+U(1)=u{1};
+V(:,1)=v{1};
+du=u{2};
+dv=v{2};
+
 j=1;
-dv=0; % Initial gradient guess ...
+
+% Newton parameters
+flag=0;
+e0=zeros(domain.N); % Error guess (keep at 0)
 
 while j<steps
     
     % Predictor
-    V(:,:,j+1)=V(:,:,j)+dv*ds;
+    V(:,j+1)=V(:,j)+dv*ds;
 
     U(j+1)=U(j)+du*ds;
 
     % Update variable
-    DJL.u=U(j+1);
+    fKdV.u=U(j+1);
 
     % Update pde / jacobian
-    [pde,domain]=DJLpdeinitialise(DJL,domain);
+    [pde,domain]=fKdVpdeinitialise(fKdV,domain);
 
-    % Newton iterations
-    RHS1=
-    RHS2=
-    z1=solve
-    z2=solve
+% -------------------------------------------------------------------------
+% Newton here
+% -------------------------------------------------------------------------
+    for i=1:option.Newtonmaxit
 
-    deltau=(ds-dot(dv,(v(:,j+1)-v(:,j)))-du*(U(j+1)-U(j))-dot(dv,z1)) ...
-        /(du-dot(dv,z2));
-    deltav=z1-deltau*z2; 
-    
-    v=v+deltav;
-    u=u+deltau;
-%     [V(:,:,j+1),i,flag]=NewtonSolve(V(:,:,j+1),DJL,pde,domain,cont_option);
-  
-    % update parameter etcccc
+        % Calculate Jacobian for linear equation
+        J=option.jacobian(v,fKdV,pde,domain);
+        
+        % Check nonlinear residual
+        r=rms(J.f(:));
+        fprintf('Residual Newton = %d\n',r)
 
-    % Converged and not 0 solution
-    if flag==1 && max(max(abs(V(:,:,j+1))))>=1e-8 % check 0 solution ...
+        if r<=option.Newtontol
 
-        fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
+            fprintf('Converged after %d Newton Iterations \n',i-1)
+            flag=1;
+            numNewtonit=i-1;
+            break
 
-        % check overturning
-        dv=2*ifct(chebdiff(fct(V(:,:,j+1)'),1));
-        if max(dv(:))>1
-            fprintf('Overturning detected!\n')
-            return
         end
+
+        % Solve linear equation
+        RHS1=-J.f;
+        RHS2=-topography(X);
+
+        J.f=RHS1;
+        z1=mg(e0,J,domain,option);
+        J.f=RHS2;
+        z2=mg(e0,J,domain,option);
+        
+        % Update correction
+        delta_u=(ds-dot(dv,(v(:,j+1)-v(:,j)))-du*(U(j+1)-U(j))-dot(dv,z1)) ...
+            /(du-dot(dv,z2));
+        delta_v=z1-delta_u*z2; 
+    
+        v=v+delta_v;
+        u=u+delta_u;
+
+    end
+
+    % If converged final loop ...
+    % Calculate Jacobian for linear equation
+    J=option.jacobian(v,fKdV,pde,domain);
+
+    if rms(J.f(:))>option.Newtontol
+    
+        fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
+        flag=0;
+
+    elseif flag==0
+
+        fprintf('Converged after %d Newton Iterations \n',i)
+        flag=1;
+    
+    end 
+
+        numNewtonit=i;
+
+% -------------------------------------------------------------------------
+
+    % Converged newton
+    if flag==1
+        
+        fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
         % Update for next Newton iteration
         du=1/(du-dot(dv,z2));
         dv=-du*z2;
-
+    
         % Normalise
         mag=sqrt(dot(dv,dv)+du^2);
         du=du/mag;
@@ -82,7 +130,7 @@ while j<steps
         j=j+1;
 
         % Optimal step length control for next step
-            xi=N_opt/i;
+            xi=N_opt/numNewtonit;
             
             if xi<0.5
                 ds=ds*0.5;
@@ -101,13 +149,10 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-    elseif flag==0 || max(max(abs(V(:,:,j+1))))<1e-8 % not converged or 0 solution
+    elseif flag==0
         
         if flag==0
             fprintf('Did not converge to required tolerance  after %d Newton Iterations at step %d\n',i,j)
-        end
-        if max(max(abs(V(:,:,j+1))))<1e-8
-            fprintf('Did not converge to properer solution!!! Converged to 0 after %d Newton Iterations at step %d\n',i,j)
         end
         
         % Halve step size
