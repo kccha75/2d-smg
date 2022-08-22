@@ -57,8 +57,13 @@ end
 % -------------------------------------------------------------------------
 v=v0;
 u=gamma;
-dv=(v0-v1)/ds;
+dv=(v1-v0)/ds;
 du=1;
+
+% Normalise
+mag=sqrt(dot(dv,dv)+du^2);
+dv=dv/mag;
+du=du/mag;
 
 % Continuation
 [V,U]=pseudocont(v,dv,u,du,fKdV,domain,option,cont_option);
