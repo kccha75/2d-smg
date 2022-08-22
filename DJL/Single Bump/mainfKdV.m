@@ -61,7 +61,7 @@ dv=(v0-v1)/ds;
 du=1;
 
 % Continuation
-[V,U]=pseudocont(v,dv,u,du,fKdV,domain,cont_option);
+[V,U]=pseudocont(v,dv,u,du,fKdV,domain,option,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)

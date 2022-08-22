@@ -121,8 +121,6 @@ option.jacobian=@jacobianfKdV;
 % Continuation Options here
 % -------------------------------------------------------------------------
 
-cont_option=option;
-
 % Step size
 cont_option.ds=0.001;
 cont_option.ds_min=1e-6;

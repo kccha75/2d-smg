@@ -15,23 +15,28 @@
 % V - solution vector at each parameter value 
 % U - parameter vector
 
-function [V,U]=pseudocont(v,dv,u,du,fKdV,domain,cont_option)
+function [V,U]=pseudocont(v,dv,lambda,dlambda,fKdV,domain,option,cont_option)
 
 topography=fKdV.topography;
+L=fKdV.L;
+
 X=domain.X;
 
-Newtontol=cont_option.Newtontol;
-Newtonmaxit=cont_option.Newtonmaxit;
-steps=cont_option.steps;
 ds=cont_option.ds;
 ds_min=cont_option.ds_min;
 ds_max=cont_option.ds_max;
 N_opt=cont_option.N_opt;
+Newtonmaxit=cont_option.Newtonmaxit;
+steps=cont_option.steps;
 
+Newtontol=option.Newtontol;
+
+% Set max Newton iterations to continuation option
+option.Newtonmaxit=Newtonmaxit;
 
 % Initialise
-U(1)=u;
 V(:,1)=v;
+U(1)=lambda;
 
 j=1;
 
@@ -44,10 +49,10 @@ while j<steps
     % Predictor
     V(:,j+1)=V(:,j)+dv*ds;
 
-    U(j+1)=U(j)+du*ds;
+    U(j+1)=U(j)+dlambda*ds;
 
     % Update variable
-    fKdV.u=U(j+1);
+    fKdV.gamma=U(j+1);
 
     % Update pde / jacobian
     [pde,domain]=fKdVpdeinitialise(fKdV,domain);
@@ -58,7 +63,7 @@ while j<steps
     for i=1:Newtonmaxit
 
         % Calculate Jacobian for linear equation
-        J=cont_option.jacobian(v,fKdV,pde,domain);
+        J=option.jacobian(V(:,j+1),fKdV,pde,domain);
         
         % Check nonlinear residual
         r=rms(J.f(:));
@@ -75,26 +80,33 @@ while j<steps
 
         % Solve linear equation
         RHS1=-J.f;
-        RHS2=-topography(X);
+        RHS2=topography(L*pi/2*X);
 
         J.f=RHS1;
-        z1=mg(e0,J,domain,cont_option);
+%         z1=mg(e0,J,domain,option);
+        z1=bicgstab(e0,J,domain,option);
         J.f=RHS2;
-        z2=mg(e0,J,domain,cont_option);
+%         z2=mg(e0,J,domain,option);
+        z2=bicgstab(e0,J,domain,option);
         
         % Update correction
-        delta_u=(ds-dot(dv,(V(:,j+1)-V(:,j)))-du*(U(j+1)-U(j))-dot(dv,z1)) ...
-            /(du-dot(dv,z2));
-        delta_v=z1-delta_u*z2; 
+        delta_lambda=(ds-dot(dv,(V(:,j+1)-V(:,j)))-dlambda*(U(j+1)-U(j))-dot(dv,z1)) ...
+            /(dlambda-dot(dv,z2));
+        delta_v=z1-delta_lambda*z2; 
     
-        v=v+delta_v;
-        u=u+delta_u;
+        V(:,j+1)=V(:,j+1)+delta_v;
+        U(j+1)=U(j+1)+delta_lambda;
+
+        % Update variable
+        fKdV.gamma=U(j+1);
+        % Update pde / jacobian
+        [pde,domain]=fKdVpdeinitialise(fKdV,domain);
 
     end
 
     % If converged final loop ...
     % Calculate Jacobian for linear equation
-    J=cont_option.jacobian(v,fKdV,pde,domain);
+    J=option.jacobian(v,fKdV,pde,domain);
 
     if rms(J.f(:))>option.Newtontol
     
@@ -118,12 +130,12 @@ while j<steps
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
         % Update for next Newton iteration
-        du=1/(du-dot(dv,z2));
-        dv=-du*z2;
+        dlambda=1/(dlambda-dot(dv,z2));
+        dv=-dlambda*z2;
     
         % Normalise
-        mag=sqrt(dot(dv,dv)+du^2);
-        du=du/mag;
+        mag=sqrt(dot(dv,dv)+dlambda^2);
+        dlambda=dlambda/mag;
         dv=dv/mag;
 
         j=j+1;
