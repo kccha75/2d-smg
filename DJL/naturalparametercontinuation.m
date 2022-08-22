@@ -3,25 +3,28 @@
 % Input:
 % v - initial solution at initial parameter
 % u - initial parameter
-% s - initial step size
-% ds - step size
-% ds_max - max step size
-% ds_min - min step size
+% cont_option.ds - step size
+% cont_option.ds_max - max step size
+% cont_option.ds_min - min step size
 % DJL - DJL structure
 % domain
-% option
+% option - solver option
 %
 % Output:
 % V - solution vector at each parameter value 
 % U - parameter vector
 
-function [V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option)
+function [V,U]=naturalparametercontinuation(v,u,DJL,domain,option,cont_option)
 
-steps=cont_option.steps;
 ds=cont_option.ds;
 ds_min=cont_option.ds_min;
 ds_max=cont_option.ds_max;
 N_opt=cont_option.N_opt;
+Newtonmaxit=cont_option.Newtonmaxit;
+steps=cont_option.steps;
+
+% Set max Newton iterations to continuation option
+option.Newtonmaxit=Newtonmaxit;
 
 % Initialise
 U(1)=u;
@@ -43,7 +46,7 @@ while j<steps
     [pde,domain]=DJLpdeinitialise(DJL,domain);
 
     % Newton iterations
-    [V(:,:,j+1),i,flag]=NewtonSolve(V(:,:,j+1),DJL,pde,domain,cont_option);
+    [V(:,:,j+1),i,flag]=NewtonSolve(V(:,:,j+1),DJL,pde,domain,option);
     
     % Converged and not 0 solution
     if flag==1 && max(max(abs(V(:,:,j+1))))>=1e-8

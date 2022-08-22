@@ -50,7 +50,7 @@ if flag ==0
 end
 
 % Continuation
-[V,U]=naturalparametercontinuation(v,u,DJL,domain,cont_option);
+[V,U]=naturalparametercontinuation(v,u,DJL,domain,option,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)
