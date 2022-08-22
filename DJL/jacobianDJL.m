@@ -5,6 +5,7 @@
 % Jacobian is e_xx+e_zz+(eN^2(z-v)-e*v*dN^2(z-v))/u^2
 %
 % Inputs:
+% v - best estimate
 % DJL.N2 - N^2 function
 % DJL.N2d - dN^2 function
 % pde.a - coefficient in front of A_xx
