@@ -4,10 +4,10 @@ clear;close all;%clc
 % fKdV parameters
 % -------------------------------------------------------------------------
 
-L=30;
+L=200;
 d=3;
-gamma=-0.5;
-delta=1;
+gamma=-4.6;
+delta=0.2;
 topography=@(x) sech(x).^2;
 
 fKdV.L=L;
@@ -27,7 +27,7 @@ ds=cont_option.ds;
 % Initialise PDE
 [pde,domain]=fKdVpdeinitialise(fKdV,domain);
 
-v=0*domain.X; % initial guess
+v=-0.75*sech(L/(2*pi)*domain.X).^2; % initial guess
 
 % -------------------------------------------------------------------------
 % Newton solve for initial solution

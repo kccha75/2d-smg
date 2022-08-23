@@ -79,15 +79,15 @@ while j<steps
         end
 
         % Solve linear equation
-        RHS1=-J.f;
-        RHS2=topography(L*pi/2*X);
+        RHS1=J.f;
+        RHS2=topography(L/(2*pi)*X);
 
         J.f=RHS1;
 %         z1=mg(e0,J,domain,option);
-        z1=bicgstab(e0,J,domain,option);
+        z1=cg(e0,J,domain,option);
         J.f=RHS2;
 %         z2=mg(e0,J,domain,option);
-        z2=bicgstab(e0,J,domain,option);
+        z2=cg(e0,J,domain,option);
         
         % Update correction
         delta_lambda=(ds-dot(dv,(V(:,j+1)-V(:,j)))-dlambda*(U(j+1)-U(j))-dot(dv,z1)) ...
@@ -106,7 +106,7 @@ while j<steps
 
     % If converged final loop ...
     % Calculate Jacobian for linear equation
-    J=option.jacobian(v,fKdV,pde,domain);
+    J=option.jacobian(V(:,j+1),fKdV,pde,domain);
 
     if rms(J.f(:))>option.Newtontol
     
@@ -117,15 +117,14 @@ while j<steps
 
         fprintf('Converged after %d Newton Iterations \n',i)
         flag=1;
+        numNewtonit=i;
     
     end 
-
-        numNewtonit=i;
 
 % -------------------------------------------------------------------------
 
     % Converged newton
-    if flag==1
+    if flag==1 && V(1,j+1)<=1e-4
         
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
@@ -160,12 +159,14 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-    elseif flag==0
+    elseif flag==0 || V(1,j+1)>1e-4
         
         if flag==0
             fprintf('Did not converge to required tolerance  after %d Newton Iterations at step %d\n',i,j)
+        elseif V(1,j+1)>1e-4
+            fprintf('Did not converge to proper solution!!! Converged to non asymptotic solution after %d Newton Iterations at step %d\n',i,j)
         end
-        
+
         % Halve step size
         ds=ds/2;
         fprintf('Halving step size to %f\n',ds)
@@ -174,7 +175,7 @@ while j<steps
         if ds<=ds_min
             fprintf('Minimum step length of %f exceeded, breaking loop\n',ds_min)
             % Clear last non-converged step
-            V(:,:,end)=[];
+            V(:,end)=[];
             U(end)=[];
             return % end function
         end

@@ -33,7 +33,7 @@ b=@(X) 0;
 c=@(X) -delta;
 
 % RHS
-f=@(X) -gamma*topography(L*pi/2*X);
+f=@(X) -gamma*topography(L/(2*pi)*X);
 
 % -------------------------------------------------------------------------
 % Set up BCs
