@@ -1,15 +1,16 @@
-% Function performs natural parameter continuation
+% Function performs pseudo arclength continuation on fKdV equation
+% au_xx+bu_x+cu+du^2=-gamma*topography
 %
 % Input:
 % v - initial solution at initial parameter
-% u - initial parameter
-% s - initial step size
-% ds - step size
-% ds_max - max step size
-% ds_min - min step size
-% DJL - DJL structure
+% dv - initial solution gradient
+% lambda - initial parameter
+% dlambda - initial parameter gradient
+% fKdV.topography - topography shape
+% fKdV.L - length scale
 % domain
 % option
+% cont_option - continuation options
 %
 % Output:
 % V - solution vector at each parameter value 
@@ -22,14 +23,16 @@ L=fKdV.L;
 
 X=domain.X;
 
-ds=cont_option.ds;
-ds_min=cont_option.ds_min;
+ds=cont_option.ds; % Step size initial
+ds_min=cont_option.ds_min; 
 ds_max=cont_option.ds_max;
 N_opt=cont_option.N_opt;
 Newtonmaxit=cont_option.Newtonmaxit;
-steps=cont_option.steps;
+steps=cont_option.steps; % maximum steps allowed
 
 Newtontol=option.Newtontol;
+
+tailtolerance=1e-5; % tail end tolerance (asymptotic at x=+-inf
 
 % Set max Newton iterations to continuation option
 option.Newtonmaxit=Newtonmaxit;
@@ -124,7 +127,7 @@ while j<steps
 % -------------------------------------------------------------------------
 
     % Converged newton
-    if flag==1 && V(1,j+1)<=1e-4
+    if flag==1 && V(1,j+1)<=tailtolerance
         
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
@@ -159,11 +162,12 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-    elseif flag==0 || V(1,j+1)>1e-4
+    elseif flag==0 || V(1,j+1)>tailtolerance
         
         if flag==0
             fprintf('Did not converge to required tolerance  after %d Newton Iterations at step %d\n',i,j)
-        elseif V(1,j+1)>1e-4
+        end
+        if V(1,j+1)>tailtolerance
             fprintf('Did not converge to proper solution!!! Converged to non asymptotic solution after %d Newton Iterations at step %d\n',i,j)
         end
 
@@ -181,5 +185,7 @@ while j<steps
         end
 
     end
+
+end
 
 end

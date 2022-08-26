@@ -1,4 +1,4 @@
-% Function initialises fKdV parameters for u_xx-delta u+3u^2=-gamma sech^2 
+% Function initialises DJL parameters for A_xx+A_zz+N^2(z-A)*A/u^2=0 
 %
 % Outputs:
 %
@@ -6,18 +6,18 @@
 % option - structure of multigrid options (see below)
 % cont_option - structure of continuation options (see below)
 
-function [domain,option,cont_option]=fKdVinitialise()
+function [domain,option,cont_option]=DJLinitialise_topography()
 
 % Dimension of problem
-dim=1;
+dim=2;
 
 % Discretisation flag for each dimension
 % 1 - Fourier
 % 2 - Cheb
-discretisation=1;
+discretisation=[1 2];
 
 finestgrid = 8;
-coarsestgrid = 5;
+coarsestgrid = 6;
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -25,7 +25,7 @@ coarsestgrid = 5;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=3;
+option.num_vcycles=10;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
@@ -43,21 +43,21 @@ option.solver='FMG';
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
-option.operator=@Lu;
-option.coarsegridsolver=@specmatrixsolve;
+option.operator=@Lu_2d;
+option.coarsegridsolver=@specmatrixsolve_2d;
 option.relaxation=@MRR;
 
 % Restriction for pde coefficients
-option.restriction=@(vf) fourier_restrict_filtered(vf);
+option.restriction=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@cheb_restrict);
 
 % Restriction for residual and RHS
-option.restriction_residual=@(vf) fourier_restrict_filtered(vf);
+option.restriction_residual=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@cheb_restrict_residual);
 
 % Prolongation
-option.prolongation=@(vc) fourier_prolong_filtered(vc);
+option.prolongation=@(vc) prolong_2d(vc,@fourier_prolong_filtered,@cheb_prolong);
 
 % Preconditioner
-option.preconditioner=@FDmatrixsolve;
+option.preconditioner=@FDmatrixsolve_2d;
 
 % Number of preconditioned relaxations
 option.prenumit=1;
@@ -65,10 +65,11 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-N=ones(1,max(dim,2)); 
+N=zeros(1,dim);
 x=cell(1,dim);
-k=cell(1,dim);
-dx=cell(1,dim);
+X=x;
+k=x;
+dx=x;
 
 for i=1:length(discretisation)
     
@@ -83,16 +84,16 @@ for i=1:length(discretisation)
             
        % Chebyshev discretisation
         case 2
-            N(i) = 2^(finestgrid)+1;
+            N(i) = 2^(finestgrid-1)+1;
             k{i} = (0:N(i)-1)';
             x{i} = cos(pi*k{i}/(N(i)-1));
-            dx{i} = x{i}(2:end)-x{i}(1:end-1); % is negative but ok :)
+            dx{i} = x{i}(1:end-1)-x{i}(2:end); % due to x(1)=1, x(end)=-1
             
     end
     
 end
 
-X = x{1};
+[X{1},X{2}] = ndgrid(x{1},x{2});
 
 % -------------------------------------------------------------------------
 % Sort into structures
@@ -115,18 +116,20 @@ domain.X = X;
 % Jacobian option
 % -------------------------------------------------------------------------
 
-option.jacobian=@jacobianfKdV;
+option.jacobian=@jacobianDJL;
 
 % -------------------------------------------------------------------------
 % Continuation Options here
 % -------------------------------------------------------------------------
 
+cont_option=option;
+
 % Step size
-cont_option.ds=0.01;
+cont_option.ds=0.001;
 cont_option.ds_min=1e-6;
-cont_option.ds_max=0.05;
+cont_option.ds_max=0.001;
 
 % Iterations
 cont_option.N_opt=4;
 cont_option.Newtonmaxit=8;
-cont_option.steps=1000;
+cont_option.steps=200;
