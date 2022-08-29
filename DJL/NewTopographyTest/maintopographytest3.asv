@@ -59,7 +59,7 @@ H=mapping.H;
 
 % set BC again here ... (but causes huge residual due to discont)
 % v0(:,end)=DJL.alpha*DJL.topography(mapping.XX(:,end)*KAI/pi);
-v0=DJL.v;
+
 % initial residual ..?
 r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
 disp(rms(rms(r)))

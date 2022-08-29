@@ -17,7 +17,7 @@
 % domain.BC - boundary conditions (4x2 cell)
 %
 
-function [pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain)
+function [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain)
 
 dim=domain.dim;
 x=domain.x;
@@ -122,10 +122,10 @@ index{2,2}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
 for i=1:domain.dim
     
     if domain.discretisation(i)~=1 % If not Fourier, set BCs
-        pde.f(index{1,i})=BCRHS{1,i}; % x(1) boundary
-        pde.f(index{2,i})=BCRHS{2,i}; % x(end) boundary
+        DJL.v(index{1,i})=BCRHS{1,i}; % x(1) boundary
+        DJL.v(index{2,i})=BCRHS{2,i}; % x(end) boundary
     end
     
 end
-pde.f(:,end)=alpha*topography(mapping.XX(:,end)*KAI/pi);
+
 end

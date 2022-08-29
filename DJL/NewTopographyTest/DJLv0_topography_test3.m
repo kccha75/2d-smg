@@ -19,7 +19,7 @@
 % -------------------------------------------------------------------------
 % PICK Delta and mu
 % -------------------------------------------------------------------------
-function [v,DJL]=DJLv0_topography_test3(DJL,domain)
+function DJL=DJLv0_topography_test3(DJL,domain)
 
 N=domain.N;
 x=domain.x;
@@ -184,6 +184,7 @@ zai=v1+alpha*b*(1-z)';
 v=v0+zai;
 % v=v0;
 
+DJL.v=v;
 
 % CHECKS:
 delta_star=delta/(s*mu^2);
