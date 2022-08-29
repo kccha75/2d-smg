@@ -6,7 +6,7 @@ clear;%close all;%clc
 
 % alpha=0.05;
 % epsilon=sqrt(alpha);
-epsilon=0.02;
+% epsilon=0.25;
 % mu=alpha^(1/4);
 % converges on e=1 (bit weird),e=0.02 (weird solution), e=0.3
 mode=1;
@@ -17,7 +17,7 @@ N2=@(psi) sech((psi-0.6)/1).^2;N2=@(psi) psi;
 % (N^2)'
 N2d=@(psi) -2*sech((psi-0.6)/1).^2.*tanh((psi-0.6)/1);N2d=@(psi) 1+0*psi;
 
-DJL.epsilon = epsilon;
+% DJL.epsilon = epsilon;
 % DJL.alpha = alpha;
 % DJL.mu = mu;
 
@@ -55,11 +55,11 @@ H=mapping.H;
 [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain);
 
 % Interpolate
-% v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},DJL.v,YY,XX,'spline');
+v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},DJL.v,YY,XX,'spline');
 
 % set BC again here ... (but causes huge residual due to discont)
-% v0(:,end)=DJL.alpha*DJL.topography(mapping.XX(:,end)*KAI/pi);
-v0=DJL.v;
+v0(:,end)=DJL.alpha*DJL.topography(mapping.XX(:,end)*KAI/pi);
+
 % initial residual ..?
 r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
 disp(rms(rms(r)))

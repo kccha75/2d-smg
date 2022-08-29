@@ -95,7 +95,7 @@ gamma=C/2*phiz0/int_phi_z_2;
 % -------------------------------------------------------------------------
 
 % Topography length
-KAI=30;
+KAI=40;
 
 % Pick Delta and mu
 delta=0.01;
@@ -104,7 +104,7 @@ mu=0.5;
 % Solve for other variables ...
 delta_star=delta/(s*mu^2); % use in fkdv ..
 % [gamma_star,B]=function(delta_star) to write this function out ...
-gamma_star = -5;gamma_star=2*delta_star-8;
+gamma_star = -5;
 
 % Solve for alpha ...
 alpha=gamma_star*6*s^2*mu^4/(gamma*r);
@@ -114,7 +114,7 @@ DJL.alpha=alpha;
 X=x{1}/pi*KAI; % -KAI to KAI
 load('gamma5v0.mat');
 B=v0;
-B=2*sech(X).^2;
+
 % back to original compatibility equation
 A=6*s*mu^2/r*B;
 
@@ -170,7 +170,7 @@ a2=(cN2./(2*cn2)-2).*cN2./(cn2-cN2).*int2./int3;
 a3=-cn2./(cn2-cN2).*phi_z_0./int3;
 
 % an
-an=A_xx*a1+A.^2*a2+alpha*b*a3;
+an=(A_xx*a1+A.^2*a2)+alpha*b*a3;
 
 % n=N case
 an(:,mode)=0;
@@ -187,9 +187,7 @@ v=v0+zai;
 
 DJL.v=v;
 
-% -------------------------------------------------------------------------
 % CHECKS:
-% -------------------------------------------------------------------------
 delta_star=delta/(s*mu^2);
 
 gamma_star=gamma*alpha*r/(6*s^2*mu^4);
