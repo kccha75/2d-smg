@@ -1,20 +1,13 @@
-clear;close all;%clc
+function [V,U,fKdV,pde,domain,option]=fkdvsol(DJL,gamma,delta)
 
-% -------------------------------------------------------------------------
-% fKdV parameters
-% -------------------------------------------------------------------------
+d=3; % nonlinear u^2 coefficient
+gamma=min(gamma,-5); % initial gamma0
 
-L=40;
-d=3;
-gamma=-5;
-delta=3.572109417551543;
-topography=@(x) sech(x).^2;
-
-fKdV.L=L;
+fKdV.L=2*DJL.KAI;
 fKdV.d=d;
 fKdV.gamma=gamma;
 fKdV.delta=delta;
-fKdV.topography=topography;
+fKdV.topography=DJL.topography;
 
 % -------------------------------------------------------------------------
 time=tic;
@@ -24,14 +17,14 @@ time=tic;
 
 ds=cont_option.ds;
 
-fKdV.v=-0.75*sech(L/(2*pi)*domain.X).^2; % initial guess
-
 % Initialise PDE
 [fKdV,pde,domain]=fKdVpdeinitialise(fKdV,domain);
 
+v=-0.75*sech(fKdV.L/(2*pi)*domain.X).^2; % initial guess
+
 % -------------------------------------------------------------------------
 % Newton solve for initial solution
-[v0,i,flag]=NewtonSolve(fKdV.v,fKdV,pde,domain,option);
+[v0,i,flag]=NewtonSolve(v,fKdV,pde,domain,option);
 
 if flag ==0
 
@@ -69,4 +62,6 @@ du=du/mag;
 [V,U]=pseudocont(v,dv,u,du,fKdV,domain,option,cont_option);
 
 dt=toc(time);
-fprintf('Elapsed Time is %f s\n',dt)
+fprintf('fKdV Continuation Elapsed Time is %f s\n',dt)
+
+end

@@ -12,7 +12,7 @@
 % domain.BC - boundary conditions (4x2 cell)
 %
 
-function [pde,domain]=fKdVpdeinitialise(fKdV,domain)
+function [fKdV,pde,domain]=fKdVpdeinitialise(fKdV,domain)
 
 dim=domain.dim;
 x=domain.x;
@@ -94,7 +94,7 @@ pde.c = c;
 pde.f = f;
 
 % -------------------------------------------------------------------------
-% Apply boundary conditions
+% Apply boundary conditions nonlinear, DIRICHLET
 % -------------------------------------------------------------------------
 index=cell(2,domain.dim); % Left and right, for each dimension
 
@@ -110,8 +110,8 @@ index{2,2}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
 for i=1:domain.dim
     
     if domain.discretisation(i)~=1 % If not Fourier, set BCs
-        pde.f(index{1,i})=BCRHS{1,i}; % x(1) boundary
-        pde.f(index{2,i})=BCRHS{2,i}; % x(end) boundary
+        fKdV.v(index{1,i})=BCRHS{1,i}; % x(1) boundary
+        fKdV.v(index{2,i})=BCRHS{2,i}; % x(end) boundary
     end
     
 end

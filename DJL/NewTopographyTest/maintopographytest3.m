@@ -3,30 +3,31 @@ clear;%close all;%clc
 % -------------------------------------------------------------------------
 % DJL parameters
 % -------------------------------------------------------------------------
+% fKdV solution type:
+% 0 - 2sech^2 solution
+% 1 - fKdV continuation plot!
+DJL.soltype=1; 
 
-% alpha=0.05;
-% epsilon=sqrt(alpha);
-% epsilon=0.25;
-% mu=alpha^(1/4);
-% converges on e=1 (bit weird),e=0.02 (weird solution), e=0.3
+delta=0.001;
 mode=1;
+mu=0.2;
+KAI=30;
 
 % N^2 function
-N2=@(psi) sech((psi-0.6)/1).^2;N2=@(psi) psi;
+N2=@(psi) sech((psi-0.6)/1).^2;%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) -2*sech((psi-0.6)/1).^2.*tanh((psi-0.6)/1);N2d=@(psi) 1+0*psi;
+N2d=@(psi) -2*sech((psi-0.6)/1).^2.*tanh((psi-0.6)/1);%N2d=@(psi) 1+0*psi;
 
-% DJL.epsilon = epsilon;
-% DJL.alpha = alpha;
-% DJL.mu = mu;
 
 DJL.mode=mode;
-
 DJL.N2=N2;
 DJL.N2d=N2d;
-
+DJL.delta=delta;
 DJL.topography=@(X) sech(X).^2; % in KAI domain ...
+
+DJL.mu = mu;
+DJL.KAI=KAI;
 
 % -------------------------------------------------------------------------
 time=tic;
@@ -40,9 +41,6 @@ DJL=DJLv0_topography_test3(DJL,domain);
 % Conformal mapping and interpolation
 [mapping,DJL]=conformalmapping(DJL,domain,option);
 
-
-KAI=DJL.KAI;
-mu=DJL.mu;
 Lx=DJL.Lx;
 Ly=DJL.Ly;
 
@@ -79,10 +77,10 @@ end
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)
+
 % -------------------------------------------------------------------------
 % PLOTS
 % -------------------------------------------------------------------------
-KAI=DJL.KAI;
 
 X2=domain.X{1}/pi*KAI/mu^2;
 Y2=(domain.X{2}+1)/2;

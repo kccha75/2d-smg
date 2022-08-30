@@ -14,6 +14,6 @@ function index=findroot(v,x0)
 v=v-x0;
 
 % Detect sign change index
-index = find((v(1:end-1)>0 & v(2:end)<0) | (v(1:end-1)<0 & v(2:end)>0));
+index = find((v(1:end-1)>=0 & v(2:end)<0) | (v(1:end-1)<=0 & v(2:end)>0));
 
 end

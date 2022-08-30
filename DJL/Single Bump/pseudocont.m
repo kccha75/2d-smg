@@ -58,7 +58,7 @@ while j<steps
     fKdV.gamma=U(j+1);
 
     % Update pde / jacobian
-    [pde,domain]=fKdVpdeinitialise(fKdV,domain);
+    [fKdV,pde,domain]=fKdVpdeinitialise(fKdV,domain);
 
 % -------------------------------------------------------------------------
 % Newton here
@@ -103,7 +103,7 @@ while j<steps
         % Update variable
         fKdV.gamma=U(j+1);
         % Update pde / jacobian
-        [pde,domain]=fKdVpdeinitialise(fKdV,domain);
+        [fKdV,pde,domain]=fKdVpdeinitialise(fKdV,domain);
 
     end
 

@@ -25,10 +25,10 @@ N=domain.N;
 x=domain.x;
 
 % DJL parameters
-% epsilon = DJL.epsilon;
-% alpha = DJL.alpha;
-% mu = DJL.mu;
+delta = DJL.delta;
+mu = DJL.mu;
 mode = DJL.mode;
+KAI = DJL.KAI;
 N2 = DJL.N2;
 
 % -------------------------------------------------------------------------
@@ -59,7 +59,7 @@ phis=phis(:,index);
 % Disregarding the last 2 that do not satisfy BCs
 phis=phis(:,3:end);
 lambdas=lambdas(3:end)';
-phis=phis./max(abs(phis));
+
 % Specific interested mode
 phi=phis(:,mode);
 lambda=lambdas(mode);
@@ -94,27 +94,67 @@ gamma=C/2*phiz0/int_phi_z_2;
 % Order 1 fKdVsol for forcing, picking delta and mu
 % -------------------------------------------------------------------------
 
-% Topography length
-KAI=30;
-
-% Pick Delta and mu
-delta=0.01;
-mu=0.5;
+% Domain
+X=x{1}/pi*KAI; % -KAI to KAI
 
 % Solve for other variables ...
 delta_star=delta/(s*mu^2); % use in fkdv ..
-% [gamma_star,B]=function(delta_star) to write this function out ...
-gamma_star = -5;gamma_star=2*delta_star-8;
+
+if DJL.soltype==0 % 2sech^2 fKdV solution
+
+    gamma_star=2*delta_star-8;
+    B=2*sech(X).^2;
+
+end
+
+if DJL.soltype==1 % fKdV continuation solitary wave
+
+    fprintf('alpha=gamma_star*%f\n',6*s^2*mu^4/(gamma*r))
+    gamma_star=input('Input Gamma_star\n');
+
+    % fKdV continuation
+    [B_cont,gamma_cont,fKdV,pdefkdv,domainfkdv,optionfkdv]=fkdvsol(DJL,gamma_star,delta_star);
+
+    % Check plot!
+    plot(gamma_cont,B_cont(N(1)/2,:))
+    title('fKdV continuation at chosen delta_ star')
+    xlabel('\gamma')
+    ylabel('B(0)')
+
+    % Find index of root
+    Bindex=findroot(gamma_cont,gamma_star);
+    
+    % Plot line on plot
+    hold on
+    xline(gamma_star)
+    hold off
+
+    pause % to check plots ...
+
+    if isempty(Bindex)==1
+        disp('No valid solution detected at gamma_star!')
+        DJL.v=[];
+    elseif length(Bindex)>1
+        flag=input('Choose solution (bottom to top)! eg 1,2,3 etc\n');
+        Bindex=Bindex(flag);
+    end
+
+    % Linear Interpolation
+    B=(gamma_star-gamma_cont(Bindex))*(B_cont(:,Bindex+1)-B_cont(:,Bindex)) ...
+        /(gamma_cont(Bindex+1)-gamma_cont(Bindex))+B_cont(:,Bindex);
+
+    % Newton iteration!
+    % Update variable
+    fKdV.gamma=gamma_star;
+    pdefkdv.f=-gamma_star*fKdV.topography(X);
+    B=NewtonSolve(B,fKdV,pdefkdv,domainfkdv,optionfkdv);
+
+end
 
 % Solve for alpha ...
 alpha=gamma_star*6*s^2*mu^4/(gamma*r);
 DJL.alpha=alpha;
 
-% Solution of fkdv equation
-X=x{1}/pi*KAI; % -KAI to KAI
-load('gamma5v0.mat');
-B=v0;
-B=2*sech(X).^2;
 % back to original compatibility equation
 A=6*s*mu^2/r*B;
 
@@ -132,7 +172,7 @@ v0=A*phi';
 % Order epsilon solution in DJL coordinates
 % -------------------------------------------------------------------------
 
-% Take only 10 modes ...
+% Take only 20 modes ...
 phis=phis(:,1:20);
 lambdas=lambdas(1:20);
 
