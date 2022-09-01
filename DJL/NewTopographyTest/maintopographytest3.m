@@ -6,18 +6,18 @@ clear;%close all;%clc
 % fKdV solution type:
 % 0 - 2sech^2 solution
 % 1 - fKdV continuation plot!
-DJL.soltype=1; 
+DJL.soltype=0; 
 
-delta=0.001;
+delta=0.01;
 mode=1;
-mu=0.2;
+mu=1.;
 KAI=30;
 
 % N^2 function
-N2=@(psi) sech((psi-0.6)/1).^2;%N2=@(psi) psi;
+N2=@(psi) sech((psi-0)/1).^2;%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) -2*sech((psi-0.6)/1).^2.*tanh((psi-0.6)/1);%N2d=@(psi) 1+0*psi;
+N2d=@(psi) -2*sech((psi-0)/1).^2.*tanh((psi-0)/1);%N2d=@(psi) 1+0*psi;
 
 
 DJL.mode=mode;

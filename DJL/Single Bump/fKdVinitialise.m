@@ -25,7 +25,7 @@ coarsestgrid = 5;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=3;
+option.num_vcycles=5;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
@@ -37,7 +37,7 @@ option.Nd=1;
 option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='FMG';
+option.solver='V-cycle';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='Correction';
