@@ -10,8 +10,8 @@ DJL.soltype=0;
 
 delta=0.01;
 mode=1;
-mu=1.;
-KAI=30;
+mu=0.2;
+KAI=30;KAI=15;
 
 % N^2 function
 N2=@(psi) sech((psi-0)/1).^2;%N2=@(psi) psi;

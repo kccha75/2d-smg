@@ -129,4 +129,4 @@ cont_option.ds_max=0.05;
 % Iterations
 cont_option.N_opt=4;
 cont_option.Newtonmaxit=8;
-cont_option.steps=1000;
+cont_option.steps=2000;
