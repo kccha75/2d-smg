@@ -7,23 +7,24 @@ clear;%close all;%clc
 % 0 - 2sech^2 solution
 % 1 - fKdV continuation plot!
 DJL.soltype=1; 
-% try delta_star=3
-% gamma_star=-0.5, solution 3 :)
+
+% delta=0.01;
 mode=1;
-mu=0.7;
+alpha=0.001;
+mu=0.6;
 KAI=30;KAI=15;
 
 % N^2 function
-N2=@(psi) sech((psi-1)/1).^2;%N2=@(psi) psi;
+N2=@(psi) sech((psi-0)/1).^2;%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) -2*sech((psi-1)/1).^2.*tanh((psi-1)/1);%N2d=@(psi) 1+0*psi;
+N2d=@(psi) -2*sech((psi-0)/1).^2.*tanh((psi-0)/1);%N2d=@(psi) 1+0*psi;
 
-
+DJL.alpha=alpha;
 DJL.mode=mode;
 DJL.N2=N2;
 DJL.N2d=N2d;
-DJL.delta=delta;
+% DJL.delta=delta;
 DJL.topography=@(X) sech(X).^2; % in KAI domain ...
 
 DJL.mu = mu;
@@ -36,7 +37,7 @@ time=tic;
 [domain,option,cont_option]=DJLinitialise_topography();
 
 % Initial guess
-DJL=DJLv0_topography_test3(DJL,domain);
+DJL=DJLv0_topography_test4(DJL,domain);
 
 % Conformal mapping and interpolation
 [mapping,DJL]=conformalmapping(DJL,domain,option);
