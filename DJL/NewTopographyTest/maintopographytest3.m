@@ -7,6 +7,7 @@ clear;%close all;%clc
 % 0 - 2sech^2 solution
 % 1 - fKdV continuation plot!
 DJL.soltype=1; 
+delta=0.01;
 % try delta_star=3
 % gamma_star=-0.5, solution 3 :)
 mode=1;
