@@ -4,10 +4,10 @@ clear;close all;%clc
 % fKdV parameters
 % -------------------------------------------------------------------------
 
-L=40;
+L=30;
 d=3;
 gamma=-5;
-delta=3.572109417551543;
+delta=1.44;
 topography=@(x) sech(x).^2;
 
 fKdV.L=L;

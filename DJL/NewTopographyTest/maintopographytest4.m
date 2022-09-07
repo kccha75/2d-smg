@@ -10,15 +10,15 @@ DJL.soltype=1;
 
 % delta=0.01;
 mode=1;
-alpha=0.001;
-mu=0.6;
+alpha=0.01;
+mu=0.5;
 KAI=30;KAI=15;
 
 % N^2 function
-N2=@(psi) sech((psi-0)/1).^2;%N2=@(psi) psi;
+N2=@(psi) sech((psi-1)/1).^2;%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) -2*sech((psi-0)/1).^2.*tanh((psi-0)/1);%N2d=@(psi) 1+0*psi;
+N2d=@(psi) -2*sech((psi-1)/1).^2.*tanh((psi-1)/1);%N2d=@(psi) 1+0*psi;
 
 DJL.alpha=alpha;
 DJL.mode=mode;
