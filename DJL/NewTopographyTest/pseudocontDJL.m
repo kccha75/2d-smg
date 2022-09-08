@@ -1,15 +1,14 @@
-% Function performs pseudo arclength continuation on fKdV equation
-% au_xx+bu_x+cu+du^2=-gamma*topography
+% Function performs pseudo arclength continuation on DJL equation
+% au_xx+bu_zz+N^2(z-u)u/c^2=0
 %
-% Updates parameter c in continuation (delta in fKdV)
+% Updates parameter c in continuation 
 %
 % Input:
 % v - initial solution at initial parameter
 % dv - initial solution gradient
 % lambda - initial parameter
 % dlambda - initial parameter gradient
-% fKdV.topography - topography shape
-% fKdV.L - length scale
+
 % domain
 % option
 % cont_option - continuation options
@@ -18,7 +17,7 @@
 % V - solution vector at each parameter value 
 % U - parameter vector
 
-function [V,U]=pseudocontdelta(v,dv,lambda,dlambda,fKdV,domain,option,cont_option)
+function [V,U]=pseudocontDJL(v,dv,lambda,dlambda,DJL,domain,option,cont_option)
 
 ds=cont_option.ds; % Step size initial
 ds_min=cont_option.ds_min; 
@@ -29,13 +28,11 @@ steps=cont_option.steps; % maximum steps allowed
 
 Newtontol=option.Newtontol;
 
-tailtolerance=1e-5; % tail end tolerance (asymptotic at x=+-inf
-
 % Set max Newton iterations to continuation option
 option.Newtonmaxit=Newtonmaxit;
 
 % Initialise
-V(:,1)=v;
+V(:,:,1)=v;
 U(1)=lambda;
 
 j=1;
@@ -47,15 +44,15 @@ e0=zeros(domain.N); % Error guess (keep at 0)
 while j<steps
     
     % Predictor
-    V(:,j+1)=V(:,j)+dv*ds;
+    V(:,:,j+1)=V(:,:,j)+dv*ds;
 
     U(j+1)=U(j)+dlambda*ds;
 
     % Update variable
-    fKdV.delta=U(j+1);
+    DJL.u=U(j+1);
 
     % Update pde / jacobian
-    [fKdV,pde,domain]=fKdVpdeinitialise(fKdV,domain);
+%     [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain);
 
 % -------------------------------------------------------------------------
 % Newton here
@@ -63,7 +60,7 @@ while j<steps
     for i=1:Newtonmaxit
 
         % Calculate Jacobian for linear equation
-        J=option.jacobian(V(:,j+1),fKdV,pde,domain);
+        J=option.jacobian(V(:,:,j+1),DJL,pde,domain);
         
         % Check nonlinear residual
         r=rms(J.f(:));
@@ -80,7 +77,7 @@ while j<steps
 
         % Solve linear equation
         RHS1=J.f;
-        RHS2=-V(:,j+1);
+        RHS2=2*DJL.N2((domain.x{2}+1)/2-V(:,:,j+1)).*V(:,:,j+1)/U(j+1)^3;
 
         J.f=RHS1;
 %         z1=mg(e0,J,domain,option);
@@ -90,23 +87,24 @@ while j<steps
         z2=cg(e0,J,domain,option);
         
         % Update correction
-        delta_lambda=(ds-dot(dv,(V(:,j+1)-V(:,j)))-dlambda*(U(j+1)-U(j))-dot(dv,z1)) ...
+        delta_lambda=(ds-dot(dv,(V(:,:,j+1)-V(:,:,j)))-dlambda*(U(j+1)-U(j))-dot(dv,z1)) ...
             /(dlambda-dot(dv,z2));
         delta_v=z1-delta_lambda*z2; 
     
-        V(:,j+1)=V(:,j+1)+delta_v;
+        V(:,:,j+1)=V(:,:,j+1)+delta_v;
         U(j+1)=U(j+1)+delta_lambda;
 
         % Update variable
-        fKdV.delta=U(j+1);
+        DJL.u=U(j+1);
+
         % Update pde / jacobian
-        [fKdV,pde,domain]=fKdVpdeinitialise(fKdV,domain);
+%         [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain);
 
     end
 
     % If converged final loop ...
     % Calculate Jacobian for linear equation
-    J=option.jacobian(V(:,j+1),fKdV,pde,domain);
+    J=option.jacobian(V(:,:,j+1),DJL,pde,domain);
 
     if rms(J.f(:))>option.Newtontol
     
@@ -123,10 +121,17 @@ while j<steps
 
 % -------------------------------------------------------------------------
 
-    % Converged newton
-    if flag==1 && V(1,j+1)<=tailtolerance
+    % Converged newton and not 0 solution
+    if flag==1 && max(max(abs(V(:,:,j+1))))>=1e-8
         
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
+
+        % check overturning
+        dv=2*ifct(chebdiff(fct(V(:,:,j+1)'),1));
+        if max(dv(:))>1
+            fprintf('Overturning detected!\n')
+            return
+        end
 
         % Update for next Newton iteration
         dlambda=1/(dlambda-dot(dv,z2));
@@ -159,13 +164,13 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-    elseif flag==0 || V(1,j+1)>tailtolerance
+    elseif flag==0 || max(max(abs(V(:,:,j+1))))<=1e-8
         
         if flag==0
             fprintf('Did not converge to required tolerance  after %d Newton Iterations at step %d\n',i,j)
         end
         if V(1,j+1)>tailtolerance
-            fprintf('Did not converge to proper solution!!! Converged to non asymptotic solution after %d Newton Iterations at step %d\n',i,j)
+            fprintf('Did not converge to proper solution!!! Converged 0 solution after %d Newton Iterations at step %d\n',i,j)
         end
 
         % Halve step size
@@ -176,7 +181,7 @@ while j<steps
         if ds<=ds_min
             fprintf('Minimum step length of %f exceeded, breaking loop\n',ds_min)
             % Clear last non-converged step
-            V(:,end)=[];
+            V(:,:,end)=[];
             U(end)=[];
             return % end function
         end

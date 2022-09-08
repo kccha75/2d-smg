@@ -1,6 +1,8 @@
 % Function performs pseudo arclength continuation on fKdV equation
 % au_xx+bu_x+cu+du^2=-gamma*topography
 %
+% Updates parameter gamma in continuation
+%
 % Input:
 % v - initial solution at initial parameter
 % dv - initial solution gradient
@@ -16,7 +18,7 @@
 % V - solution vector at each parameter value 
 % U - parameter vector
 
-function [V,U]=pseudocont(v,dv,lambda,dlambda,fKdV,domain,option,cont_option)
+function [V,U]=pseudocontgamma(v,dv,lambda,dlambda,fKdV,domain,option,cont_option)
 
 topography=fKdV.topography;
 L=fKdV.L;

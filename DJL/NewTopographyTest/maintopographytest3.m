@@ -74,7 +74,7 @@ if flag ==0
 end
 
 % Continuation
-% [V,U]=naturalparametercontinuation(v,DJL.u,DJL,domain,cont_option);
+[V,U]=naturalparametercontinuation(v,DJL.u,DJL,domain,option,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)
@@ -83,13 +83,13 @@ fprintf('Elapsed Time is %f s\n',dt)
 % PLOTS
 % -------------------------------------------------------------------------
 
-X2=domain.X{1}/pi*KAI/mu^2;
+X2=domain.X{1}/pi*KAI;
 Y2=(domain.X{2}+1)/2;
 
 % Calculate momentum
 P=trapI(V.^2,domain.dx{1}); % Integrate x
 P=permute(P,[2,1,3]);
-P=clenshaw_curtis(2*P/pi*KAI/mu^2); % Integrate y
+P=clenshaw_curtis(2*P/pi*KAI); % Integrate y
 P=permute(P,[3,1,2]);
 
 % u vs momentum

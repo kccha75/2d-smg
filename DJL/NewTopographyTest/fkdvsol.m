@@ -59,7 +59,7 @@ dv=dv/mag;
 du=du/mag;
 
 % Continuation
-[V,U]=pseudocont(v,dv,u,du,fKdV,domain,option,cont_option);
+[V,U]=pseudocontgamma(v,dv,u,du,fKdV,domain,option,cont_option);
 
 dt=toc(time);
 fprintf('fKdV Continuation Elapsed Time is %f s\n',dt)

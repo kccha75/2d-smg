@@ -25,7 +25,7 @@ function J=jacobianDJL(v,DJL,pde,domain)
 N2=DJL.N2;
 N2d=DJL.N2d;
 
-u=pde.u;
+u=DJL.u;
 
 z=(domain.X{2}+1)/2;
 

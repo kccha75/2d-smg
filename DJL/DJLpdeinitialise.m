@@ -22,7 +22,7 @@ x=domain.x;
 X=domain.X;
 
 mu=DJL.mu;
-pde.u=DJL.u;
+% pde.u=DJL.u;
 KAI=DJL.KAI;
 
 
