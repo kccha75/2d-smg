@@ -4,7 +4,7 @@
 % INPUT PARAMETERS
 % -------------------------------------------------------------------------
 
-function [mapping,DJL]=conformalmapping(DJL,domain,option)
+function [DJL,domain]=conformalmapping(DJL,domain,option)
 
 alpha=DJL.alpha;
 topography=DJL.topography;
@@ -120,8 +120,8 @@ XX=U+ex;
 YY=y;
 
 % X,Y map outputs
-mapping.YY=YY;
-mapping.XX=XX;
+domain.YY=YY;
+domain.XX=XX;
 DJL.Ly=L;
 
 % % check laplacian!
@@ -158,7 +158,7 @@ dzdv=dzdv';
 % Jacobian
 jac=real(dzdv).^2+real(dzdu).^2;
 
-mapping.jac=jac;
-mapping.H=H0;
+domain.jac=jac;
+domain.H=H0;
 
 end

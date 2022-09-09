@@ -52,7 +52,7 @@ while j<steps
     DJL.u=U(j+1);
 
     % Update pde / jacobian
-%     [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain);
+    [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain);
 
 % -------------------------------------------------------------------------
 % Newton here
@@ -98,7 +98,7 @@ while j<steps
         DJL.u=U(j+1);
 
         % Update pde / jacobian
-%         [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain);
+        [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain);
 
     end
 

@@ -40,24 +40,24 @@ time=tic;
 DJL=DJLv0_topography_test3(DJL,domain);
 
 % Conformal mapping and interpolation
-[mapping,DJL]=conformalmapping(DJL,domain,option);
+[DJL,domain]=conformalmapping(DJL,domain,option);
 
 Lx=DJL.Lx;
 Ly=DJL.Ly;
 
-XX=mapping.XX;
-YY=mapping.YY;
-jac=mapping.jac;
-H=mapping.H;
+XX=domain.XX;
+YY=domain.YY;
+jac=domain.jac;
+H=domain.H;
 
 % Initialise PDE
-[DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain);
+[DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
 % Interpolate
 v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},DJL.v,YY,XX,'spline');
 
 % set BC again here ... (but causes huge residual due to discont)
-v0(:,end)=DJL.alpha*DJL.topography(mapping.XX(:,end)*KAI/pi);
+v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 
 % initial residual ..?
 r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);

@@ -17,7 +17,7 @@
 % domain.BC - boundary conditions (4x2 cell)
 %
 
-function [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain)
+function [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain)
 
 dim=domain.dim;
 x=domain.x;
@@ -32,8 +32,8 @@ topography=DJL.topography;
 Lx=DJL.Lx;
 Ly=DJL.Ly;
 
-H=mapping.H;
-jac=mapping.jac;
+H=domain.H;
+jac=domain.jac;
 
 % -------------------------------------------------------------------------
 % Set up PDE
