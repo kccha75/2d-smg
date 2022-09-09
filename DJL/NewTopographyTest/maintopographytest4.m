@@ -10,9 +10,9 @@ DJL.soltype=1;
 
 % delta=0.01;
 mode=1;
-alpha=0.01;
-mu=0.5;
-KAI=30;KAI=15;
+alpha=0.01;%alpha=0;
+mu=0.5;%mu=1;
+KAI=30;KAI=15;%KAI=41;
 
 % N^2 function
 N2=@(psi) sech((psi-1)/1).^2;%N2=@(psi) psi;
@@ -63,7 +63,9 @@ v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
 disp(rms(rms(r)))
 
-% Newton solve
+% -------------------------------------------------------------------------
+% Newton solve solution 1
+% -------------------------------------------------------------------------
 [v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
 
 if flag ==0
@@ -72,9 +74,28 @@ if flag ==0
     return
 
 end
+% -------------------------------------------------------------------------
+% Newton solve solution 2
+% -------------------------------------------------------------------------
+ds=cont_option.ds;
+DJL.u=DJL.u+ds;
+[v1,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
+
+if flag ==0
+
+    fprintf('Initial Newton did not converge ...\n')
+    return
+
+end
+% -------------------------------------------------------------------------
+v=v0;
+u=DJL.u-ds;
+dv=(v1-v0)/ds;
+du=1;
 
 % Continuation
 % [V,U]=naturalparametercontinuation(v,DJL.u,DJL,domain,cont_option);
+[V,U]=pseudocontDJL(v,dv,u,du,DJL,domain,option,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)

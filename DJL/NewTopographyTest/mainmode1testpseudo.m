@@ -25,6 +25,8 @@ DJL.mode=mode;
 DJL.N2=N2;
 DJL.N2d=N2d;
 
+DJL.topography=@(X) sech(X).^2; % in KAI domain ...
+
 % -------------------------------------------------------------------------
 time=tic;
 

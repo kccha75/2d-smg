@@ -52,7 +52,7 @@ while j<steps
     DJL.u=U(j+1);
 
     % Update pde / jacobian
-    [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain);
+    [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
 % -------------------------------------------------------------------------
 % Newton here
@@ -66,6 +66,17 @@ while j<steps
         r=rms(J.f(:));
         fprintf('Residual Newton = %d\n',r)
 
+        % Solve linear equation
+        RHS1=J.f;
+        RHS2=2*DJL.N2((domain.X{2}+1)/2-V(:,:,j+1)).*V(:,:,j+1)/U(j+1)^3;
+
+        J.f=RHS1;
+%         z1=mg(e0,J,domain,option);
+        z1=bicgstab(e0,J,domain,option);
+        J.f=RHS2;
+        z2=mg(e0,J,domain,option);
+%         z2=bicgstab(e0,J,domain,option);
+
         if r<=Newtontol
 
             fprintf('Converged after %d Newton Iterations \n',i-1)
@@ -74,21 +85,10 @@ while j<steps
             break
 
         end
-
-        % Solve linear equation
-        RHS1=J.f;
-        RHS2=2*DJL.N2((domain.x{2}+1)/2-V(:,:,j+1)).*V(:,:,j+1)/U(j+1)^3;
-
-        J.f=RHS1;
-%         z1=mg(e0,J,domain,option);
-        z1=cg(e0,J,domain,option);
-        J.f=RHS2;
-%         z2=mg(e0,J,domain,option);
-        z2=cg(e0,J,domain,option);
         
         % Update correction
-        delta_lambda=(ds-dot(dv,(V(:,:,j+1)-V(:,:,j)))-dlambda*(U(j+1)-U(j))-dot(dv,z1)) ...
-            /(dlambda-dot(dv,z2));
+        delta_lambda=(ds-sum(dot(dv,(V(:,:,j+1)-V(:,:,j))))-dlambda*(U(j+1)-U(j))-sum(dot(dv,z1))) ...
+            /(dlambda-sum(dot(dv,z2)));
         delta_v=z1-delta_lambda*z2; 
     
         V(:,:,j+1)=V(:,:,j+1)+delta_v;
@@ -98,7 +98,7 @@ while j<steps
         DJL.u=U(j+1);
 
         % Update pde / jacobian
-        [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,mapping,domain);
+        [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
     end
 
@@ -127,18 +127,18 @@ while j<steps
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
         % check overturning
-        dv=2*ifct(chebdiff(fct(V(:,:,j+1)'),1));
-        if max(dv(:))>1
+        diffv=2*ifct(chebdiff(fct(V(:,:,j+1)'),1));
+        if max(diffv(:))>1
             fprintf('Overturning detected!\n')
             return
         end
 
         % Update for next Newton iteration
-        dlambda=1/(dlambda-dot(dv,z2));
+        dlambda=1/(dlambda-sum(dot(dv,z2)));
         dv=-dlambda*z2;
     
         % Normalise
-        mag=sqrt(dot(dv,dv)+dlambda^2);
+        mag=sqrt(sum(dot(dv,dv))+dlambda^2);
         dlambda=dlambda/mag;
         dv=dv/mag;
 
@@ -168,9 +168,6 @@ while j<steps
         
         if flag==0
             fprintf('Did not converge to required tolerance  after %d Newton Iterations at step %d\n',i,j)
-        end
-        if V(1,j+1)>tailtolerance
-            fprintf('Did not converge to proper solution!!! Converged 0 solution after %d Newton Iterations at step %d\n',i,j)
         end
 
         % Halve step size

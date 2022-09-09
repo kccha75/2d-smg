@@ -170,7 +170,6 @@ u=delta+C;
  
 DJL.mu=mu;
 DJL.u=u;
-DJL.KAI=KAI;
 DJL.Lx=2*KAI/mu^2;
 
 v0=A*phi';

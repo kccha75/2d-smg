@@ -7,14 +7,14 @@ clear;close all;%clc
 epsilon=1;
 alpha=epsilon^2;
 mu=sqrt(epsilon);
-u=0.305; % CHECK WITH v0 TO MAKE SURE
+u=0.285; % CHECK WITH v0 TO MAKE SURE
 mode=1;
 
 % N^2 function
-N2=@(psi) sech(psi-0.2).^2;
+N2=@(psi) sech(psi-1).^2;
 
 % (N^2)'
-N2d=@(psi) -2*sech(psi-0.2).^2.*tanh(psi-0.2);
+N2d=@(psi) -2*sech(psi-1).^2.*tanh(psi-1);
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
