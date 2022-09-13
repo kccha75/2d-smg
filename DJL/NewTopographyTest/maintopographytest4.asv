@@ -1,50 +1,73 @@
-clear;close all;%clc
+clear;%close all;%clc
 
 % -------------------------------------------------------------------------
 % DJL parameters
 % -------------------------------------------------------------------------
+% fKdV solution type:
+% 0 - 2sech^2 solution
+% 1 - fKdV continuation plot!
+DJL.soltype=1; 
 
-epsilon=0.5;
-alpha=epsilon^2; % no dependence on alpha (since no topography ...)
-mu=sqrt(epsilon);% no dependence on mu at all for v0... but does have dependence on newton ...
-u=0.24;
+% delta=0.01;
 mode=1;
+alpha=0.01;
+mu=0.7;
+KAI=30;KAI=15;
 
 % N^2 function
-N2=@(psi) psi;
+N2=@(psi) sech((psi-1)/1).^2;%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) 0*psi+1;
+N2d=@(psi) -2*sech((psi-1)/1).^2.*tanh((psi-1)/1);%N2d=@(psi) 1+0*psi;
 
-DJL.epsilon = epsilon;
-DJL.alpha = alpha;
-DJL.mu = mu;
-DJL.u = u;
+DJL.alpha=alpha;
 DJL.mode=mode;
-
 DJL.N2=N2;
 DJL.N2d=N2d;
-
+% DJL.delta=delta;
 DJL.topography=@(X) sech(X).^2; % in KAI domain ...
+
+DJL.mu = mu;
+DJL.KAI=KAI;
 
 % -------------------------------------------------------------------------
 time=tic;
 
 % Initialise
-[domain,option,cont_option]=DJLinitialise();
+[domain,option,cont_option]=DJLinitialise_topography();
 
 % Initial guess
-[v0,DJL]=DJLv0(DJL,domain);
+DJL=DJLv0_topography_test4(DJL,domain);
+
+% Conformal mapping and interpolation
+[DJL,domain]=conformalmapping(DJL,domain,option);
+
+Lx=DJL.Lx;
+Ly=DJL.Ly;
+
+XX=domain.XX;
+YY=domain.YY;
+jac=domain.jac;
+H=domain.H;
 
 % Initialise PDE
-[pde,domain]=DJLpdeinitialise(DJL,domain);
+[DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
-disp(rms(rms(pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2))))
+% Interpolate
+v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},DJL.v,YY,XX,'spline');
+
+% set BC again here ... (but causes huge residual due to discont)
+v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+
+% initial residual ..?
+r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
+disp(rms(rms(r)))
 
 % -------------------------------------------------------------------------
 % Newton solve solution 1
 % -------------------------------------------------------------------------
-[v0,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
+u=DJL.u;
+[v1,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
 
 if flag ==0
 
@@ -56,8 +79,8 @@ end
 % Newton solve solution 2
 % -------------------------------------------------------------------------
 ds=cont_option.ds;
-DJL.u=u+ds;
-[v1,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
+DJL.u=u-ds;
+[v2,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
 
 if flag ==0
 
@@ -66,26 +89,21 @@ if flag ==0
 
 end
 % -------------------------------------------------------------------------
-v=v0;
+v=v1;
 u=u;
-dv=(v1-v0)/ds;
-du=1;
-
-% Normalise
-mag=sqrt(dot(dv(:),dv(:))+du^2);
-dv=dv/mag;
-du=du/mag;
+dv=(v2-v1)/ds;
+du=-1;
 
 % Continuation
+% [V,U]=naturalparametercontinuation(v,DJL.u,DJL,domain,cont_option);
 [V,U]=pseudocontDJL(v,dv,u,du,DJL,domain,option,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)
+
 % -------------------------------------------------------------------------
 % PLOTS
 % -------------------------------------------------------------------------
-
-KAI=DJL.KAI;
 
 X2=domain.X{1}/pi*KAI/mu^2;
 Y2=(domain.X{2}+1)/2;

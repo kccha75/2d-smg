@@ -16,7 +16,7 @@ dim=2;
 % 2 - Cheb
 discretisation=[1 2];
 
-finestgrid = 6;
+finestgrid = 8;
 coarsestgrid = 3;
 
 % -------------------------------------------------------------------------
@@ -25,11 +25,11 @@ coarsestgrid = 3;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=5;
+option.num_vcycles=1;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
-option.Newtontol=1e-10;
+option.Newtontol=1e-9;
 option.Newtonmaxit=20;
 
 % Relaxations on the up and down cycle during Multigrid
@@ -37,7 +37,7 @@ option.Nd=1;
 option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='FMG';
+option.solver='V-cycle';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='Correction';

@@ -17,7 +17,7 @@ dim=2;
 discretisation=[1 2];
 
 finestgrid = 8;
-coarsestgrid = 6;
+coarsestgrid = 3;
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -25,7 +25,7 @@ coarsestgrid = 6;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=10;
+option.num_vcycles=1;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
@@ -37,7 +37,7 @@ option.Nd=1;
 option.Nu=1;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
-option.solver='FMG';
+option.solver='V-cycle';
 
 % Multigrid scheme: 'Correction' or 'FAS'
 option.mgscheme='Correction';
@@ -127,7 +127,7 @@ cont_option=option;
 % Step size
 cont_option.ds=0.001;
 cont_option.ds_min=1e-6;
-cont_option.ds_max=0.001;
+cont_option.ds_max=0.1;
 
 % Iterations
 cont_option.N_opt=4;

@@ -68,11 +68,11 @@ while j<steps
 
         % Solve linear equation
         RHS1=J.f;
-        RHS2=2*DJL.N2((domain.X{2}+1)/2-V(:,:,j+1)).*V(:,:,j+1)/U(j+1)^3;
-
+        RHS2=-2*DJL.N2((domain.X{2}+1)/2-V(:,:,j+1)).*V(:,:,j+1)/U(j+1)^3; RHS2(:,end)=0;
+        
         J.f=RHS1;
-%         z1=mg(e0,J,domain,option);
-        z1=bicgstab(e0,J,domain,option);
+        z1=mg(e0,J,domain,option);
+%         z1=bicgstab(e0,J,domain,option);
         J.f=RHS2;
         z2=mg(e0,J,domain,option);
 %         z2=bicgstab(e0,J,domain,option);
@@ -89,7 +89,7 @@ while j<steps
         % Update correction
         delta_lambda=(ds-sum(dot(dv,(V(:,:,j+1)-V(:,:,j))))-dlambda*(U(j+1)-U(j))-sum(dot(dv,z1))) ...
             /(dlambda-sum(dot(dv,z2)));
-        delta_v=z1-delta_lambda*z2; 
+        delta_v=z1-delta_lambda*z2;
     
         V(:,:,j+1)=V(:,:,j+1)+delta_v;
         U(j+1)=U(j+1)+delta_lambda;

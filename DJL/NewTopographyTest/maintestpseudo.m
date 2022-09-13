@@ -10,9 +10,9 @@ DJL.soltype=1;
 
 % delta=0.01;
 mode=1;
-alpha=0.01;
-mu=0.7;
-KAI=30;KAI=15;
+alpha=0.01;alpha=0;
+mu=0.5;mu=1;
+KAI=30;KAI=15;KAI=41;
 
 % N^2 function
 N2=@(psi) sech((psi-1)/1).^2;%N2=@(psi) psi;
@@ -66,7 +66,6 @@ disp(rms(rms(r)))
 % -------------------------------------------------------------------------
 % Newton solve solution 1
 % -------------------------------------------------------------------------
-u=DJL.u;
 [v1,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
 
 if flag ==0
@@ -79,9 +78,8 @@ end
 % Newton solve solution 2
 % -------------------------------------------------------------------------
 ds=cont_option.ds;
-ds=0.0001; % keep positive!
-DJL.u=u-ds;
-[v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
+DJL.u=DJL.u+ds;
+[v2,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
 
 if flag ==0
 
@@ -90,10 +88,11 @@ if flag ==0
 
 end
 % -------------------------------------------------------------------------
+
 v=v1;
-u=u;
+u=DJL.u-ds;
 dv=(v2-v1)/ds;
-du=-1; % Negative direction
+du=1;
 
 % Continuation
 % [V,U]=naturalparametercontinuation(v,DJL.u,DJL,domain,cont_option);
