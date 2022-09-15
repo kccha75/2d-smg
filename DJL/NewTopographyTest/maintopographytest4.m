@@ -79,7 +79,7 @@ end
 % Newton solve solution 2
 % -------------------------------------------------------------------------
 ds=cont_option.ds;
-ds=0.0001; % keep positive!
+ds=0.01; % keep positive!
 DJL.u=u-ds;
 [v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
 
@@ -106,13 +106,13 @@ fprintf('Elapsed Time is %f s\n',dt)
 % PLOTS
 % -------------------------------------------------------------------------
 
-X2=domain.X{1}/pi*KAI/mu^2;
+X2=domain.X{1}/pi*KAI/mu;
 Y2=(domain.X{2}+1)/2;
 
 % Calculate momentum
 P=trapI(V.^2,domain.dx{1}); % Integrate x
 P=permute(P,[2,1,3]);
-P=clenshaw_curtis(2*P/pi*KAI/mu^2); % Integrate y
+P=clenshaw_curtis(2*P/pi*KAI/mu); % Integrate y
 P=permute(P,[3,1,2]);
 
 % u vs momentum

@@ -128,4 +128,10 @@ for i=1:domain.dim
     
 end
 
+% Testing topography periodic
+N2 = length(x{1})*3;
+x2 = 3*2*pi*(-N2/2:N2/2-1)'/N2;
+topo3=alpha*(sech(x2*KAI/pi)+sech((x2-2*pi)*KAI/pi)+sech((x2+2*pi)*KAI/pi));
+DJL.v(:,end)=topo3(257:512);
+
 end
