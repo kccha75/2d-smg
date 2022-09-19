@@ -16,8 +16,8 @@ dim=2;
 % 2 - Cheb
 discretisation=[1 2];
 
-finestgrid = 8;
-coarsestgrid = 3;
+finestgrid = 9;
+coarsestgrid = 5;
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -29,7 +29,7 @@ option.num_vcycles=1;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
-option.Newtontol=1e-9;
+option.Newtontol=1e-7;
 option.Newtonmaxit=20;
 
 % Relaxations on the up and down cycle during Multigrid
