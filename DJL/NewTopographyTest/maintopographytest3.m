@@ -1,25 +1,24 @@
 clear;%close all;%clc
 
 % -------------------------------------------------------------------------
-% DJL parameters
+% DJL parameters PICK delta / mu
 % -------------------------------------------------------------------------
 % fKdV solution type:
 % 0 - 2sech^2 solution
 % 1 - fKdV continuation plot!
 DJL.soltype=1; 
-delta=0.01;
+delta=0.01; % DJL perturbation
 % try delta_star=3
 % gamma_star=-0.5, solution 3 :)
-mode=1;
-mu=0.7;
-KAI=30;KAI=15;
+mode=1; % mode solution
+mu=0.7; % topography width scale
+KAI=30;KAI=15; % fKdV domain
 
 % N^2 function
 N2=@(psi) sech((psi-1)/1).^2;%N2=@(psi) psi;
 
 % (N^2)'
 N2d=@(psi) -2*sech((psi-1)/1).^2.*tanh((psi-1)/1);%N2d=@(psi) 1+0*psi;
-
 
 DJL.mode=mode;
 DJL.N2=N2;
@@ -42,6 +41,7 @@ DJL=DJLv0_topography_test3(DJL,domain);
 % Conformal mapping and interpolation
 [DJL,domain]=conformalmapping(DJL,domain,option);
 
+% Length scales in DJL coordinates
 Lx=DJL.Lx;
 Ly=DJL.Ly;
 
@@ -56,10 +56,10 @@ H=domain.H;
 % Interpolate
 v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},DJL.v,YY,XX,'spline');
 
-% set BC again here ... (but causes huge residual due to discont)
+% Set BC again here ... (but causes huge residual due to discont)
 v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 
-% initial residual ..?
+% Initial residual ..?
 r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
 disp(rms(rms(r)))
 

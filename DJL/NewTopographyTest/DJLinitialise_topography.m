@@ -1,4 +1,8 @@
-% Function initialises DJL parameters for A_xx+A_zz+N^2(z-A)*A/u^2=0 
+% Function initialises DJL parameters for zeta_xx+zeta_zz+N^2(z-zeta)*zeta/u^2=0 
+%
+% Inputs:
+%
+% None!
 %
 % Outputs:
 %
@@ -25,7 +29,7 @@ coarsestgrid = 3;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG
-option.num_vcycles=1;
+option.num_vcycles=5;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
@@ -116,20 +120,24 @@ domain.X = X;
 % Jacobian option
 % -------------------------------------------------------------------------
 
-option.jacobian=@jacobianDJL;
+option.jacobian=@jacobianDJL; % Jacobian function
 
 % -------------------------------------------------------------------------
 % Continuation Options here
 % -------------------------------------------------------------------------
 
-cont_option=option;
-
-% Step size
+% Initial step size
 cont_option.ds=0.001;
-cont_option.ds_min=1e-6;
-cont_option.ds_max=0.1;
+
+% Min and max step size during continuation
+cont_option.ds_min=1e-6; % Continuation will fail if minimum reached
+cont_option.ds_max=0.1; % Max continuation step size
 
 % Iterations
+
+% Number of optimum Newton iterations at each step (step size will decrease
+% if exceeded, and increase if less than N_opt)
 cont_option.N_opt=4;
-cont_option.Newtonmaxit=8;
-cont_option.steps=200;
+
+cont_option.Newtonmaxit=8; % Max Newton iterations before lowering step size
+cont_option.steps=200; % Max continuation steps

@@ -3,13 +3,16 @@
 % Inputs:
 %
 % domain.dim - dimension of problem
+% domain.x - vector structure x{1} ,x{2}
 % domain.X - ndgrid of x,y
-% DJL.mu
-% DJL.Lx
-% DJL.Ly
-% DJL.L - conformal mapping domain
+% DJL.Ly - conformal mapping domain size
 % DJL.u - wave speed
 % DJL.KAI - x domain length
+% DJL.alpha - topography height
+% DJL.topography - topography shape
+% DJL.Ly - domain height (from conformal mapping)
+% domain.H - original height (from conformal mapping)
+% domain.jac - Jacobian (from conformal mapping)
 %
 % Outputs:
 %
@@ -23,8 +26,6 @@ dim=domain.dim;
 x=domain.x;
 X=domain.X;
 
-mu=DJL.mu;
-% pde.u=DJL.u;
 KAI=DJL.KAI;
 alpha=DJL.alpha;
 topography=DJL.topography;
@@ -127,11 +128,5 @@ for i=1:domain.dim
     end
     
 end
-
-% Testing topography periodic
-N2 = length(x{1})*3;
-x2 = 3*2*pi*(-N2/2:N2/2-1)'/N2;
-topo3=alpha*(sech(x2*KAI/pi)+sech((x2-2*pi)*KAI/pi)+sech((x2+2*pi)*KAI/pi));
-DJL.v(:,end)=topo3(257:512);
 
 end

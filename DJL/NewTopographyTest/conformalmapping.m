@@ -1,8 +1,28 @@
 % -------------------------------------------------------------------------
-% Function performs conformal mapping 
+% Function performs conformal mapping from (x,z) with topography to (u,v)
+% rectangular coordinates
+%
+% NOTE: uses Fourier x / Chebyshev z discretisation
+% Conformal mapping done on x=(-pi,pi) and z=(0,1) domain
 % -------------------------------------------------------------------------
-% INPUT PARAMETERS
-% -------------------------------------------------------------------------
+% Inputs:
+%
+% DJL.alpha - topography height
+% DJL.topography - topography shape
+% DJL.Lx - domain size
+% domain.N - grid points
+% domain.x - vector structure (note x{1} - fourier ,x{2} - cheb)
+% domain.k - wave number
+% domain.dx - discretisation size
+% option - solver options
+% 
+% Outputs:
+%
+% DJL.Ly - new domain height in (u,v)
+% domain.YY - Y coordinates in (u,v)
+% domain.XX - X coordinates in (u,v)
+% domain.jac - Jacobian (dz/dv)^2+(dz/du)^2
+% domain.H - original height in conformal mapping
 
 function [DJL,domain]=conformalmapping(DJL,domain,option)
 
@@ -16,7 +36,7 @@ k=domain.k;
 dx=domain.dx;
 
 % -------------------------------------------------------------------------
-% Apply boundary conditions
+% Apply boundary conditions (REMOVE WHEN EXACT SOLVER DONE)
 % -------------------------------------------------------------------------
 index=cell(2,domain.dim); % Left and right, for each dimension
 
@@ -41,12 +61,14 @@ domain.BC{4,2}=0;
 % -------------------------------------------------------------------------
 % Conformal Mapping here
 % -------------------------------------------------------------------------
-H0=2*pi/Lx; % to keep aspect ratio correct
+H0=2*pi/Lx; % Calculate to keep aspect ratio correct
 
 h = @(x) alpha*H0*topography(x*DJL.KAI/pi); % Bump function
 
+% Maximum iterations
 loops=100;
 
+% Start iterating!
 u=x{1};
 x_old=u;
 kinv=[0;1./(1i*k{1}(2:N(1)))]; % mean 0, avoid dividing by 0
@@ -61,19 +83,19 @@ for i=1:loops
     v=L/2*(x{2}+1); % To set the new domain to be [0 L]
     
     % Solve laplace's equation, poisson's after transformation
-    % need to change coefficients a,b
-    % define new RHS, change to homogeneous BCs
+    % need to change coefficients a,b define new RHS, homogeneous BCs
     h_uu=real(ifft(-k{1}.^2.*fft(y_bc)));
-    [U,V]=ndgrid(u,v);
+    [U,V]=ndgrid(u,v); 
     
     pde.a=1;
     pde.b=(2/L)^2;
     pde.c=0;
     pde.f=-h_uu.*(1-V/L);
-%     pde.f=-Lu_2d(y_bc+(H0-y_bc).*V/L,pde,domain);
-    % BCs
-    pde.f(index{1,2})=0;
-    pde.f(index{2,2})=0;
+%     pde.f=-Lu_2d(y_bc+(H0-y_bc).*V/L,pde,domain); % Alternative ...
+
+    % Cheb BCs
+    pde.f(1:N(1))=0;
+    pde.f(N(1)*(N(2)-1)+1:N(1)*N(2))=0;
     
     % Solve here
     [Y,r]=mg(Y,pde,domain,option);
@@ -88,14 +110,14 @@ for i=1:loops
     % at Bottom boundary
     dybc=dy(:,end);
 
-    % solve for correction e=int(dy/dv-1)du
+    % Solve for correction e=int(dy/dv-1)du
     epsilon=real(ifft(kinv.*fft(dybc-1))); % mean 0 solution
-    epsilon(1)=0;
+    epsilon(1)=0; % Boundary condition
 
-    % find new x, x=u+e
+    % Find new x, x=u+e
     x_new=u+epsilon;
 
-    % compare old x with new x, break if tol met, loop otherwise
+    % Compare old x with new x, break if tol met, loop otherwise
     if rms(x_new - x_old) < 1e-12
         fprintf('Linear residual is %d\n',rms(r(:)))
         fprintf('x diff is %d\n',rms(x_new - x_old))
@@ -106,6 +128,7 @@ for i=1:loops
     fprintf('Linear residual is %d\n',rms(r(:)))
     fprintf('x diff is %d\n',rms(x_new - x_old))
     
+    % Check final loop
     if i~=loops
         x_old=x_new;
     end
@@ -115,16 +138,15 @@ end
 % x=u+e
 ex=real(ifft(kinv.*fft(dy-1)));
 
-% Outputs
+% Output coordinates
 XX=U+ex;
 YY=y;
 
-% X,Y map outputs
 domain.YY=YY;
 domain.XX=XX;
 DJL.Ly=L;
 
-% % check laplacian!
+% % Double check laplacian!
 % pde.a=1;
 % pde.b=1/(L/2)^2;
 % pde.c=0;
@@ -141,21 +163,24 @@ DJL.Ly=L;
 
 % dx/du
 dxdu=1+ifft(1i*domain.k{1}.*fft(ex));
+
 % dx/dv
 dxdv=ifct(2/L*chebdiff(fct(ex'),1));
 dxdv=dxdv';
+
 % dz/du
 dzdu=ifft(1i*domain.k{1}.*fft(y));
+
 % dz/dv
 dzdv=ifct(2/L*chebdiff(fct(y'),1));
 dzdv=dzdv';
 
-% Check Cauchy-Riemann
+% Check Cauchy-Riemann equations
 % surf(real(dxdu)-dzdv)
 % figure;
 % surf(real(dzdu)+dxdv)
 
-% Jacobian
+% Jacobian calculation
 jac=real(dzdv).^2+real(dzdu).^2;
 
 domain.jac=jac;

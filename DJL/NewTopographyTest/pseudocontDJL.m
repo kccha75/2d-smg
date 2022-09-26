@@ -10,7 +10,7 @@
 % dlambda - initial parameter gradient
 
 % domain
-% option
+% option - solver options
 % cont_option - continuation options
 %
 % Output:
@@ -20,10 +20,10 @@
 function [V,U]=pseudocontDJL(v,dv,lambda,dlambda,DJL,domain,option,cont_option)
 
 ds=cont_option.ds; % Step size initial
-ds_min=cont_option.ds_min; 
-ds_max=cont_option.ds_max;
-N_opt=cont_option.N_opt;
-Newtonmaxit=cont_option.Newtonmaxit;
+ds_min=cont_option.ds_min; % Minimum step size
+ds_max=cont_option.ds_max; % Maximum step size
+N_opt=cont_option.N_opt; % Optimum Newton iterations per step
+Newtonmaxit=cont_option.Newtonmaxit; % Maximum Newton iterations per step
 steps=cont_option.steps; % maximum steps allowed
 
 Newtontol=option.Newtontol;

@@ -1,31 +1,35 @@
-% Function calculates v0 initial guess for the DJL equation
+% Function calculates v0 initial guess for the DJL equation using
+% perturbation methods to second order
+%
+% Assumes topography is alpha*sech(x)^2 form
+%
+% -------------------------------------------------------------------------
+% NOTE: PICK alpha, mu, delta_star SOLVE FOR delta, u
+% -------------------------------------------------------------------------
 %
 % Inputs:
 % 
-% domain.N
-% domain.x
+% domain.N - grid points
+% domain.x - vector structure x{1} ,x{2}
 %
-% DJL.epsilon - perturbation 
-% DJL.L - topography length scale
-% DJL.u - given wave speed
+% DJL.alpha - topography height
+% DJL.mu - topography length scale
 % DJL.mode - DJL solution mode
+% DJL.KAI - DJL domain in nondimensionalised
 % DJL.N2 - N^2 function
 %
 % Outputs:
-%
-% v0 - DJL perturbation solution
-% DJL.KAI -DJL x domain size (sufficiently large)
+% DJL.v - perturbation solution
+% DJL.alpha - topography height
+% DJL.u - wave speed
+% DJL.Lx - x domain in DJL coordinates (note this is 2*KAI/mu^2)
 
-% -------------------------------------------------------------------------
-% PICK Delta and mu
-% -------------------------------------------------------------------------
 function DJL=DJLv0_topography_test4(DJL,domain)
 
 N=domain.N;
 x=domain.x;
 
 % DJL parameters
-% delta = DJL.delta;
 alpha = DJL.alpha;
 mu = DJL.mu;
 mode = DJL.mode;
@@ -42,7 +46,7 @@ D2z=4*ifct(chebdiff(fct(eye(N(2),N(2))),2)); % 2x since change in domain to [0,1
 % z domain [0,1]
 z=(x{2}+1)/2;
 
-% spectral matrix
+% Spectral matrix
 A=-D2z./N2(z);
 
 % Boundary conditions
@@ -98,13 +102,11 @@ gamma=C/2*phiz0/int_phi_z_2;
 % Domain
 X=x{1}/pi*KAI; % -KAI to KAI
 
-% Solve for other variables ...
-% delta_star=delta/(s*mu^2); % use in fkdv ..
+% Solve for other variables 
 gamma_star=alpha*gamma*r/(6*s^2*mu^4);
 
 if DJL.soltype==0 % 2sech^2 fKdV solution
 
-%     gamma_star=2*delta_star-8;
     delta_star=1/2*(gamma_star+8);
     B=2*sech(X).^2;
 
@@ -112,6 +114,7 @@ end
 
 if DJL.soltype==1 % fKdV continuation solitary wave
 
+    % Input delta_star
     fprintf('delta=delta_star*%f\n',s*mu^2)
     delta_star=input('Input delta_star\n');
 
@@ -134,6 +137,7 @@ if DJL.soltype==1 % fKdV continuation solitary wave
 
     pause % to check plots ...
 
+    % Pick solution type
     if isempty(Bindex)==1
         disp('No valid solution detected at gamma_star!')
         DJL.v=[];
@@ -154,24 +158,21 @@ if DJL.soltype==1 % fKdV continuation solitary wave
 
 end
 
-% Solve for alpha ...
-% alpha=gamma_star*6*s^2*mu^4/(gamma*r);
-% DJL.alpha=alpha;
 % Solve for delta
 delta=delta_star*s*mu^2;
 DJL.delta=delta;
-
 
 % back to original compatibility equation
 A=6*s*mu^2/r*B;
 
 % find u
 u=delta+C;
- 
-DJL.mu=mu;
+
+% Set DJL parameters
 DJL.u=u;
 DJL.Lx=2*KAI/mu^2;
 
+% 1st order perturbation
 v0=A*phi';
 
 % -------------------------------------------------------------------------
@@ -227,19 +228,15 @@ v1=an*phis';
 % Back to zai coordinates
 zai=v1+alpha*b*(1-z)';
 
-% solution!
+% Order 2 solution!
 v=v0+zai;
-% v=v0;
 
 DJL.v=v;
 
 % -------------------------------------------------------------------------
 % CHECKS:
 % -------------------------------------------------------------------------
-delta_star=delta/(s*mu^2);
 
-gamma_star=gamma*alpha*r/(6*s^2*mu^4);
-% CHECKS:
 fprintf('delta_star=\n')
 disp(delta_star)
 
@@ -263,6 +260,5 @@ disp(C)
 
 fprintf('u=\n')
 disp(u)
-
 
 end

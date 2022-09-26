@@ -1,18 +1,17 @@
 clear;%close all;%clc
 
 % -------------------------------------------------------------------------
-% DJL parameters
+% DJL parameters PICK alpha / mu
 % -------------------------------------------------------------------------
 % fKdV solution type:
 % 0 - 2sech^2 solution
 % 1 - fKdV continuation plot!
 DJL.soltype=1; 
 
-% delta=0.01;
-mode=1;
-alpha=0.01;
-mu=0.7;
-KAI=30;KAI=15;
+mode=1; % mode solution
+alpha=0.01; % topography height
+mu=0.7; % topography width scale
+KAI=30;KAI=15; % fKdV domain
 
 % N^2 function
 N2=@(psi) sech((psi-1)/1).^2;%N2=@(psi) psi;
@@ -24,7 +23,6 @@ DJL.alpha=alpha;
 DJL.mode=mode;
 DJL.N2=N2;
 DJL.N2d=N2d;
-% DJL.delta=delta;
 DJL.topography=@(X) sech(X).^2; % in KAI domain ...
 
 DJL.mu = mu;
@@ -42,6 +40,7 @@ DJL=DJLv0_topography_test4(DJL,domain);
 % Conformal mapping and interpolation
 [DJL,domain]=conformalmapping(DJL,domain,option);
 
+% Length scales in DJL coordinates
 Lx=DJL.Lx;
 Ly=DJL.Ly;
 
@@ -56,17 +55,17 @@ H=domain.H;
 % Interpolate
 v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},DJL.v,YY,XX,'spline');
 
-% set BC again here ... (but causes huge residual due to discont)
+% Set BC again here ... (but causes huge residual due to discont)
 v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 
-% initial residual ..?
+% Initial residual
 r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
 disp(rms(rms(r)))
 
 % -------------------------------------------------------------------------
 % Newton solve solution 1
 % -------------------------------------------------------------------------
-u=DJL.u;
+u1=DJL.u;
 [v1,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
 
 if flag ==0
@@ -78,8 +77,8 @@ end
 % -------------------------------------------------------------------------
 % Newton solve solution 2
 % -------------------------------------------------------------------------
-ds=cont_option.ds;
-ds=0.01; % keep positive!
+ds=0.001; % keep positive and small for initial gradient approximation
+
 DJL.u=u-ds;
 [v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
 
@@ -91,12 +90,11 @@ if flag ==0
 end
 % -------------------------------------------------------------------------
 v=v1;
-u=u;
+u=u1;
 dv=(v2-v1)/ds;
-du=-1; % Negative direction
+du=-1; % +1 for positive direction, -1 for negative direction
 
 % Continuation
-% [V,U]=naturalparametercontinuation(v,DJL.u,DJL,domain,cont_option);
 [V,U]=pseudocontDJL(v,dv,u,du,DJL,domain,option,cont_option);
 
 dt=toc(time);
