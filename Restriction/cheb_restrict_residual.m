@@ -34,5 +34,5 @@ vc(end,:)=vf(end,:);
 % Reshape to correct size (required for 3d or higher)
 N(1)=ceil(N(1)/2);
 vc=reshape(vc,N);
-
+vc=real(vc);
 end

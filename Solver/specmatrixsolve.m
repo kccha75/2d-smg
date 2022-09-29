@@ -57,9 +57,9 @@ for i=1:length(domain.discretisation)
         case 2 % Cheb
             
             % 1D u_xx
-            Dxx{i}=ifct(chebdiff(fct(eye(N(i),N(i))),2));
+            Dxx{i}=ifct(chebdiff(real(fct(eye(N(i),N(i)))),2));
             % 1D u_x
-            Dx{i}=ifct(chebdiff(fct(eye(N(i),N(i))),1));            
+            Dx{i}=ifct(chebdiff(real(fct(eye(N(i),N(i)))),1));            
     end
             
 end
@@ -88,10 +88,10 @@ for i=1:domain.dim
     
     if domain.discretisation(i)~=1
 
-        BC_mat{i}(1,:)=domain.BC{2,i}.*sum(fct(eye(N(i),N(i))).*k{i}.^2); % x(1) BC
+        BC_mat{i}(1,:)=domain.BC{2,i}.*sum(real(fct(eye(N(i),N(i)))).*k{i}.^2); % x(1) BC
         BC_mat{i}(1,1)=BC_mat{i}(1,1)+domain.BC{1,i};
         
-        BC_mat{i}(end,:)=domain.BC{4,i}.*sum((-1).^(k{i}+1).*fct(eye(N(i),N(i))).*k{i}.^2);% x(end) BC
+        BC_mat{i}(end,:)=domain.BC{4,i}.*sum((-1).^(k{i}+1).*real(fct(eye(N(i),N(i)))).*k{i}.^2);% x(end) BC
         BC_mat{i}(end,end)=BC_mat{i}(end,end)+domain.BC{3,i};
         
         % make sure no influence on BC matrix from a,b,c

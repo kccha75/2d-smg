@@ -21,5 +21,5 @@ vf=ifct([vc_hat;zeros(N)]);
 % Apply BCs
 vf(1,:)=vc(1,:);
 vf(end,:)=vc(end,:);
-
+vf=real(vf);
 end
