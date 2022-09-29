@@ -1,8 +1,9 @@
 clear;clc
-
+tic
+for ii=1:100
 % Simple chebtau for -u_xx+lambda*u=f with dirichlet BCs u(1)=u(-1)=0
 global N
-N=2^6+1;
+N=2^8+1;
 k=(0:N-1)';
 x=cos(pi*k/(N-1));
 
@@ -82,6 +83,8 @@ u=ifct(u_hat);
 r=RHS+ifct(chebdiff(fct(u),2))-lambda*u;
 disp(rms(r))
 
+end
+toc
 % Plots!
 plot(x,u-ue);title('error plot')
 

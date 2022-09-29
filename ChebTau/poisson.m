@@ -1,10 +1,11 @@
 clear;clc
-
+tic
 % Simple chebtau for -au_xx-bu_yy=f with
 % x-fourier z-cheb with dirichlet bcs
 global Ny
-Ny=2^6+1;
-Nx=2^6;
+
+Ny=2^8+1;
+Nx=2^8;
 ky=(0:Ny-1)';
 kx=[0:Nx/2-1 -Nx/2 -Nx/2+1:-1]';
 x=cos(pi*ky/(Ny-1));
@@ -23,13 +24,11 @@ lambda=a*kx.^2/b;
 f_tilde=fft(transpose(RHS))/b;
 f_tilde=transpose(f_tilde);
 
-% f_hat_tilde=fct(f_tilde);
-
 u=zeros(size(X));
 
 for j=1:Nx
     
-    f_hat_tilde=fct2(f_tilde(:,j));
+    f_hat_tilde=fct(f_tilde(:,j));
     
     A=zeros((Ny+1)/2,(Ny+1)/2);
     B=zeros((Ny+1)/2-1,(Ny+1)/2-1);
@@ -95,7 +94,7 @@ for j=1:Nx
     u_hat(2:2:end)=u2_hat;
 
     % Transform back
-    u(:,j)=ifct2(u_hat);
+    u(:,j)=ifct(u_hat);
 
 end
 
@@ -110,6 +109,7 @@ uyy=ifct(chebdiff(fct(u),2));
 
 r=RHS+a*uxx+b*uyy;
 disp(rms(r(:)))
+toc
 
 function c=cc(k)
     if k==0
