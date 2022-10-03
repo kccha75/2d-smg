@@ -33,7 +33,7 @@ option.num_vcycles=5;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
-option.Newtontol=1e-10;
+option.Newtontol=1e-9;
 option.Newtonmaxit=20;
 
 % Relaxations on the up and down cycle during Multigrid
@@ -47,8 +47,8 @@ option.solver='V-cycle';
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
-option.operator=@Lu_2d;
-option.coarsegridsolver=@specmatrixsolve_2d;
+option.operator=@Lu;
+option.coarsegridsolver=@specmatrixsolve;
 option.relaxation=@MRR;
 
 % Restriction for pde coefficients

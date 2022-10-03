@@ -41,7 +41,7 @@ N2 = DJL.N2;
 % -------------------------------------------------------------------------
 
 % divided both sides by z first to get -D2/z*phi=lambda*phi
-D2z=4*ifct(chebdiff(fct(eye(N(2),N(2))),2)); % 2x since change in domain to [0,1] and 2x for 2nd derivative
+D2z=4*real(ifct(chebdiff(real(fct(eye(N(2),N(2)))),2))); % 2x since change in domain to [0,1] and 2x for 2nd derivative
 
 % z domain [0,1]
 z=(x{2}+1)/2;
@@ -80,7 +80,7 @@ C=1/sqrt(lambda);
 int_phi_2=clenshaw_curtis(phi.^2)/2; % clenshaw_curtis (divide 2 for domain)
 
 % differentiate
-dphi=2*ifct(chebdiff(fct(phi),1)); % 2x since change in domain to [0,1]
+dphi=2*real(ifct(chebdiff(real(fct(phi)),1))); % 2x since change in domain to [0,1]
 
 % phi_z(0)
 phiz0=dphi(end);
@@ -184,7 +184,7 @@ phis=phis(:,1:20);
 lambdas=lambdas(1:20);
 
 % phi_n'
-phi_z=2*ifct(chebdiff(fct(phis),1));
+phi_z=2*real(ifct(chebdiff(real(fct(phis)),1)));
 
 % % phi_n'(0)
 phi_z_0=phi_z(end,:);

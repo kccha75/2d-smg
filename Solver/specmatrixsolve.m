@@ -57,9 +57,9 @@ for i=1:length(domain.discretisation)
         case 2 % Cheb
             
             % 1D u_xx
-            Dxx{i}=ifct(chebdiff(real(fct(eye(N(i),N(i)))),2));
+            Dxx{i}=real(ifct(chebdiff(real(fct(eye(N(i),N(i)))),2)));
             % 1D u_x
-            Dx{i}=ifct(chebdiff(real(fct(eye(N(i),N(i)))),1));            
+            Dx{i}=real(ifct(chebdiff(real(fct(eye(N(i),N(i)))),1)));            
     end
             
 end

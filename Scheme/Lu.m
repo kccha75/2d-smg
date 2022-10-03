@@ -50,9 +50,9 @@ for i=1:domain.dim
         case 2 % Cheb
 
             % 1D u_xx
-            Dxx{i}=ifct(chebdiff(real(fct(u{i})),2));
+            Dxx{i}=real(ifct(chebdiff(real(fct(u{i})),2)));
             % 1D u_x
-            Dx{i}=ifct(chebdiff(real(fct(u{i})),1));
+            Dx{i}=real(ifct(chebdiff(real(fct(u{i})),1)));
 
     end
     

@@ -104,7 +104,7 @@ for i=1:loops
     y=y_bc.*(1-V/L)+H0*V/L+Y;
 
     % find dy/dv
-    dy=2/L*ifct(chebdiff(fct(y'),1));
+    dy=2/L*real(ifct(chebdiff(real(fct(transpose(y))),1)));
     dy=dy';
 
     % at Bottom boundary
@@ -165,14 +165,14 @@ DJL.Ly=L;
 dxdu=1+ifft(1i*domain.k{1}.*fft(ex));
 
 % dx/dv
-dxdv=ifct(2/L*chebdiff(fct(ex'),1));
+dxdv=ifct(2/L*chebdiff(real(fct(transpose(ex))),1));
 dxdv=dxdv';
 
 % dz/du
 dzdu=ifft(1i*domain.k{1}.*fft(y));
 
 % dz/dv
-dzdv=ifct(2/L*chebdiff(fct(y'),1));
+dzdv=ifct(2/L*chebdiff(real(fct(transpose(y))),1));
 dzdv=dzdv';
 
 % Check Cauchy-Riemann equations

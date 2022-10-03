@@ -79,7 +79,7 @@ end
 % -------------------------------------------------------------------------
 ds=0.001; % keep positive and small for initial gradient approximation
 
-DJL.u=u-ds;
+DJL.u=u1-ds;
 [v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
 
 if flag ==0
@@ -128,7 +128,7 @@ plot(X2,Y2-V(:,:,end))
 title("C=" + U(end))
 
 % check dv<1 requirement
-dv=2*ifct(chebdiff(fct(V(:,:,end)'),1));
+dv=2*real(ifct(chebdiff(real(fct(transpose(V(:,:,end)))),1)));
 max(dv(:))
 min(dv(:))
 

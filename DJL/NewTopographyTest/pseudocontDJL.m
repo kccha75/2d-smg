@@ -127,7 +127,7 @@ while j<steps
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
         % check overturning
-        diffv=2*ifct(chebdiff(fct(V(:,:,j+1)'),1));
+        diffv=2*real(ifct(chebdiff(real(fct(transpose(V(:,:,j+1)))),1)));
         if max(diffv(:))>1
             fprintf('Overturning detected!\n')
             return
