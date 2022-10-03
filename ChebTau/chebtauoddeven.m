@@ -1,6 +1,6 @@
 clear;clc
 tic
-for ii=1:100
+for ii=1:10000
 % Simple chebtau for -u_xx+lambda*u=f with dirichlet BCs u(1)=u(-1)=0
 global N
 N=2^8+1;
@@ -12,7 +12,7 @@ ue=exp(x.^2)-exp(1);
 lambda=1;
 RHS=-exp(1)-exp(x.^2).*(1+4*x.^2);
 
-f_hat=fct(RHS);
+f_hat=real(fct(RHS));
 
 A=zeros((N+1)/2,(N+1)/2);
 B=zeros((N+1)/2-1,(N+1)/2-1);
@@ -81,12 +81,12 @@ u=ifct(u_hat);
 
 % Check residual ...
 r=RHS+ifct(chebdiff(fct(u),2))-lambda*u;
-disp(rms(r))
+% disp(rms(r))
 
 end
 toc
 % Plots!
-plot(x,u-ue);title('error plot')
+% plot(x,u-ue);title('error plot')
 
 function c=cc(k)
     if k==0
