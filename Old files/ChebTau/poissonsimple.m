@@ -1,5 +1,9 @@
-clear;clc
+% Simple poisson with lots of loops (bad bad) but works :) omg i messed up
+% x and y ... cbb to fix 
+
+clear;%clc
 tic
+for ii=1:10
 % Simple chebtau for -au_xx-bu_yy=f with
 % x-fourier z-cheb with dirichlet bcs
 global Ny
@@ -108,7 +112,8 @@ uxx=uxx';
 uyy=ifct(chebdiff(fct(u),2));
 
 r=RHS+a*uxx+b*uyy;
-disp(rms(r(:)))
+% disp(rms(r(:)))
+end
 toc
 
 function c=cc(k)

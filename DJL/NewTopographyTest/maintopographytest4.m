@@ -59,7 +59,7 @@ v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},DJL.v,YY,XX,'spline');
 v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 
 % Initial residual
-r=pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
+r=pde.f-(Lu(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
 disp(rms(rms(r)))
 
 % -------------------------------------------------------------------------

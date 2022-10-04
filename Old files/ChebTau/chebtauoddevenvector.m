@@ -1,4 +1,6 @@
-clear;clc
+% 1d cheb tau with vectoring, but matlab doesn't like the sparse part ...
+
+clear;%clc
 tic
 for ii=1:10000
 % Simple chebtau for -u_xx+lambda*u=f with dirichlet BCs u(1)=u(-1)=0

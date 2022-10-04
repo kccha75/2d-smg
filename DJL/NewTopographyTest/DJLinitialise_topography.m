@@ -61,7 +61,7 @@ option.restriction_residual=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@che
 option.prolongation=@(vc) prolong_2d(vc,@fourier_prolong_filtered,@cheb_prolong);
 
 % Preconditioner
-option.preconditioner=@FDmatrixsolve_2d;
+option.preconditioner=@FDmatrixsolve;
 
 % Number of preconditioned relaxations
 option.prenumit=1;

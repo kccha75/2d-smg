@@ -1,3 +1,5 @@
+% simple chebtau with loops (bad bad)
+
 clear;clc
 
 % Simple chebtau for -u_xx+lambda*u=f with dirichlet BCs u(1)=u(-1)=0

@@ -1,4 +1,6 @@
-clear;clc
+% 1d cheb tau with sparse matrix generator and vectorising
+
+clear;%clc
 tic
 for ii=1:10000
 % Simple chebtau for -u_xx+lambda*u=f with dirichlet BCs u(1)=u(-1)=0
@@ -13,8 +15,8 @@ RHS=-exp(1)-exp(x.^2).*(1+4*x.^2);
 
 f_hat=real(fct(RHS));
 
-A=zeros((N+1)/2,3);
-B=zeros((N+1)/2-1,3);
+% A=zeros((N+1)/2,3);
+% B=zeros((N+1)/2-1,3);
 
 g=zeros((N+1)/2,1);
 h=zeros((N+1)/2-1,1);
