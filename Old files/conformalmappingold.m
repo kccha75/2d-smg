@@ -4,9 +4,9 @@
 %
 % NOTE: uses Fourier x / Chebyshev z discretisation
 % Conformal mapping done on x=(-pi,pi) and z=(0,1) domain
-%
-% Uses Fast spectral Fourier Cheb Poisson solver
 % -------------------------------------------------------------------------
+%
+% USES MG SOLVER ... old file might come in handy later on?
 %
 % Inputs:
 %
@@ -27,7 +27,7 @@
 % domain.jac - Jacobian (dz/dv)^2+(dz/du)^2
 % domain.H - original height in conformal mapping
 
-function [DJL,domain]=conformalmapping(DJL,domain,option)
+function [DJL,domain]=conformalmappingold(DJL,domain,option)
 
 alpha=DJL.alpha;
 topography=DJL.topography;
@@ -38,6 +38,28 @@ x=domain.x;
 k=domain.k;
 dx=domain.dx;
 
+% -------------------------------------------------------------------------
+% Apply boundary conditions (REMOVE WHEN EXACT SOLVER DONE)
+% -------------------------------------------------------------------------
+index=cell(2,domain.dim); % Left and right, for each dimension
+
+Nx=N(1);
+Ny=N(2);
+
+index{1,1}=1:Nx:Nx*(Ny-1)+1; % Top boundary of matrix (x(1))
+index{2,1}=Nx:Nx:Nx*Ny; % Bottom boundary of matrix (x(end))
+
+index{1,2}=1:Nx; % Left boundary of matrix (y(1))
+index{2,2}=Nx*(Ny-1)+1:Nx*Ny; % Right boundary of matrix (y(end))
+
+domain.BC{1,1}=1;
+domain.BC{1,2}=1;
+domain.BC{2,1}=0;
+domain.BC{2,2}=0;
+domain.BC{3,1}=1;
+domain.BC{3,2}=1;
+domain.BC{4,1}=0;
+domain.BC{4,2}=0;
 
 % -------------------------------------------------------------------------
 % Conformal Mapping here
@@ -53,6 +75,9 @@ loops=100;
 u=x{1};
 x_old=u;
 kinv=[0;1./(1i*k{1}(2:N(1)))]; % mean 0, avoid dividing by 0
+
+% initial guess
+Y=zeros(N(1),N(2));
 
 for i=1:loops
     
@@ -73,6 +98,7 @@ for i=1:loops
 
     % Solve here
     Y=FastChebFourierPoisson([],pde,domain,option);
+    r=pde.f-Lu_nobc(Y,pde,domain);
     
     % Transform back to original coordinates
     y=y_bc.*(1-V/L)+H0*V/L+Y;
@@ -93,11 +119,13 @@ for i=1:loops
 
     % Compare old x with new x, break if tol met, loop otherwise
     if rms(x_new - x_old) < 1e-12
+        fprintf('Linear residual is %d\n',rms(r(:)))
         fprintf('x diff is %d\n',rms(x_new - x_old))
         fprintf('Reached tolerance after %d iterations!\n',i)
         break;
     end
     
+    fprintf('Linear residual is %d\n',rms(r(:)))
     fprintf('x diff is %d\n',rms(x_new - x_old))
     
     % Check final loop
