@@ -37,7 +37,7 @@ time=tic;
 % Initialise PDE
 [pde,domain]=DJLpdeinitialise(DJL,domain);
 
-disp(rms(rms(pde.f-(Lu_2d(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2))))
+disp(rms(rms(pde.f-(Lu(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2))))
 
 % Newton solve
 [v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);

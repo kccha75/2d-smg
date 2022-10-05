@@ -16,8 +16,8 @@ dim=2;
 % 2 - Cheb
 discretisation=[1 2];
 
-finestgrid = 9;
-coarsestgrid = 5;
+finestgrid = 6;
+coarsestgrid = 3;
 
 % -------------------------------------------------------------------------
 % Multigrid Options here

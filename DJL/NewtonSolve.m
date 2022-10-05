@@ -49,12 +49,12 @@ for i=1:option.Newtonmaxit
 
     func=@(v) reshape(Lu(reshape(pde.f,domain.N(1),domain.N(2)),J,domain),domain.N(1)*domain.N(2),1);
     func2=@(v) reshape(Lu_FD(reshape(pde.f,domain.N(1),domain.N(2)),J,domain),domain.N(1)*domain.N(2),1);
-%     [e,flag,relres,iter,resvec]=bicgstab(func,J.f(:),1e-6,2,func2);
-    [e,flag,relres,iter,resvec]=gmres(func,J.f(:),[],[],[],func2);
-    [e,r]=mg(e0,J,domain,option);
+    [e,flag,relres,iter,resvec]=bicgstab(func,J.f(:),1e-6,2,func2);
+%     [e,flag,relres,iter,resvec]=gmres(func,J.f(:),[],[],[],func2);
+% %     [e,r]=mg(e0,J,domain,option);
 %     
     % Update correction
-    v=v+e;
+    v=v+reshape(e,domain.N);
     
 end
 
