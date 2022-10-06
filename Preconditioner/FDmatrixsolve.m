@@ -20,7 +20,7 @@
 % Ouputs:
 % v - solution
 
-function v=FDmatrixsolve(~,pde,domain,~)
+function v=FDmatrixsolve(RHS,pde,domain,~)
 
 N=domain.N;
 Nx=domain.N(1);
@@ -214,7 +214,11 @@ end
 % -------------------------------------------------------------------------
 % Solve!
 
-v=A\pde.f(:);
+if isempty(RHS)
+    v=A\pde.f(:);
+else
+    v=A\RHS;
+end
 v=reshape(v,Nx,Ny);
 
 end
