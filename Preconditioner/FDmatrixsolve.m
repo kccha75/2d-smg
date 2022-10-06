@@ -217,7 +217,7 @@ end
 if isempty(RHS)
     v=A\pde.f(:);
 else
-    v=A\RHS;
+    v=A\RHS(:);
 end
 v=reshape(v,Nx,Ny);
 

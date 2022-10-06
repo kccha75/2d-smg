@@ -7,9 +7,11 @@
 % pde - pde coefficients
 % domain.N 
 % option.jacobian - jacobian function
+% option.numit=1 - iterations
 % option.tol - linear residual tolerance
 % option.Newtontol - Newton set tolerance
 % option.Newtonmaxit - Newton max iterations
+% option.Newtonsolver - Linear solver for Newton iterations
 %
 % Outputs:
 %
@@ -47,14 +49,33 @@ for i=1:option.Newtonmaxit
     % Solve linear equation
 %     option.tol=1e-3*r;
 
-    func=@(v) reshape(Lu(reshape(v,domain.N(1),domain.N(2)),J,domain),domain.N(1)*domain.N(2),1);
-    func2=@(v) reshape(FDmatrixsolve(v,J,domain),domain.N(1)*domain.N(2),1);
-%     [e,flag,relres,iter,resvec]=bicgstab(func,J.f(:),1e-6,2,func2);
-    [e,flag,relres,iter,resvec]=gmres(func,J.f(:),[],[],[],func2);
-% %     [e,r]=mg(e0,J,domain,option);
-%     
+    switch option.Newtonsolver
+        case 'mg'
+
+            [e,r]=mg(e0,J,domain,option);
+
+        case 'gmres'
+            
+            func=@(v) reshape(Lu(reshape(v,domain.N),J,domain),prod(domain.N),1);
+            pre=@(v) reshape(FDmatrixsolve(v,J,domain,[]),prod(domain.N),1);
+            [e,flag]=gmres(func,J.f(:),[],option.tol,option.numit,pre);
+            e=reshape(e,domain.N);
+            
+        case 'bicgstab'
+
+            func=@(v) reshape(Lu(reshape(v,domain.N),J,domain),prod(domain.N),1);
+            pre=@(v) reshape(FDmatrixsolve(v(:),J,domain,[]),prod(domain.N),1);
+            [e,flag]=bicgstab(func,J.f(:),option.tol,option.numit,pre);
+            e=reshape(e,domain.N);
+
+        otherwise
+
+            fprintf('Invalid Newton solver!\n')
+            return
+    end
+   
     % Update correction
-    v=v+reshape(e,domain.N);
+    v=v+e;
     
 end
 

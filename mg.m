@@ -8,7 +8,7 @@
 % domain.k - spectral wave numbers
 % domain.dx - step size
 %
-% option.num_vcycles - number of vcycles performed
+% option.numit - number of vcycles performed
 % option.tol - tolerance set (solution / iteration)
 % option.Nd - number of iterations on the down cycle
 % option.Nu - number of iterations on the up cycle
@@ -68,9 +68,9 @@ switch option.solver
         option.initialgrid=option.grids;
         option.grids=1;
         
-        % Save num_vcycle parameter
-        num_vcycles=option.num_vcycles;
-        option.num_vcycles=1;
+        % Save num vcycle parameter
+        numit=option.numit;
+        option.numit=1;
         
         j=option.finestgrid-option.coarsestgrid+1;
         
@@ -90,8 +90,8 @@ switch option.solver
                 
             else
                 
-            	% Do 1 V-cycles + num_vcycles V-cycles after FMG
-                option.num_vcycles=num_vcycles+1;
+            	% Do 1 V-cycles + numit vcycles V-cycles after FMG
+                option.numit=numit+1;
                 [solution(option.initialgrid).v,solution(option.initialgrid).r]=vcycle(solution(option.initialgrid).v,pde,domain,option);
             
             end
@@ -121,14 +121,14 @@ function [v,r]=vcycle(v,pde,domain,option)
 solution(option.initialgrid).v=v;
 
 % Down cycle iterations
-option.numit=option.Nd;
+option.numrelax=option.Nd;
 
 % Initial iterations
 [solution(option.initialgrid).v,solution(option.initialgrid).r]=option.relaxation(solution(option.initialgrid).v,pde(option.initialgrid),domain(option.initialgrid),option);
     
 
 % loop through vcycles
-for p=1:option.num_vcycles
+for p=1:option.numit
 
     % Stepping down
     for i=option.initialgrid:option.initialgrid+option.grids-2
@@ -174,7 +174,7 @@ for p=1:option.num_vcycles
     % Stepping up
     
     % Up cycle iterations
-    option.numit=option.Nu;
+    option.numrelax=option.Nu;
     
     for i=option.initialgrid+option.grids-1:-1:option.initialgrid+1
         

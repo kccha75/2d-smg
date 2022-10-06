@@ -1,7 +1,7 @@
 clear;close all;%clc
 %
-% Not so simple main for Cheb Fourier SMG, uses nonhomogenous BCs with
-% swapped directions for testing
+% Not so simple main for Cheb Fourier SMG, uses nonhomogenous BCs
+% 
 % -------------------------------------------------------------------------
 % Solve PDE au_xx + bu_yy + cu = f using Fourier Cheb Spectral Multigrid
 % -------------------------------------------------------------------------
@@ -18,14 +18,14 @@ discretisation=[1 2];
 
 % Boundary conditions for each discretisation (if fourier not used)
 % x(1) a11*u+b11*u'=rhs11 
-alpha1{1}=@(y) 123123;
-beta1{1}=@(y) 123124;
-BCRHS1{1}=@(y) 1125125;
+alpha1{1}=@(y) 0;
+beta1{1}=@(y) 1;
+BCRHS1{1}=@(y) 1+1/2*exp(sin(y))*sinh(1);
 
 % x(end) a21*u+b21*u'= rhs21
-alpha2{1}=@(y) 11231;
-beta2{1}=@(y) 124124; 
-BCRHS2{1}=@(y) 235235;
+alpha2{1}=@(y) 1;
+beta2{1}=@(y) 0; 
+BCRHS2{1}=@(y) -1+exp(sin(y)).*(1-cosh(1));
 
 % y(1) a12*u+b12*u'=rhs12 
 alpha1{2}=@(x) 0;
@@ -34,7 +34,7 @@ BCRHS1{2}=@(x) 1+1/2*exp(sin(x))*sinh(1);
 
 % y(end) a22*u+b22*u'= rhs22
 alpha2{2}=@(x) 1;
-beta2{2}=@(x) 0; 
+beta2{2}=@(x) 0;
 BCRHS2{2}=@(x) -1+exp(sin(x)).*(1-cosh(1));
 
 % Grid size
@@ -60,8 +60,8 @@ v0=@(X,Y) rand(size(X));
 % -------------------------------------------------------------------------
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
-% after FMG
-option.num_vcycles=1;
+% after FMG or number of decent iterations
+option.numit=1;
 
 % Solver / solution tolerance
 option.tol=1e-12;
@@ -74,11 +74,11 @@ option.Nu=1;
 option.solver='FMG';
 
 % Multigrid scheme: 'Correction' or 'FAS'
-option.mgscheme='Correction';
+option.mgscheme='FAS';
 
 % Operator, coarse grid solver, Relaxation
-option.operator=@Lu_2d;
-option.coarsegridsolver=@specmatrixsolve_2d;
+option.operator=@Lu;
+option.coarsegridsolver=@specmatrixsolve;
 option.relaxation=@MRR;
 
 % Restriction for pde coefficients
@@ -91,7 +91,7 @@ option.restriction_residual=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@che
 option.prolongation=@(vc) prolong_2d(vc,@fourier_prolong_filtered,@cheb_prolong);
 
 % Preconditioner
-option.preconditioner=@FDmatrixsolve_2d;
+option.preconditioner=@FDmatrixsolve;
 
 % Number of preconditioned relaxations
 option.prenumit=1;
@@ -120,7 +120,7 @@ for i=1:length(discretisation)
             N(i) = 2^finestgrid+1;
             k{i} = (0:N(i)-1)';
             x{i} = cos(pi*k{i}/(N(i)-1));
-            dx{i} = x{i}(1:end-1)-x{i}(2:end); % due to x(1)=1, x(end)=-1
+            dx{i} = x{i}(2:end)-x{i}(1:end-1); % is negative but ok :)
             
     end
     
@@ -211,11 +211,6 @@ tic
 % [v,r]=bicgstab(v0,pde,domain,option);
 toc
 disp(rms(r(:)))
-tic
-option.numit=5;
-[vv,rr]=MRR(v0,pde,domain,option);
-disp(rms(r(:)))
-toc
 
 surf(X,Y,v);xlabel('x');ylabel('y');title('Numerical solution of Poissons equation')
 figure;contour(X,Y,v);xlabel('x');ylabel('y')

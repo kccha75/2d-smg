@@ -50,8 +50,8 @@ v0=@(X) rand(size(X));
 % -------------------------------------------------------------------------
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
-% after FMG
-option.num_vcycles=1;
+% after FMG or number of decent iterations
+option.numit=1;
 
 % Solver / solution tolerance
 option.tol=1e-12;

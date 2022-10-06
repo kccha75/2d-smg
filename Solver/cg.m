@@ -34,7 +34,7 @@ if ~isempty(option.preconditioner) && option.prenumit~=0
     
     pde.f=r;
     option.numit=option.prenumit;
-    d=option.preconditioner(zeros(size(v)),pde,domain,option);
+    d=option.preconditioner([],pde,domain,option);
     
 else
     
@@ -75,7 +75,7 @@ for i=1:maxit
     
         pde.f=r;
         option.numit=option.prenumit;
-        s=option.preconditioner(zeros(size(v)),pde,domain,option);
+        s=option.preconditioner([],pde,domain,option);
     
     else
     

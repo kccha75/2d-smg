@@ -5,7 +5,7 @@
 % pde - structure consisting of pde coefficients
 % domain.k - wave number
 % option.operator - operator used to find Lu
-% option.numit - number of iterations
+% option.numrelax - number of iterations
 % option.preconditioner - preconditioner used
 % option.prenumit - number of preconditioner iterations
 %
@@ -17,10 +17,10 @@
 
 function [v,r] = MRR(v,pde,domain,option)
 
-numit=option.numit;
+numrelax=option.numrelax;
 
-% Find residual only if numit=0
-if numit==0
+% Find residual only if numrelax=0
+if numrelax==0
     r=pde.f-option.operator(v,pde,domain);
     return;
 end
@@ -35,7 +35,7 @@ end
 if ~isempty(option.preconditioner) && option.prenumit~=0
     
     pde.f=r;
-    option.numit=option.prenumit;
+    option.numrelax=option.prenumit;
     z=option.preconditioner([],pde,domain,option);
     
 else
@@ -44,7 +44,7 @@ else
     
 end
 
-for i=1:numit
+for i=1:numrelax
     
     Az=option.operator(z,pde,domain);
     tau=sum(sum(r.*Az))/sum(sum(Az.*Az));
@@ -52,12 +52,12 @@ for i=1:numit
     r=r-tau*Az;
     
     % Preconditioner step only if not at last iteration
-    if i~=numit
+    if i~=numrelax
         
         if ~isempty(option.preconditioner) && option.prenumit~=0
             
             pde.f=r;
-            option.numit=option.prenumit;
+            option.numrelax=option.prenumit;
             z=option.preconditioner([],pde,domain,option);
             
         else
