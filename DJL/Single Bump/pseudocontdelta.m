@@ -69,15 +69,6 @@ while j<steps
         r=rms(J.f(:));
         fprintf('Residual Newton = %d\n',r)
 
-        if r<=Newtontol
-
-            fprintf('Converged after %d Newton Iterations \n',i-1)
-            flag=1;
-            numNewtonit=i-1;
-            break
-
-        end
-
         % Solve linear equation
         RHS1=J.f;
         RHS2=-V(:,j+1);
@@ -88,6 +79,15 @@ while j<steps
         J.f=RHS2;
 %         z2=mg(e0,J,domain,option);
         z2=cg(e0,J,domain,option);
+
+        if r<=Newtontol
+
+            fprintf('Converged after %d Newton Iterations \n',i-1)
+            flag=1;
+            numNewtonit=i-1;
+            break
+
+        end
         
         % Update correction
         delta_lambda=(ds-dot(dv,(V(:,j+1)-V(:,j)))-dlambda*(U(j+1)-U(j))-dot(dv,z1)) ...

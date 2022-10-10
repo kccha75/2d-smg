@@ -23,8 +23,12 @@
 % DJL.alpha - topography height
 % DJL.u - wave speed
 % DJL.Lx - x domain in DJL coordinates (note this is 2*KAI/mu^2)
+% fKdV - structures for fkdv
+% pdefkdv
+% domainfkdv
+% optionfkdv
 
-function DJL=DJLv0_topography_test4(DJL,domain)
+function [DJL,fKdV,pdefkdv,domainfkdv,optionfkdv]=DJLv0_topography_test4(DJL,domain)
 
 N=domain.N;
 x=domain.x;
@@ -95,6 +99,13 @@ s=C/2*int_phi_2/int_phi_z_2;
 
 gamma=C/2*phiz0/int_phi_z_2;
 
+% Save variables
+DJL.C=C;
+DJL.phi=phi;
+DJL.r=r;
+DJL.s=s;
+DJL.gamma=gamma;
+
 % -------------------------------------------------------------------------
 % Order 1 fKdVsol for forcing, picking delta and mu
 % -------------------------------------------------------------------------
@@ -155,6 +166,9 @@ if DJL.soltype==1 % fKdV continuation solitary wave
     fKdV.gamma=gamma_star;
     pdefkdv.f=-gamma_star*fKdV.topography(X);
     B=NewtonSolve(B,fKdV,pdefkdv,domainfkdv,optionfkdv);
+
+    % Save variables
+    fKdV.B=B;
 
 end
 
@@ -231,6 +245,11 @@ zai=v1+alpha*b*(1-z)';
 % Order 2 solution!
 v=v0+zai;
 
+DJL.phis=phis;
+DJL.a1=a1;
+DJL.a2=a2;
+DJL.a3=a3;
+DJL.b=b;
 DJL.v=v;
 
 % -------------------------------------------------------------------------
