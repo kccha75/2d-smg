@@ -147,9 +147,9 @@ X2=domain.X{1}/pi*KAI/mu;
 Y2=(domain.X{2}+1)/2;
 
 % Calculate momentum
-P=trapI(V.^2,domain.dx{1}); % Integrate x
+P=trapI(V.^2,2*KAI/mu/domain.N(1)); % Integrate x
 P=permute(P,[2,1,3]);
-P=clenshaw_curtis(2*P/pi*KAI/mu); % Integrate y
+P=clenshaw_curtis(P)/2; % Integrate y
 P=permute(P,[3,1,2]);
 
 % u vs momentum
@@ -249,7 +249,7 @@ dD=1; % +1 for positive direction, -1 for negative direction
 [Bpos,Dpos]=pseudocontdelta(B,dB,D,dD,fKdV,domainfkdv,optionfkdv,cont_option);
 
 % -------------------------------------------------------------------------
-% PLOT!
+% Combine!
 % -------------------------------------------------------------------------
 
 D=[fliplr(Dneg) Dpos];
@@ -257,7 +257,7 @@ B=cat(2,flip(Bneg,2),Bpos);
 
 
 % -------------------------------------------------------------------------
-% 0th order
+% 0th order DJL approx
 % -------------------------------------------------------------------------
 
 % Find A
@@ -268,50 +268,63 @@ A=reshape(A,[size(A,1),1,size(A,2)]);
 % Find zeta from fkdv
 zeta0=pagemtimes(A,DJL.phi');
 
-% Calculate momentum
-P2=trapI(zeta0.^2,domain.dx{1}); % Integrate x
+for jj=1:size(zeta0,3)
+    zeta0(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta0(:,:,jj),YY,XX,'spline');
+    zeta0(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+end
+% % -------------------------------------------------------------------------
+% % 1st order DJL approx
+% % -------------------------------------------------------------------------
+% 
+% % A_xx in x domain (KAI/mu)
+% A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
+% 
+% % an
+% an=pagemtimes(A_xx,DJL.a1)+pagemtimes(A.^2,DJL.a2)+pagemtimes(alpha*DJL.b,DJL.a3);
+% 
+% % n=N case
+% an(:,mode,:)=0;
+% 
+% zeta1=pagemtimes(an,DJL.phis');
+% 
+% % Back to zai coordinates
+% zai=zeta1+alpha*DJL.b*(1-(domain.x{2}+1)/2)';
+% 
+% zeta=zeta0+zai;
+
+% -------------------------------------------------------------------------
+% Plots!
+% -------------------------------------------------------------------------
+
+% Calculate momentum 0th order
+P2=trapI(zeta0.^2,2*KAI/mu/domain.N(1)); % Integrate x
 P2=permute(P2,[2,1,3]);
-P2=clenshaw_curtis(2*P2/pi*KAI/mu); % Integrate y
+P2=clenshaw_curtis(P2)/2; % Integrate y
 P2=permute(P2,[3,1,2]);
+
+% % Calculate momentum 1st order
+% P3=trapI(zeta.^2,2*KAI/mu/domain.N(1)); % Integrate x
+% P3=permute(P3,[2,1,3]);
+% P3=clenshaw_curtis(P3)/2; % Integrate y
+% P3=permute(P3,[3,1,2]);
 
 % u vs momentum
 figure;
 plot(DJL.C+D*DJL.s*mu^2,P2)
 xlabel('delta');ylabel('Momentum');title('fKdV mode 1')
 
-% -------------------------------------------------------------------------
-% 1st order
-% -------------------------------------------------------------------------
+% % u vs momentum
+% figure;
+% plot(DJL.C+D*DJL.s*mu^2,P3)
+% xlabel('delta');ylabel('Momentum');title('fKdV mode 1')
 
-% A_xx in x domain (KAI/mu)
-A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
+% % Compare all 
+% figure;
+% plot(DJL.C+D*DJL.s*mu^2,P2,DJL.C+D*DJL.s*mu^2,P3,U,P)
+% xlabel('delta');ylabel('Momentum');title('DJL momentums')
+% legend('0th order fKdV approx of DJL','1st order fKdV approx of DJL','Exact DJL')
 
-% an
-an=pagemtimes(A_xx,DJL.a1)+pagemtimes(A.^2,DJL.a2)+pagemtimes(alpha*DJL.b,DJL.a3);
-
-% n=N case
-an(:,mode,:)=0;
-
-zeta2=pagemtimes(an,DJL.phis');
-
-% Back to zai coordinates
-zai=zeta2+alpha*DJL.b*(1-(domain.x{2}+1)/2)';
-
-zeta=zeta0+zai;
-
-% Calculate momentum
-P3=trapI(zeta.^2,domain.dx{1}); % Integrate x
-P3=permute(P3,[2,1,3]);
-P3=clenshaw_curtis(2*P3/pi*KAI/mu); % Integrate y
-P3=permute(P3,[3,1,2]);
-
-% u vs momentum
 figure;
-plot(DJL.C+D*DJL.s*mu^2,P3)
-xlabel('delta');ylabel('Momentum');title('fKdV mode 1')
-
-% Compare all 
-figure;
-plot(DJL.C+D*DJL.s*mu^2,P2,DJL.C+D*DJL.s*mu^2,P3,U,P)
+plot(DJL.C+D*DJL.s*mu^2,P2,U,P)
 xlabel('delta');ylabel('Momentum');title('DJL momentums')
-legend('0th order DJL','1st order DJL','Exact DJL')
+legend('0th order fKdV approx of DJL','Exact DJL')

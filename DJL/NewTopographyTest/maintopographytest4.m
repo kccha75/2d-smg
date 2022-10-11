@@ -36,6 +36,7 @@ time=tic;
 
 % Initial guess
 [DJL,fKdV,pdefkdv,domainfkdv,optionfkdv]=DJLv0_topography_test4(DJL,domain);
+v0=DJL.v;
 
 % Conformal mapping and interpolation
 [DJL,domain]=conformalmapping(DJL,domain,option);
@@ -53,7 +54,7 @@ H=domain.H;
 [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
 % Interpolate
-v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},DJL.v,YY,XX,'spline');
+v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'spline');
 
 % Set BC again here ... (but causes huge residual due to discont)
 v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
@@ -268,6 +269,11 @@ A=reshape(A,[size(A,1),1,size(A,2)]);
 % Find zeta from fkdv
 zeta0=pagemtimes(A,DJL.phi');
 
+% Conformal map!
+for jj=1:size(zeta0,3)
+    zeta0(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta0(:,:,jj),YY,XX,'spline');
+    zeta0(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+end
 % -------------------------------------------------------------------------
 % 1st order DJL approx
 % -------------------------------------------------------------------------
@@ -287,6 +293,12 @@ zeta1=pagemtimes(an,DJL.phis');
 zai=zeta1+alpha*DJL.b*(1-(domain.x{2}+1)/2)';
 
 zeta=zeta0+zai;
+
+% Conformal map!
+for jj=1:size(zeta,3)
+    zeta(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta(:,:,jj),YY,XX,'spline');
+    zeta(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+end
 
 % -------------------------------------------------------------------------
 % Plots!
@@ -309,13 +321,18 @@ figure;
 plot(DJL.C+D*DJL.s*mu^2,P2)
 xlabel('delta');ylabel('Momentum');title('fKdV mode 1')
 
-% u vs momentum
-figure;
-plot(DJL.C+D*DJL.s*mu^2,P3)
-xlabel('delta');ylabel('Momentum');title('fKdV mode 1')
+% % u vs momentum
+% figure;
+% plot(DJL.C+D*DJL.s*mu^2,P3)
+% xlabel('delta');ylabel('Momentum');title('fKdV mode 1')
 
 % Compare all 
 figure;
 plot(DJL.C+D*DJL.s*mu^2,P2,DJL.C+D*DJL.s*mu^2,P3,U,P)
 xlabel('delta');ylabel('Momentum');title('DJL momentums')
 legend('0th order fKdV approx of DJL','1st order fKdV approx of DJL','Exact DJL')
+
+% figure;
+% plot(DJL.C+D*DJL.s*mu^2,P2,U,P)
+% xlabel('delta');ylabel('Momentum');title('DJL momentums')
+% legend('0th order fKdV approx of DJL','Exact DJL')
