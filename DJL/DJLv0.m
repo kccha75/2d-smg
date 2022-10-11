@@ -113,9 +113,9 @@ DJL.KAI=KAI;
 % Order epsilon solution
 % -------------------------------------------------------------------------
 
-% Take only 10 modes ...
-phis=phis(:,1:20);
-lambdas=lambdas(1:20);
+% Take modes to nyquist frequency
+phis=phis(:,1:(length(z)+1)/2);
+lambdas=lambdas(1:(length(z)+1)/2);
 
 % phi_n'
 phi_z=2*ifct(chebdiff(fct(phis),1));
@@ -155,5 +155,5 @@ v1=epsilon^2*an*phis';
 
 % solution!
 v=v0+v1;
-
+% v=v0;
 end

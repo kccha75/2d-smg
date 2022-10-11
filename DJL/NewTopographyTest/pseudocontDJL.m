@@ -79,7 +79,6 @@ while j<steps
 
         if r<=Newtontol
 
-            fprintf('Converged after %d Newton Iterations \n',i-1)
             flag=1;
             numNewtonit=i-1;
             break
@@ -111,7 +110,7 @@ while j<steps
         fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
         flag=0;
 
-    elseif flag==0
+    elseif flag==0 && i==Newtonmaxit
 
         fprintf('Converged after %d Newton Iterations \n',i)
         flag=1;
@@ -121,10 +120,10 @@ while j<steps
 
 % -------------------------------------------------------------------------
 
-    % Converged newton and not 0 solution
-    if flag==1 && max(max(abs(V(:,:,j+1))))>=1e-8
+    % Converged newton and not 0 solution and decays to 0
+    if flag==1 && max(max(abs(V(:,:,j+1))))>1e-8 && max(max(abs(V(1,:,j+1))))<1e-8
         
-        fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
+        fprintf('Converged after %d Newton Iterations step = %d\n',numNewtonit,j)
 
         % check overturning
         diffv=2*real(ifct(chebdiff(real(fct(transpose(V(:,:,j+1)))),1)));
@@ -164,12 +163,15 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-    elseif flag==0 || max(max(abs(V(:,:,j+1))))<=1e-8
+    elseif flag==0 || max(max(abs(V(:,:,j+1))))<=1e-8 || max(max(abs(V(1,:,j+1))))>=1e-8
         
         if flag==0
-            fprintf('Did not converge to required tolerance  after %d Newton Iterations at step %d\n',i,j)
+            fprintf('Did not converge to required tolerance after %d Newton Iterations at step %d\n',i,j)
         end
 
+        if abs(max(V(1,:)))<=1e-8
+            fprintf('Non decaying solution at step %d\n',j)
+        end
         % Halve step size
         ds=ds/2;
         fprintf('Halving step size to %f\n',ds)

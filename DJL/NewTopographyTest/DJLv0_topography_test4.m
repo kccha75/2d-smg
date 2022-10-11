@@ -193,9 +193,9 @@ v0=A*phi';
 % Order epsilon solution in DJL coordinates
 % -------------------------------------------------------------------------
 
-% Take only 20 modes ...
-phis=phis(:,1:20);
-lambdas=lambdas(1:20);
+% Take modes to nyquist frequency
+phis=phis(:,1:(length(z)+1)/2);
+lambdas=lambdas(1:(length(z)+1)/2);
 
 % phi_n'
 phi_z=2*real(ifct(chebdiff(real(fct(phis)),1)));
