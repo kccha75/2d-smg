@@ -128,7 +128,7 @@ option.jacobian=@jacobianDJL; % Jacobian function
 % -------------------------------------------------------------------------
 
 % Initial step size
-cont_option.ds=0.00001;
+cont_option.ds=0.00001;cont_option.ds=0.0001;
 
 % Min and max step size during continuation
 cont_option.ds_min=1e-6; % Continuation will fail if minimum reached

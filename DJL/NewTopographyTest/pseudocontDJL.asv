@@ -169,7 +169,7 @@ while j<steps
             fprintf('Did not converge to required tolerance after %d Newton Iterations at step %d\n',i,j)
         end
 
-        if abs(max(V(1,:,j+1)))>=1e-8
+        if abs(max(V(1,:,j+1)))<=1e-8
             fprintf('Non decaying solution at step %d\n',j)
         end
         % Halve step size

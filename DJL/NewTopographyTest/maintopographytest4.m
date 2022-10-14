@@ -9,8 +9,8 @@ clear;%close all;%clc
 DJL.soltype=1; 
 
 mode=1; % mode solution
-alpha=0.01; % topography height
-mu=0.7; % topography width scale
+alpha=0.005; % topography height
+mu=0.4; % topography width scale
 KAI=30;KAI=15; % fKdV domain
 
 % N^2 function

@@ -121,6 +121,11 @@ if DJL.soltype==0 % 2sech^2 fKdV solution
     delta_star=1/2*(gamma_star+8);
     B=2*sech(X).^2;
 
+    % Save variables
+    fKdV.B=B;
+    fKdV.gamma=gamma_star;
+    fKdV.delta=delta_star;
+
 end
 
 if DJL.soltype==1 % fKdV continuation solitary wave
