@@ -116,12 +116,6 @@ X=x{1}/pi*KAI; % -KAI to KAI
 % Solve for other variables 
 gamma_star=alpha*gamma*r/(6*s^2*mu^4);
 
-% Initialise fkdv structures
-fKdV.L = 2*DJL.KAI;
-fKdV.d = 3;
-fKdV.topography = DJL.topography;
-
-
 if DJL.soltype==0 % 2sech^2 fKdV solution
 
     delta_star=1/2*(gamma_star+8);
@@ -131,12 +125,6 @@ if DJL.soltype==0 % 2sech^2 fKdV solution
     fKdV.B=B;
     fKdV.gamma=gamma_star;
     fKdV.delta=delta_star;
-
-    % Initialise
-    [domainfkdv,optionfkdv,~]=fKdVinitialise();
-
-    % Initialise PDE
-    [fKdV,pdefkdv,domainfkdv]=fKdVpdeinitialise(fKdV,domainfkdv);
 
 end
 

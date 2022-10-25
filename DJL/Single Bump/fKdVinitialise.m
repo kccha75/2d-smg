@@ -125,7 +125,7 @@ option.jacobian=@jacobianfKdV;
 % Step size
 cont_option.ds=0.01;
 cont_option.ds_min=1e-6;
-cont_option.ds_max=0.05;
+cont_option.ds_max=0.1;
 
 % Iterations
 cont_option.N_opt=4;
