@@ -127,6 +127,12 @@ if DJL.soltype==0 % 2sech^2 fKdV solution
     delta_star=1/2*(gamma_star+8);
     B=2*sech(X).^2;
 
+    % Check boundary!
+    if B(1)>1e-8 || B(end)>1e-8 
+        disp('B boundary larger than 1e-8!\n')
+        return
+    end
+
     % Save variables
     fKdV.B=B;
     fKdV.gamma=gamma_star;
@@ -178,6 +184,11 @@ if DJL.soltype==1 % fKdV continuation solitary wave
     B=(gamma_star-gamma_cont(Bindex))*(B_cont(:,Bindex+1)-B_cont(:,Bindex)) ...
         /(gamma_cont(Bindex+1)-gamma_cont(Bindex))+B_cont(:,Bindex);
 
+    % Check boundary!
+    if B(1)>1e-8 || B(end)>1e-8 
+        disp('B boundary larger than 1e-8!\n')
+        return
+    end
     % Newton iteration!
     % Update variable
     fKdV.gamma=gamma_star;
