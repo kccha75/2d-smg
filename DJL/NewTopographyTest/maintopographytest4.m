@@ -6,18 +6,18 @@ clear;%close all;%clc
 % fKdV solution type:
 % 0 - 2sech^2 solution
 % 1 - fKdV continuation plot!
-DJL.soltype=0; 
+DJL.soltype=1; 
 
 mode=1; % mode solution
 alpha=0.01; % topography height
-mu=0.3; % topography width scale
-KAI=30;KAI=20; % fKdV domain
+mu=0.7; % topography width scale
+KAI=30;KAI=15; % fKdV domain
 
 % N^2 function
-N2=@(psi) sech((psi-0.8)/0.2).^2;%N2=@(psi) psi;
+N2=@(psi) sech((psi-1)/.9).^2;%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) -2*sech((psi-.8)/0.2).^2.*tanh((psi-.8)/0.2);%N2d=@(psi) 1+0*psi;
+N2d=@(psi) -2*sech((psi-1)/.9).^2.*tanh((psi-1)/.9);%N2d=@(psi) 1+0*psi;
 
 DJL.alpha=alpha;
 DJL.mode=mode;

@@ -27,6 +27,7 @@ Newtonmaxit=cont_option.Newtonmaxit; % Maximum Newton iterations per step
 steps=cont_option.steps; % maximum steps allowed
 
 Newtontol=option.Newtontol;
+tailtol=1e-6;
 
 % Set max Newton iterations to continuation option
 option.Newtonmaxit=Newtonmaxit;
@@ -121,7 +122,7 @@ while j<steps
 % -------------------------------------------------------------------------
 
     % Converged newton and not 0 solution and decays to 0
-    if flag==1 && max(max(abs(V(:,:,j+1))))>1e-8 && max(max(abs(V(1,:,j+1))))<1e-8
+    if flag==1 && max(max(abs(V(:,:,j+1))))>tailtol && max(max(abs(V(1,:,j+1))))<tailtol
         
         fprintf('Converged after %d Newton Iterations step = %d\n',numNewtonit,j)
 
@@ -163,7 +164,7 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-    elseif flag==0 || max(max(abs(V(:,:,j+1))))<=1e-8 || max(max(abs(V(1,:,j+1))))>=1e-8
+    elseif flag==0 || max(max(abs(V(:,:,j+1))))<=tailtol || max(max(abs(V(1,:,j+1))))>=tailtol
         
         if flag==0
             fprintf('Did not converge to required tolerance after %d Newton Iterations at step %d\n',i,j)

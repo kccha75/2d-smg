@@ -30,6 +30,8 @@
 
 function [DJL,fKdV,pdefkdv,domainfkdv,optionfkdv]=DJLv0_topography_test4(DJL,domain)
 
+tailtol=1e-5;
+
 N=domain.N;
 x=domain.x;
 
@@ -128,8 +130,8 @@ if DJL.soltype==0 % 2sech^2 fKdV solution
     B=2*sech(X).^2;
 
     % Check boundary!
-    if B(1)>1e-8 || B(end)>1e-8 
-        disp('B boundary larger than 1e-8!\n')
+    if B(1)>tailtol || B(end)>tailtol
+        fprintf('B boundary larger than %d!\n',tailtol)
         return
     end
 
@@ -185,8 +187,8 @@ if DJL.soltype==1 % fKdV continuation solitary wave
         /(gamma_cont(Bindex+1)-gamma_cont(Bindex))+B_cont(:,Bindex);
 
     % Check boundary!
-    if B(1)>1e-8 || B(end)>1e-8 
-        disp('B boundary larger than 1e-8!\n')
+    if B(1)>tailtol || B(end)>tailtol
+        fprintf('B boundary larger than %d!\n',tailtol)
         return
     end
     % Newton iteration!

@@ -29,7 +29,7 @@ steps=cont_option.steps; % maximum steps allowed
 
 Newtontol=option.Newtontol;
 
-tailtolerance=1e-7; % tail end tolerance (asymptotic at x=+-inf
+tailtolerance=1e-5; % tail end tolerance (asymptotic at x=+-inf
 
 % Set max Newton iterations to continuation option
 option.Newtonmaxit=Newtonmaxit;
