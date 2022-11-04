@@ -4,10 +4,10 @@ clear;close all;%clc
 % fKdV parameters
 % -------------------------------------------------------------------------
 
-L=30;
+L=50;
 d=3;
 gamma=-5;
-delta=1.44;
+delta=1.742;
 topography=@(x) sech(x).^2;
 
 fKdV.L=L;
@@ -70,3 +70,17 @@ du=du/mag;
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)
+% -------------------------------------------------------------------------
+% PLOT
+
+plot(U,V(domain.N(1)/2+1,:))
+title('fKdV continuation at chosen delta_ star')
+xlabel('\gamma')
+ylabel('B(0)')
+
+% Unfolded ...
+figure;
+plot(U,trapI(V,domain.dx{1}))
+title('fKdV continuation at chosen delta_ star')
+xlabel('\gamma')
+ylabel('P')

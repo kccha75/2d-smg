@@ -9,15 +9,15 @@ clear;%close all;%clc
 DJL.soltype=1; 
 
 mode=1; % mode solution
-alpha=0.005; % topography height
-mu=0.4; % topography width scale
-KAI=30;%KAI=15; % fKdV domain
+alpha=0.01; % topography height
+mu=0.6; % topography width scale
+KAI=100;%KAI=15; % fKdV domain
 
 % N^2 function
-N2=@(psi) psi+0;%N2=@(psi) psi;
+N2=@(psi) exp(-psi);N2=@(psi) 5*psi.^2;
 
 % (N^2)'
-N2d=@(psi) 1+0*psi;%N2d=@(psi) 1+0*psi;
+N2d=@(psi) -exp(-psi);N2d=@(psi) 1+10*psi;
 
 DJL.alpha=alpha;
 DJL.mode=mode;
