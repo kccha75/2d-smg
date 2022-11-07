@@ -16,7 +16,7 @@ dim=1;
 % 2 - Cheb
 discretisation=1;
 
-finestgrid = 8;
+finestgrid = 10;
 coarsestgrid = 3;
 
 % -------------------------------------------------------------------------
@@ -62,6 +62,9 @@ option.preconditioner=@FDmatrixsolve;
 
 % Number of preconditioned relaxations
 option.prenumit=1;
+
+% Tail tolerance
+option.tailtol=1e-6;
 
 % -------------------------------------------------------------------------
 % Set up parameters

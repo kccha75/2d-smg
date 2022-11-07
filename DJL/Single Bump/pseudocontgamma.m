@@ -33,8 +33,7 @@ Newtonmaxit=cont_option.Newtonmaxit;
 steps=cont_option.steps; % maximum steps allowed
 
 Newtontol=option.Newtontol;
-
-tailtolerance=1e-5; % tail end tolerance (asymptotic at x=+-inf
+tailtol=option.tailtol;
 
 % Set max Newton iterations to continuation option
 option.Newtonmaxit=Newtonmaxit;
@@ -130,7 +129,7 @@ while j<steps
 % -------------------------------------------------------------------------
 
     % Converged newton
-    if flag==1 && V(1,j+1)<=tailtolerance
+    if flag==1 && V(1,j+1)<=tailtol
         
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
@@ -165,15 +164,17 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-    elseif flag==0 || V(1,j+1)>tailtolerance
+    elseif flag==0 || abs(V(1,j+1))>tailtol
         
         if flag==0
             fprintf('Did not converge to required tolerance  after %d Newton Iterations at step %d\n',i,j)
         end
-        if V(1,j+1)>tailtolerance
+        if abs(V(1,j+1))>tailtol
             fprintf('Did not converge to proper solution!!! Converged to non asymptotic solution after %d Newton Iterations at step %d\n',i,j)
         end
-
+        if abs(V(1,j+1))>1e-8 || abs(V(end,j+1))>1e-8
+            fprintf('Boundary not asymptoting to 0 after %d Newton Iterations at step %d\n',i,j)
+        end
         % Halve step size
         ds=ds/2;
         fprintf('Halving step size to %f\n',ds)

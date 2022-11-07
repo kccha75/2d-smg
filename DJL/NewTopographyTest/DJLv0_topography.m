@@ -17,6 +17,7 @@
 % DJL.mode - DJL solution mode
 % DJL.KAI - DJL domain in nondimensionalised
 % DJL.N2 - N^2 function
+% option.tailtol - tail end tolerance (make sure it is asymptotic)
 %
 % Outputs:
 % DJL.v - perturbation solution
@@ -28,9 +29,7 @@
 % domainfkdv
 % optionfkdv
 
-function [DJL,fKdV,pdefkdv,domainfkdv,optionfkdv]=DJLv0_topography(DJL,domain)
-
-tailtol=1e-5;
+function [DJL,fKdV,pdefkdv,domainfkdv,optionfkdv]=DJLv0_topography(DJL,domain,option)
 
 N=domain.N;
 x=domain.x;
@@ -41,6 +40,8 @@ mu = DJL.mu;
 mode = DJL.mode;
 KAI = DJL.KAI;
 N2 = DJL.N2;
+
+tailtol=option.tailtol;
 
 % -------------------------------------------------------------------------
 % Eigenvalues of phi_zz+N^2(z)*lambda*phi=0
@@ -130,7 +131,7 @@ if DJL.soltype==0 % 2sech^2 fKdV solution
     B=2*sech(X).^2;
 
     % Check boundary!
-    if B(1)>tailtol || B(end)>tailtol
+    if abs(B(1))>tailtol || abs(B(end))>tailtol
         fprintf('B boundary larger than %d!\n',tailtol)
         return
     end
@@ -194,7 +195,7 @@ if DJL.soltype==1 % fKdV continuation solitary wave
         /(gamma_cont(Bindex+1)-gamma_cont(Bindex))+B_cont(:,Bindex);
 
     % Check boundary!
-    if B(1)>tailtol || B(end)>tailtol
+    if abs(B(1))>tailtol || abs(B(end))>tailtol
         fprintf('B boundary larger than %d!\n',tailtol)
         return
     end

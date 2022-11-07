@@ -35,7 +35,7 @@ time=tic;
 [domain,option,cont_option]=DJLinitialise_topography();
 
 % Initial guess
-[DJL,fKdV,pdefkdv,domainfkdv,optionfkdv]=DJLv0_topography(DJL,domain);
+[DJL,fKdV,pdefkdv,domainfkdv,optionfkdv]=DJLv0_topography(DJL,domain,option);
 v0=DJL.v;
 
 % Conformal mapping and interpolation

@@ -27,7 +27,7 @@ Newtonmaxit=cont_option.Newtonmaxit; % Maximum Newton iterations per step
 steps=cont_option.steps; % maximum steps allowed
 
 Newtontol=option.Newtontol;
-tailtol=1e-6;
+tailtol=option.tailtol;
 
 % Set max Newton iterations to continuation option
 option.Newtonmaxit=Newtonmaxit;
