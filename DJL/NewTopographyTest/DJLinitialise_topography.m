@@ -20,7 +20,7 @@ dim=2;
 % 2 - Cheb
 discretisation=[1 2];
 
-finestgrid = 10;
+finestgrid = 8;
 coarsestgrid = 3;
 
 % -------------------------------------------------------------------------
@@ -135,7 +135,7 @@ cont_option.ds=1e-6;%cont_option.ds=0.0001;
 
 % Min and max step size during continuation
 cont_option.ds_min=1e-6; % Continuation will fail if minimum reached
-cont_option.ds_max=0.1; % Max continuation step size
+cont_option.ds_max=0.05; % Max continuation step size
 
 % Iterations
 

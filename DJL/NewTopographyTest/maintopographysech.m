@@ -9,9 +9,9 @@ clear;%close all;%clc
 DJL.soltype=1; 
 
 mode=1; % mode solution
-alpha=0.01; % topography height
-mu=0.7; % topography width scale
-KAI=30;KAI=15; % fKdV domain
+alpha=0.0063;%alpha=0.01; % topography height
+mu=0.6410;% mu=0.7;% topography width scale
+KAI=30;KAI=20; % fKdV domain
 
 % N^2 function
 N2=@(psi) 1/tanh(1)*sech((psi-1)/1).^2;%N2=@(psi) psi;
@@ -35,7 +35,7 @@ time=tic;
 [domain,option,cont_option]=DJLinitialise_topography();
 
 % Initial guess
-[DJL,fKdV,pdefkdv,domainfkdv,optionfkdv]=DJLv0_topography(DJL,domain);
+[DJL,fKdV,pdefkdv,domainfkdv,optionfkdv]=DJLv0_topography(DJL,domain,option);
 v0=DJL.v;
 
 % Conformal mapping and interpolation

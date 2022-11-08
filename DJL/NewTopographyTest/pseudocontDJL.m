@@ -106,7 +106,7 @@ while j<steps
     % Calculate Jacobian for linear equation
     J=option.jacobian(V(:,:,j+1),DJL,pde,domain);
 
-    if rms(J.f(:))>option.Newtontol
+    if rms(J.f(:))>Newtontol
     
         fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
         flag=0;

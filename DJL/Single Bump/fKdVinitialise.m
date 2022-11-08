@@ -16,7 +16,7 @@ dim=1;
 % 2 - Cheb
 discretisation=1;
 
-finestgrid = 10;
+finestgrid = 8;
 coarsestgrid = 3;
 
 % -------------------------------------------------------------------------
@@ -128,9 +128,9 @@ option.jacobian=@jacobianfKdV;
 % Step size
 cont_option.ds=0.01;
 cont_option.ds_min=1e-6;
-cont_option.ds_max=0.1;
+cont_option.ds_max=0.05;
 
 % Iterations
 cont_option.N_opt=4;
 cont_option.Newtonmaxit=8;
-cont_option.steps=2000;
+cont_option.steps=500;

@@ -158,7 +158,7 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-    elseif flag==0 || abs(V(1,j+1))>tailtol
+    elseif flag==0 || abs(V(1,j+1))>tailtol || abs(V(end,j+1))>tailtol
         
         if flag==0
             fprintf('Did not converge to required tolerance after %d Newton Iterations at step %d\n',i,j)
