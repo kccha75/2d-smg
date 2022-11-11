@@ -12,8 +12,8 @@
 % domain.N - grid points
 % domain.x - vector structure x{1} ,x{2}
 %
-% DJL.alpha - topography height
-% DJL.mu - topography length scale
+% DJL.delta_star - fkdv parameter
+% DJL.gamma_star - fkdv parameter
 % DJL.mode - DJL solution mode
 % DJL.KAI - DJL domain in nondimensionalised
 % DJL.N2 - N^2 function
@@ -22,6 +22,7 @@
 % Outputs:
 % DJL.v - perturbation solution
 % DJL.alpha - topography height
+% DJL.mu - topography length scale
 % DJL.u - wave speed
 % DJL.Lx - x domain in DJL coordinates (note this is 2*KAI/mu^2)
 % fKdV - structures for fkdv
@@ -35,8 +36,9 @@ N=domain.N;
 x=domain.x;
 
 % DJL parameters
-alpha = DJL.alpha;
-mu = DJL.mu;
+delta_star=DJL.delta_star;
+gamma_star=DJL.gamma_star;
+mu=DJL.mu;
 mode = DJL.mode;
 KAI = DJL.KAI;
 N2 = DJL.N2;
@@ -116,9 +118,6 @@ DJL.gamma=gamma;
 % Domain
 X=x{1}/pi*KAI; % -KAI to KAI
 
-% Solve for other variables 
-gamma_star=alpha*gamma*r/(6*s^2*mu^4);
-
 % Initialise fkdv structures
 fKdV.L = 2*DJL.KAI;
 fKdV.d = 3;
@@ -151,10 +150,9 @@ end
 
 if DJL.soltype==1 % fKdV continuation solitary wave
 
-    % Input delta_star
-    fprintf('delta=delta_star*%f\n',s*mu^2)
-    delta_star=input('Input delta_star\n');
-
+    delta=delta_star*s*mu^2;
+    alpha=delta^2*6*gamma_star/(gamma*r*delta_star^2);
+    
     % fKdV continuation
     [B_cont,gamma_cont,fKdV,pdefkdv,domainfkdv,optionfkdv]=fkdvsol(DJL,gamma_star,delta_star);
 
@@ -211,8 +209,8 @@ if DJL.soltype==1 % fKdV continuation solitary wave
 end
 
 % Solve for delta
-delta=delta_star*s*mu^2;
 DJL.delta=delta;
+DJL.alpha=alpha;
 
 % back to original compatibility equation
 A=6*s*mu^2/r*B;
@@ -318,4 +316,4 @@ disp(C)
 fprintf('u=\n')
 disp(u)
 
-rqend
+end

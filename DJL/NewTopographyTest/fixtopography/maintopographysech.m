@@ -10,7 +10,7 @@ DJL.soltype=1;
 
 mode=1; % mode solution
 alpha=0.0063;%alpha=0.01; % topography height
-mu=0.6410;% mu=0.7;% topography width scale
+mu=0.76410;% mu=0.7;% topography width scale
 KAI=30;KAI=20; % fKdV domain
 
 % N^2 function
@@ -97,7 +97,7 @@ end
 % Continuation DJL negative direction
 % -------------------------------------------------------------------------
 
-v=v1;
+ v=v1;
 u=u1;
 dv=(v2-v1)/ds;
 du=-1; % +1 for positive direction, -1 for negative direction

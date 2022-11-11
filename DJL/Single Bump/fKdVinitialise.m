@@ -16,7 +16,7 @@ dim=1;
 % 2 - Cheb
 discretisation=1;
 
-finestgrid = 8;
+finestgrid = 9;
 coarsestgrid = 3;
 
 % -------------------------------------------------------------------------
@@ -29,7 +29,7 @@ option.numit=5;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
-option.Newtontol=1e-9;
+option.Newtontol=1e-8;
 option.Newtonmaxit=20;
 option.Newtonsolver='mg';
 

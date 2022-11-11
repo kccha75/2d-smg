@@ -20,7 +20,7 @@ dim=2;
 % 2 - Cheb
 discretisation=[1 2];
 
-finestgrid = 8;
+finestgrid = 9;
 coarsestgrid = 3;
 
 % -------------------------------------------------------------------------
@@ -29,11 +29,11 @@ coarsestgrid = 3;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG or num iterations for decent methods
-option.numit=5;
+option.numit=1;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
-option.Newtontol=1e-10;
+option.Newtontol=1e-8;
 option.Newtonmaxit=20;
 option.Newtonsolver='mg';
 
@@ -135,7 +135,7 @@ cont_option.ds=1e-6;%cont_option.ds=0.0001;
 
 % Min and max step size during continuation
 cont_option.ds_min=1e-6; % Continuation will fail if minimum reached
-cont_option.ds_max=0.05; % Max continuation step size
+cont_option.ds_max=0.1; % Max continuation step size
 
 % Iterations
 
