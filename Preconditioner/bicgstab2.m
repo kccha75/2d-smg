@@ -20,9 +20,9 @@
 % NOTE: only left preconditioning at the moment as input, can take left and
 % right preconditioning in algorithm
 
-function [v,r]=bicgstab(v,pde,domain,option)
+function [v,r]=bicgstab2(v,pde,domain,option)
 f=pde.f;
-maxit=100;
+maxit=2;
 
 % Initial residual
 r=pde.f-option.operator(v,pde,domain);
