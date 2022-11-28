@@ -15,10 +15,10 @@ mu=0.6; % topography width scale
 KAI=30;KAI=20; % fKdV domain
 
 % N^2 function
-N2=@(psi) 2*(psi);%N2=@(psi) psi;
+N2=@(psi) 1/(exp(1)-1)*exp(psi);%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) 2+0*psi;%N2d=@(psi) 1+0*psi;
+N2d=@(psi) 1/(exp(1)-1)*exp(psi);%N2d=@(psi) 1+0*psi;
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;
