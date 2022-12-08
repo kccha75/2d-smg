@@ -10,15 +10,15 @@ DJL.soltype=1;
 
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
-gamma_star=-0.5;% mu=0.7;
-mu=0.8; % topography width scale
+gamma_star=0.25;% mu=0.7;
+mu=0.70; % topography width scale
 KAI=30;KAI=20; % fKdV domain
 
 % N^2 function
-N2=@(psi) 1/(exp(1)-1)*exp(psi);%N2=@(psi) psi;
+N2=@(psi) 2*(-psi+1);%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) 1/(exp(1)-1)*exp(psi);%N2d=@(psi) 1+0*psi;
+N2d=@(psi) -2+0*psi;%N2d=@(psi) 1+0*psi;
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;
@@ -69,7 +69,7 @@ disp(rms(rms(r)))
 % Newton solve solution 1
 % -------------------------------------------------------------------------
 
-u1=DJL.u;
+u1=DJL.alpha;
 [v1,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
 
 if flag ==0
@@ -83,9 +83,14 @@ end
 % Newton solve solution 2 negative direction
 % -------------------------------------------------------------------------
 
-ds=cont_option.ds;
+ds=cont_option.ds;ds=0.01;
 
-DJL.u=u1-ds;
+DJL.alpha=u1-ds;
+
+% Mapping
+[DJL,domain]=conformalmapping(DJL,domain,option);
+[DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
+
 [v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
 
 if flag ==0
@@ -105,7 +110,7 @@ dv=(v2-v1)/ds;
 du=-1; % +1 for positive direction, -1 for negative direction
 
 % Continuation
-[Vneg,Uneg]=pseudocontDJL(v,dv,u,du,DJL,domain,option,cont_option);
+[Vneg,Uneg]=pseudocontDJL2(v,dv,u,du,DJL,domain,option,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)
@@ -134,7 +139,7 @@ dv=(v2-v1)/ds;
 du=1; % +1 for positive direction, -1 for negative direction
 
 % Continuation
-[Vpos,Upos]=pseudocontDJL(v,dv,u,du,DJL,domain,option,cont_option);
+[Vpos,Upos]=pseudocontDJL2(v,dv,u,du,DJL,domain,option,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)

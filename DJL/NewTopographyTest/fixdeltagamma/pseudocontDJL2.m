@@ -51,13 +51,12 @@ while j<steps
     U(j+1)=U(j)+dlambda*ds;
 
     % Update variable
-%     DJL.u=U(j+1);
     DJL.alpha=U(j+1);
 
-    % Update pde / jacobian
-%     [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
-    % Update possibly the mapping here .... and BOUNDARY CONDITIONS ...
-    % how?
+    % Update pde / jacobian (in this case, update boundary here)
+    % Conformal mapping and interpolation
+    [DJL,domain]=conformalmapping(DJL,domain,option);
+    [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
 
 % -------------------------------------------------------------------------
@@ -74,7 +73,7 @@ while j<steps
 
         % Solve linear equation
         RHS1=J.f;
-        RHS2=-2*DJL.N2((domain.X{2}+1)/2-V(:,:,j+1)).*V(:,:,j+1)/U(j+1)^3; RHS2(:,end)=0;
+        RHS2=zeros(size(V(:,:,j+1)));
         
         J.f=RHS1;
         z1=mg(e0,J,domain,option);
@@ -103,6 +102,8 @@ while j<steps
         DJL.u=U(j+1);
 
         % Update pde / jacobian
+        % Conformal mapping and interpolation
+        [DJL,domain]=conformalmapping(DJL,domain,option);
         [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
     end

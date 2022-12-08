@@ -92,7 +92,7 @@ for i=1:loops
     x_new=u+epsilon;
 
     % Compare old x with new x, break if tol met, loop otherwise
-    if rms(x_new - x_old) < 1e-12
+    if rms(x_new - x_old) < 1e-10
         fprintf('x diff is %d\n',rms(x_new - x_old))
         fprintf('Reached tolerance after %d iterations!\n',i)
         break;
