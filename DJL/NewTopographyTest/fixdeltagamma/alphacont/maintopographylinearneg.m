@@ -11,7 +11,7 @@ DJL.soltype=1;
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
 gamma_star=0.25;% mu=0.7;
-mu=0.70; % topography width scale
+mu=0.80; % topography width scale
 KAI=30;KAI=20; % fKdV domain
 
 % N^2 function

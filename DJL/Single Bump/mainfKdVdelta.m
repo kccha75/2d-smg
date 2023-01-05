@@ -7,7 +7,7 @@ clear;close all;%clc
 L=30;
 d=3;
 gamma=-0.5;
-delta=1.44;
+delta=1.5;
 topography=@(x) sech(x).^2;
 
 fKdV.L=L;

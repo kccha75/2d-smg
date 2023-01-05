@@ -73,7 +73,7 @@ while j<steps
 
         % Solve linear equation
         RHS1=J.f;
-        RHS2=zeros(size(V(:,:,j+1)));
+        RHS2=zeros(size(V(:,:,j+1)));RHS2(:,end)=DJL.topography(domain.x{1}*DJL.KAI/pi);
         
         J.f=RHS1;
         z1=mg(e0,J,domain,option);
