@@ -127,6 +127,8 @@ fKdV.topography = DJL.topography;
 if DJL.soltype==0 % 2sech^2 fKdV solution
 
     delta_star=1/2*(gamma_star+8);
+    delta=delta_star*s*mu^2;
+    alpha=delta^2*6*gamma_star/(gamma*r*delta_star^2);
     B=2*sech(X).^2;
 
     % Check boundary!
