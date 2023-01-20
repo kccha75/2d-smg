@@ -83,7 +83,9 @@ while j<steps
             flag=1;
             numNewtonit=i-1;
             break
-
+        elseif r>1e10
+            flag=0;
+            break
         end
         
         % Update correction
@@ -167,6 +169,9 @@ while j<steps
     elseif flag==0 || max(max(abs(V(:,:,j+1))))<=tailtol || max(max(abs(V(1,:,j+1))))>=tailtol
         
         if flag==0
+            if r>1e10
+                fprintf('Residual exploded!\n')
+            end
             fprintf('Did not converge to required tolerance after %d Newton Iterations at step %d\n',i,j)
         end
 
