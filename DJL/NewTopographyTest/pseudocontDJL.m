@@ -66,7 +66,11 @@ while j<steps
         % Check nonlinear residual
         r=rms(J.f(:));
         fprintf('Residual Newton = %d\n',r)
-
+        
+        if r>1e10
+            flag=0;
+            break
+        end
         % Solve linear equation
         RHS1=J.f;
         RHS2=-2*DJL.N2((domain.X{2}+1)/2-V(:,:,j+1)).*V(:,:,j+1)/U(j+1)^3; RHS2(:,end)=0;
@@ -83,9 +87,7 @@ while j<steps
             flag=1;
             numNewtonit=i-1;
             break
-        elseif r>1e10
-            flag=0;
-            break
+
         end
         
         % Update correction
