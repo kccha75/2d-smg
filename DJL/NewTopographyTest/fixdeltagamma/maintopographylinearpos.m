@@ -83,7 +83,7 @@ end
 % Newton solve solution 2 negative direction
 % -------------------------------------------------------------------------
 
-ds=cont_option.ds;
+ds=1e-6;
 
 DJL.u=u1-ds;
 [v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
@@ -127,6 +127,8 @@ end
 % -------------------------------------------------------------------------
 % Continuation DJL positive direction
 % -------------------------------------------------------------------------
+
+ds=1e-6;
 
 v=v1;
 u=u1;

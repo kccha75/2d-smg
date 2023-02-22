@@ -1,4 +1,4 @@
-clear;close all;%clc
+clear;%close all;%clc
 
 % -------------------------------------------------------------------------
 % DJL parameters
@@ -7,7 +7,7 @@ clear;close all;%clc
 epsilon=0.5;
 alpha=epsilon^2; % no dependence on alpha (since no topography ...)
 mu=sqrt(epsilon);% no dependence on mu at all for v0... but does have dependence on newton ...
-u=0.24;
+u=0.24;%u=0.33;
 mode=1;
 
 % N^2 function
