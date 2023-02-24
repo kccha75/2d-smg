@@ -55,14 +55,15 @@ H=domain.H;
 % Initialise PDE
 [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
-% Interpolate, leave NaN values for extrapolated (hole)
-v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'linear',NaN);
+% Interpolate
+v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'spline',NaN);
 
 % Set BC again here ... (but causes huge residual due to discont)
 v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 
-% Interpolate again for NaN values (hole)
-v0=fillmissing(v0,'linear');
+% Interpolate again
+v0=~isnan(v0);
+
 
 % Initial residual
 r=pde.f-(Lu(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
