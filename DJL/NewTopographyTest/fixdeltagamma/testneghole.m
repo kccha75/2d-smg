@@ -56,13 +56,24 @@ H=domain.H;
 [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
 % Interpolate, leave NaN values for extrapolated (hole)
-v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'linear',NaN);
+v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'makima',NaN);
 
 % Set BC again here ... (but causes huge residual due to discont)
 v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 
-% Interpolate again for NaN values (hole)
-v0=fillmissing(v0,'linear');
+% Interpolate missing data
+v0(isnan(v0))=griddata(YY(~isnan(v0)),XX(~isnan(v0)),v0(~isnan(v0)),YY(isnan(v0)),XX(isnan(v0)),'cubic');
+
+% Fill missing (extrapolated) boundary holes
+v0=fillmissing(v0,'makima',1);
+
+% boundary layer for positive bump (smooths solution)
+if DJL.alpha>0
+
+    v0(2:end-1,end-round(0.05*size(domain.x{2})):end-1)=NaN;
+    v0(isnan(v0))=griddata(YY(~isnan(v0)),XX(~isnan(v0)),v0(~isnan(v0)),YY(isnan(v0)),XX(isnan(v0)),'cubic');
+
+end
 
 % Initial residual
 r=pde.f-(Lu(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
