@@ -10,15 +10,15 @@ DJL.soltype=1;
 
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
-gamma_star=0.25;% mu=0.7;
+gamma_star=-0.5;% mu=0.7;
 mu=0.90; % topography width scale
 KAI=30;KAI=20; % fKdV domain
 
 % N^2 function
-N2=@(psi) 0.9/(exp(0.9)-1)*exp(0.9*psi);%N2=@(psi) psi;
+N2=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) 0.9/(exp(0.9)-1)*exp(0.9*psi);%N2d=@(psi) 1+0*psi;
+N2d=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);%N2d=@(psi) 1+0*psi;
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;
@@ -97,9 +97,9 @@ end
 % Newton solve solution 2 negative direction
 % -------------------------------------------------------------------------
 
-ds=cont_option.ds;
+ds=1e-4;
 
-DJL.u=u1-1e-5;
+DJL.u=u1-ds;
 [v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
 
 if flag ==0
@@ -128,7 +128,7 @@ fprintf('Elapsed Time is %f s\n',dt)
 % Newton solve solution 2 positive direction
 % -------------------------------------------------------------------------
 
-DJL.u=u1+1e-5;
+DJL.u=u1+ds;
 [v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
 
 if flag ==0
@@ -285,10 +285,13 @@ A=reshape(A,[size(A,1),1,size(A,2)]);
 % Find zeta from fkdv
 zeta0=pagemtimes(A,DJL.phi');
 
+% zeta0 after conformal map
+zeta0_map=zeros(size(zeta0));
+
 % Conformal map!
 for jj=1:size(zeta0,3)
-    zeta0(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta0(:,:,jj),YY,XX,'spline');
-    zeta0(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+    zeta0_map(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta0(:,:,jj),YY,XX,'spline');
+%     zeta0_map(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 end
 % -------------------------------------------------------------------------
 % 1st order DJL approx
@@ -310,10 +313,13 @@ zai=zeta1+DJL.alpha*DJL.b*(1-(domain.x{2}+1)/2)';
 
 zeta=zeta0+zai;
 
+% zeta after conformal map
+zeta_map=zeros(size(zeta));
+
 % Conformal map!
 for jj=1:size(zeta,3)
-    zeta(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta(:,:,jj),YY,XX,'spline');
-    zeta(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+    zeta_map(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta(:,:,jj),YY,XX,'spline');
+%     zeta_map(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 end
 
 % -------------------------------------------------------------------------
@@ -321,13 +327,13 @@ end
 % -------------------------------------------------------------------------
 
 % Calculate momentum 0th order
-P2=trapI(zeta0.^2,2*KAI/mu/domain.N(1)); % Integrate x
+P2=trapI(zeta0_map.^2,2*KAI/mu/domain.N(1)); % Integrate x
 P2=permute(P2,[2,1,3]);
 P2=clenshaw_curtis(P2)/2; % Integrate y
 P2=permute(P2,[3,1,2]);
 
 % Calculate momentum 1st order
-P3=trapI(zeta.^2,2*KAI/mu/domain.N(1)); % Integrate x
+P3=trapI(zeta_map.^2,2*KAI/mu/domain.N(1)); % Integrate x
 P3=permute(P3,[2,1,3]);
 P3=clenshaw_curtis(P3)/2; % Integrate y
 P3=permute(P3,[3,1,2]);
