@@ -5,6 +5,8 @@
 % domain.dim - dimension of problem
 % domain.X - ndgrid of x,y
 % fKdV.L
+% fKdV.gamma
+% fKdV.delta
 %
 % Outputs:
 %
