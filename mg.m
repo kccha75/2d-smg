@@ -198,7 +198,7 @@ for p=1:option.numit
                         
     end
 
-%     disp(rms(solution(option.initialgrid).r(:))) % optional display rms residual
+    disp(rms(solution(option.initialgrid).r(:))) % optional display rms residual
     
     if rms(solution(option.initialgrid).r(:))<option.tol
         

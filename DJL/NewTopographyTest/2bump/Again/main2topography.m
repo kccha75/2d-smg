@@ -6,19 +6,19 @@ clear;%close all;%clc
 % fKdV solution type:
 % 0 - 2sech^2 solution
 % 1 - fKdV continuation plot!
-DJL.soltype=0; 
+DJL.soltype=3; 
 
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
-gamma_star=-0.5;% mu=0.7;
-mu=0.90; % topography width scale
-KAI=30;KAI=20; % fKdV domain
+gamma_star=0.1;% mu=0.7;
+mu=0.80; % topography width scale
+KAI=25; % fKdV domain, since L=200
 
 % N^2 function
-N2=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);%N2=@(psi) psi;
+N2=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);%N2=@(psi) 1-psi;
 
 % (N^2)'
-N2d=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);%N2d=@(psi) 1+0*psi;
+N2d=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);%N2d=@(psi) -1+0*psi;
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;
@@ -26,7 +26,7 @@ DJL.mu=mu;
 DJL.mode=mode;
 DJL.N2=N2;
 DJL.N2d=N2d;
-DJL.topography=@(X) sech(X+10).^2+sech(X-10).^2; % in KAI domain ...
+DJL.topography=@(X) sech(X+12).^2+sech(X-12).^2; % in KAI domain ...
 
 DJL.KAI=KAI;
 
@@ -37,7 +37,7 @@ time=tic;
 [domain,option,cont_option]=DJLinitialise_topography();
 
 % Initial guess
-[DJL,fKdV,pdefkdv,domainfkdv,optionfkdv]=DJLv0_topography(DJL,domain,option);
+[DJL,fKdV,pdefkdv,domainfkdv,optionfkdv]=DJLv0_2topography(DJL,domain,option);
 v0=DJL.v;
 
 % Conformal mapping and interpolation

@@ -29,7 +29,7 @@ coarsestgrid = 3;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG or num iterations for decent methods
-option.numit=1;
+option.numit=5;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
@@ -38,8 +38,8 @@ option.Newtonmaxit=20;
 option.Newtonsolver='mg';
 
 % Relaxations on the up and down cycle during Multigrid
-option.Nd=1;
-option.Nu=1;
+option.Nd=3;
+option.Nu=3;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
 option.solver='V-cycle';
