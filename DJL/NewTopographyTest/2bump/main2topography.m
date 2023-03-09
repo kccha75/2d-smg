@@ -10,15 +10,15 @@ DJL.soltype=3;
 
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
-gamma_star=0.1;% mu=0.7;
-mu=0.80; % topography width scale
-KAI=100; % fKdV domain, since L=200
+gamma_star=0.5;% mu=0.7;
+mu=0.90; % topography width scale
+KAI=25; % fKdV domain, since L=200
 
 % N^2 function
-N2=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);%N2=@(psi) 1-psi;
+N2=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);N2=@(psi) 2*(-psi+1);
 
 % (N^2)'
-N2d=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);%N2d=@(psi) -1+0*psi;
+N2d=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);N2d=@(psi) -2+0*psi;
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;
@@ -26,7 +26,7 @@ DJL.mu=mu;
 DJL.mode=mode;
 DJL.N2=N2;
 DJL.N2d=N2d;
-DJL.topography=@(X) sech(X+10).^2+sech(X-10).^2; % in KAI domain ...
+DJL.topography=@(X) sech(X+12).^2+sech(X-12).^2; % in KAI domain ...
 
 DJL.KAI=KAI;
 
@@ -55,27 +55,25 @@ H=domain.H;
 % Initialise PDE
 [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
-v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'makima');
+% Interpolate, leave NaN values for extrapolated
+v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'makima',NaN);
 
-% % Interpolate, leave NaN values for extrapolated
-% v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'makima',NaN);
-% 
-% % Set BC here ... (but causes huge residual due to discont)
-% v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
-% 
-% % Interpolate missing data (negative bump generally)
-% v0(isnan(v0))=griddata(YY(~isnan(v0)),XX(~isnan(v0)),v0(~isnan(v0)),YY(isnan(v0)),XX(isnan(v0)),'cubic');
-% 
-% % Fill missing (extrapolated) data (on boundary generally)
-% v0=fillmissing(v0,'makima',1);
-% 
-% % boundary layer for positive bump (smooths solution)
-% if DJL.alpha>0
-% 
-%     v0(2:end-1,end-round(0.05*size(domain.x{2})):end-1)=NaN;
-%     v0(isnan(v0))=griddata(YY(~isnan(v0)),XX(~isnan(v0)),v0(~isnan(v0)),YY(isnan(v0)),XX(isnan(v0)),'cubic');
-% 
-% end
+% Set BC here ... (but causes huge residual due to discont)
+v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+
+% Interpolate missing data (negative bump generally)
+v0(isnan(v0))=griddata(YY(~isnan(v0)),XX(~isnan(v0)),v0(~isnan(v0)),YY(isnan(v0)),XX(isnan(v0)),'cubic');
+
+% Fill missing (extrapolated) data (on boundary generally)
+v0=fillmissing(v0,'makima',1);
+
+% boundary layer for positive bump (smooths solution)
+if DJL.alpha>0
+
+    v0(2:end-1,end-round(0.05*size(domain.x{2})):end-1)=NaN;
+    v0(isnan(v0))=griddata(YY(~isnan(v0)),XX(~isnan(v0)),v0(~isnan(v0)),YY(isnan(v0)),XX(isnan(v0)),'cubic');
+
+end
 
 % Initial residual
 r=pde.f-(Lu(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
