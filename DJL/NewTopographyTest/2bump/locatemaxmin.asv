@@ -1,8 +1,24 @@
 % function to locate maximum and local wiggle minimum for DJL tabletop solution
-function [maxi,mini]=locatemaxmin(v)
+function [difference,minindex_x,maxindex_x]=locatemaxmin(v,maxindex_x,minindex_x)
 
 [maxi,indexmax]=max(max(v)); % locate maximum, and index for max (for z)
 
-mini=min(v(size(v,1)/2-50:size(v,1)/2+50,indexmax)); % locate local minimum at slice v1(:,indexmax)
+if isempty(maxindex_x) && isempty(minindex_x)
+
+    % locate local minimum at slice v1(:,indexmax)
+    % looks at middle +-50 for minimum
+    [mini,minindex_x]=min(v(size(v,1)/2-50:size(v,1)/2+50,indexmax)); 
+    
+    % locate local minimum at slice v1(:,indexmax)]
+    [maxi,maxindex_x]=max(v(size(v,1)/2-50:size(v,1)/2+50,indexmax)); 
+    difference=maxi-mini;
+
+else
+
+    [mini,minindex_x]=v(minindex_x,indexmax); % locate local minimum at slice v1(:,indexmax)
+    [maxi,maxindex_x]=v(maxindex_x,indexmax); % locate local minimum at slice v1(:,indexmax)]
+
+    difference=maxi-mini;
+end
 
 end
