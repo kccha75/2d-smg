@@ -115,37 +115,40 @@ end
 
 [v,u,y]=DJLtabletopsecant(v1,v2,u1,u2,DJL,pde,domain,option);
 
-% -------------------------------------------------------------------------
-% Adjust alpha ...
-% -------------------------------------------------------------------------
+% % -------------------------------------------------------------------------
+% % Adjust alpha ...
+% % -------------------------------------------------------------------------
+% 
+% DJL.alpha=DJL.alpha+0;
+% DJL.u=u;
+% 
+% % Conformal mapping and interpolation
+% [DJL,domain]=conformalmapping(DJL,domain,option);
+% 
+% % Length scales in DJL coordinates
+% Lx=DJL.Lx;
+% Ly=DJL.Ly;
+% 
+% XX=domain.XX;
+% YY=domain.YY;
+% jac=domain.jac;
+% H=domain.H;
+% 
+% % Initialise PDE
+% [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
-DJL.alpha=DJL.alpha+0;
-DJL.u=u;
+% Continuation???
+[V,U]=naturalparametercont(v,u,DJL,domain,option,cont_option);
 
-% Conformal mapping and interpolation
-[DJL,domain]=conformalmapping(DJL,domain,option);
-
-% Length scales in DJL coordinates
-Lx=DJL.Lx;
-Ly=DJL.Ly;
-
-XX=domain.XX;
-YY=domain.YY;
-jac=domain.jac;
-H=domain.H;
-
-% Initialise PDE
-[DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
-
-% -------------------------------------------------------------------------
-% Newton solve solution 1
-% -------------------------------------------------------------------------
-
-[v1,i,flag]=NewtonSolve(v,DJL,pde,domain,option);
-
-if flag ==0
-
-    fprintf('Initial Newton did not converge ...\n')
-    return
-
-end
+% % -------------------------------------------------------------------------
+% % Newton solve solution 1
+% % -------------------------------------------------------------------------
+% 
+% [v1,i,flag]=NewtonSolve(v,DJL,pde,domain,option);
+% 
+% if flag ==0
+% 
+%     fprintf('Initial Newton did not converge ...\n')
+%     return
+% 
+% end
