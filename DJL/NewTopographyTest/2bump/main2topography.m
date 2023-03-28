@@ -138,7 +138,7 @@ end
 % [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
 % Continuation???
-[V,U]=naturalparametercont(v,u,DJL,domain,option,cont_option);
+[V,U,W]=naturalparametercontalphaDJL(v,u,DJL.alpha,DJL,domain,option,cont_option);
 
 % % -------------------------------------------------------------------------
 % % Newton solve solution 1
