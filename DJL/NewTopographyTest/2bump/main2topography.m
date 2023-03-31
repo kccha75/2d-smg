@@ -113,7 +113,7 @@ end
 % Find Tabletop solution using Secant method
 % -------------------------------------------------------------------------
 
-[v,u,y,secantflag]=DJLtabletopsecant(v1,v2,u1,u2,DJL,pde,domain,option);
+[v,u,y,i,secantflag]=DJLtabletopsecant(v1,v2,u1,u2,DJL,pde,domain,option);
 
 % % -------------------------------------------------------------------------
 % % Adjust alpha for second solution

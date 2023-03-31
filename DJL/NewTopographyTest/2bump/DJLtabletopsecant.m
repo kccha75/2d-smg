@@ -14,10 +14,11 @@
 % v - DJL tabletop solution (hopefully)
 % u - delta value of DJL tabletop solution
 % y - difference vector at each step
+% i - iterations number
 % flag - 1 if converged to tolerance
 %      - 0 if after max iteration did not reach tolerance  
 
-function [v,u,y,flag]=DJLtabletopsecant(v1,v2,u1,u2,DJL,pde,domain,option)
+function [v,u,y,i,flag]=DJLtabletopsecant(v1,v2,u1,u2,DJL,pde,domain,option)
 
 % vector of delta
 u(1)=u1;

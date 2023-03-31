@@ -59,14 +59,15 @@ while j<steps
     [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
     % Newton 1 here ...
-    [v1,i,newtonflag1]=NewtonSolve(DJL.v,DJL,pde,domain,option);
+    DJL.u=DJL.u+0.5e-4;
+    [v1,~,newtonflag1]=NewtonSolve(DJL.v,DJL,pde,domain,option);
     
     % Newton 2 small delta adjustment
     DJL.u=DJL.u-1e-4;
     [v2,~,newtonflag2]=NewtonSolve(v1,DJL,pde,domain,option);
 
     % Update secant 
-    [V(:,:,j+1),W(j+1),y,secantflag]=DJLtabletopsecant(v1,v2,W(j+1),W(j+1)-1e-4,DJL,pde,domain,option);
+    [V(:,:,j+1),W(j+1),y,i,secantflag]=DJLtabletopsecant(v1,v2,W(j+1),W(j+1)-1e-4,DJL,pde,domain,option);
 
     % Check secant convergence
     if secantflag==0
@@ -74,7 +75,7 @@ while j<steps
     end
 
     % Converged and not 0 solution
-    if newtonflag1==1 && newtonflag2==1 && secantflag==1 &&...
+    if secantflag==1 &&...
             max(max(abs(v1)))>tailtol && max(max(abs(v2)))>tailtol
 
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
@@ -92,7 +93,7 @@ while j<steps
         j=j+1;
 
         % Optimal step length control for next step (minus first..)
-        if j>3
+        if j==-5
             xi=N_opt/i;
             
             if xi<0.5
@@ -113,9 +114,9 @@ while j<steps
             fprintf('New step size to %f\n',ds)
         end
 
-    elseif newtonflag1==0 || newtonflag2==0 || secantflag==0 || max(max(abs(V(:,:,j+1))))<=tailtol || max(max(abs(V(1,:,j+1))))>=tailtol
+    elseif secantflag==0 || max(max(abs(V(:,:,j+1))))<=tailtol || max(max(abs(V(1,:,j+1))))>=tailtol
         
-        if newtonflag1==0 || newtonflag2==0
+        if newtonflag1==0 || newtonflag2==0 || secantflag==0
 
             fprintf('Did not converge to required tolerance after %d Newton Iterations at step %d\n',i,j)
         end
