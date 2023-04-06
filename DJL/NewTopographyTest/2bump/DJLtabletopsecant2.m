@@ -18,7 +18,7 @@
 % flag - 1 if converged to tolerance
 %      - 0 if after max iteration did not reach tolerance  
 
-function [v,u,y,i,flag]=DJLtabletopsecant(v1,v2,u1,u2,DJL,pde,domain,option)
+function [v,u,y,i,flag]=DJLtabletopsecant2(v1,v2,u1,u2,DJL,pde,domain,option)
 
 % vector of delta
 u(1)=u1;
@@ -38,7 +38,6 @@ mini=v2(minindex_x,index_z);
 y(2)=maxi-mini;
 
 % initialise loop
-v=v1;
 flag=0;
 
 % loop until difference small, or divide by 0 due to 0 Newton iterations
@@ -61,7 +60,8 @@ for i=3:option.Newtonmaxit
 
     % Secant method
     u(i)=u(i-1)-y(i-1)*(u(i-1)-u(i-2))/(y(i-1)-y(i-2));
-    
+    v=v2-y(i-1)*(v2-v1)/(y(i-1)-y(i-2));
+
     % Update delta
     DJL.u=u(i);
 
@@ -80,6 +80,10 @@ for i=3:option.Newtonmaxit
     [mini,maxi,minindex_x,maxindex_x,index_z]=locatemaxmin(v,minindex_x,maxindex_x);
     y(i)=maxi-mini;
     fprintf('Secant difference is %d\n',y(i))
+
+    % Update v for next loop
+    v2=v1;
+    v1=v;
 
 end
 

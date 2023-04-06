@@ -97,7 +97,7 @@ end
 % Newton solve solution 2 negative direction
 % -------------------------------------------------------------------------
 
-ds=1e-4;
+ds=1e-5;
 
 DJL.u=u1-ds;u2=u1-ds;
 [v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
@@ -145,11 +145,12 @@ end
 % % Find dv
 % dv=vv-v;
 % dw=uu-u;
-
+tic
 % Continuation
 if secantflag==1
     [V,U,W]=naturalparametercontalphaDJL(v,u,DJL.alpha,DJL,domain,option,cont_option);
 end
+toc
 % % -------------------------------------------------------------------------
 % % Newton solve solution 1
 % % -------------------------------------------------------------------------

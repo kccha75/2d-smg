@@ -29,7 +29,7 @@ coarsestgrid = 3;
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG or num iterations for decent methods
-option.numit=1;
+option.numit=2;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
@@ -38,8 +38,8 @@ option.Newtonmaxit=20;
 option.Newtonsolver='mg';
 
 % Relaxations on the up and down cycle during Multigrid
-option.Nd=1;
-option.Nu=1;
+option.Nd=3;
+option.Nu=3;
 
 % Multigrid solver options:'V-cycle' or 'FMG'
 option.solver='V-cycle';
@@ -131,7 +131,7 @@ option.jacobian=@jacobianDJL; % Jacobian function
 % -------------------------------------------------------------------------
 
 % Initial step size
-cont_option.ds=1e-6;%cont_option.ds=0.05;
+cont_option.ds=1e-4;%cont_option.ds=0.05;
 
 % Min and max step size during continuation
 cont_option.ds_min=1e-6; % Continuation will fail if minimum reached
