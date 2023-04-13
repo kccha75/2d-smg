@@ -67,7 +67,7 @@ while j<steps
     [v2,~,newtonflag2]=NewtonSolve(v1,DJL,pde,domain,option);
 
     % Update secant 
-    [V(:,:,j+1),W(j+1),y,i,secantflag]=DJLtabletopsecant(v1,v2,W(j+1),W(j+1)-1e-4,DJL,pde,domain,option);
+    [V(:,:,j+1),W(j+1),y,i,secantflag]=DJLtabletopsecant3(v1,v2,W(j+1),W(j+1)-1e-4,DJL,pde,domain,option);
 
     % Check secant convergence
     if secantflag==0

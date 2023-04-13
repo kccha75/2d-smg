@@ -2,7 +2,7 @@
 
 function objectparameter=objectivefunction(v,u,DJL,pde,domain,option)
 
-if u>.37 || u < .32
+if u>.36 || u < .34
     u=NaN;
     objectparameter=NaN;
     return
@@ -14,10 +14,10 @@ DJL.u=u;
 if flag ==0
 
     fprintf('Newton did not converge ...\n')
-    return
+    u=NaN;
 
 end
 
-objectparameter=int2d(v,domain,DJL);
+objectparameter=int2d(v.^2,domain,DJL);
 
 end
