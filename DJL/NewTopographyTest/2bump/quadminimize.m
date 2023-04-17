@@ -16,6 +16,13 @@ for j=1:5
     [~,k]=min(abs(u-U));
     v=V(:,:,k);
     
+    % Check if minimum value ...
+    if min(u-U<0)==1 && min(abs(u-U))>max(abs(diff(U)))
+        u=U(k)-max(abs(diff(U)));
+    elseif min(u-U>0)==1 && min(abs(u-U))>max(abs(diff(U)))
+        u=U(k)+max(abs(diff(U)));
+    end
+
     % Newton ...
     DJL.u=u;
     [v,numit,newtonflag]=NewtonSolve(v,DJL,pde,domain,option);
@@ -28,8 +35,8 @@ for j=1:5
     i=int2d(v,domain,DJL);
 
     % Remove furtheset point ... that isn't the new point
-    [U,index]=sort([u1 u2 u3 u]);
-    I=[i1 i2 i3 i];
+    [U,index]=sort([U(1) U(2) U(3) u]);
+    I=[I(1) I(1) I(3) i];
     diffU=diff(U);
     
     % u is smallest

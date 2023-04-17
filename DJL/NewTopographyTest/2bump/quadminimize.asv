@@ -1,6 +1,6 @@
 % u be a vector ...
 
-function [v,u,i]=quadminimize(V,U,I,domain,DJL)
+function [v,u,i]=quadminimize(V,U,I,DJL,pde,domain,option)
 
 for j=1:5
 
@@ -16,6 +16,19 @@ for j=1:5
     [~,k]=min(abs(u-U));
     v=V(:,:,k);
     
+    % Check if minimum value ...
+    if min(u-U<0)==1
+        
+    end
+
+
+    if min(abs(u-U))>max(abs(diff(U)))
+        if u-U<0
+            u=U(k)-max(abs(diff(U)));
+        elseif u-U>0
+            u=U(k)+max(abs(diff(U)));
+        end
+    end
     % Newton ...
     DJL.u=u;
     [v,numit,newtonflag]=NewtonSolve(v,DJL,pde,domain,option);

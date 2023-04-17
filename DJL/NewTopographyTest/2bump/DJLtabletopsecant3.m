@@ -1,5 +1,9 @@
 % Function locates tabletop solution location using secant method
 %
+% Does not assume max and min are at the same location, difference is
+% strictly positive (worse)
+% Uses interpolated solution as new guess (worse)
+%
 % Inputs:
 % v1 - DJL solution 1
 % v2 - DJL solution 2
