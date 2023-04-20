@@ -23,6 +23,10 @@
 
 function [v,u,y,i,flag]=DJLtabletopsecant(v1,v2,u1,u2,DJL,pde,domain,option)
 
+% vector of delta
+% u(1)=u1;
+% u(2)=u2;
+
 % find local minimum and local maximum
 [mini,maxi,minindex_x,maxindex_x,index_z]=locatemaxmin(v1,[],[]);
 
@@ -37,12 +41,11 @@ mini=v2(minindex_x,index_z);
 y(2)=maxi-mini;
 
 % initialise loop
+v=v1;
 flag=0;
-i=1;
-secant=1;
 
 % loop until difference small, or divide by 0 due to 0 Newton iterations
-while i<=option.Newtonmaxit
+for i=1:option.Newtonmaxit
 
     % Check convergence ..
     if (abs(y(i+1))<option.tol)
@@ -59,38 +62,30 @@ while i<=option.Newtonmaxit
 
     end
 
-    if secant==1
-        % Secant method
-        u=u2-y(i+1)*(u2-u1)/(y(i+1)-y(i));
-    end
+    % Secant method
+    u=u2-y(i+1)*(u2-u1)/(y(i+1)-y(i));
+    
     % Update delta
     DJL.u=u;
 
     % Solve for new solution
-    [v,numit,newtonflag]=NewtonSolve(v2,DJL,pde,domain,option);
+    [v,numit,newtonflag]=NewtonSolve(v,DJL,pde,domain,option);
 
     % Check Newton converge
     if newtonflag==0
         fprintf('Newton did not converge in secant method!\n')
-
-        % smaller step!
-        u=(u+u2)/2;
-        secant=0;
-
-    elseif newtonflag==1
-
-        % Find max-min difference
-        [mini,maxi,minindex_x,maxindex_x,index_z]=locatemaxmin(v,minindex_x,maxindex_x);
-        y(i+2)=maxi-mini;
-        fprintf('Secant difference is %d\n',y(i+2))
-
-        % Next loop update
-        u1=u2;
-        u2=u;
-        v2=v;
-        i=i+1;
-        secant=1;
+        
     end
+
+    % Find max-min difference
+    [mini,maxi,minindex_x,maxindex_x,index_z]=locatemaxmin(v,minindex_x,maxindex_x);
+    y(i+2)=maxi-mini;
+    fprintf('Secant difference is %d\n',y(i+2))
+
+    % Next loop update
+    u1=u2;
+    u2=u;
+
 end
 
 % incase last loop

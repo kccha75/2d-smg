@@ -2,7 +2,7 @@
 
 function [v,u,i]=quadminimize(V,U,I,DJL,pde,domain,option)
 
-for j=1:5
+for j=1:50
 
     % Quadratic interpolation ...
     
@@ -32,37 +32,35 @@ for j=1:5
         fprintf('AHHHHHH\n')
         return
     end
-    i=int2d(v,domain,DJL);
 
+    I(4)=int2d(v,domain,DJL);
+    U(4)=u;
+
+    % locate maximum
+    [~,kk]=max(abs(I(4)-I));
     % Remove furtheset point ... that isn't the new point
-    [U,index]=sort([U(1) U(2) U(3) u]);
-    I=[I(1) I(1) I(3) i];
-    diffU=diff(U);
+   
+    U(kk)=[];
+    I(kk)=[];
+
+    % sort ...
+    [U,index]=sort([U(1) U(2) U(3)]);
+    I=[I(index(1)) I(index(2)) I(index(3))];
     
-    % u is smallest
-    if index(1)==4
-        % remove largest
-        U(end)=[];
-        I(end)=[];
+
+
+
     
-    % u is largest
-    elseif index(4)==4 
-        % remove smallest
-        U(1)=[];
-        I(1)=[];
+%         % check which end is larger difference
+%         if diffU(1)>diffU(end)
+%             U(1)=[];
+%             I(1)=[];
+%         elseif diffU(1)<=diffU(end)
+%             U(end)=[];
+%             I(end)=[];
+%         end
     
-    else
-    
-        % check which end is larger difference
-        if diffU(1)>diffU(end)
-            U(1)=[];
-            I(1)=[];
-        elseif diffU(1)<=diffU(end)
-            U(end)=[];
-            I(end)=[];
-        end
-    
-    end
+%     end
 
 end
 
