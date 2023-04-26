@@ -1,4 +1,4 @@
-% Function initialises PDE parameters
+% Function initialises PDE parameters, applies BCs
 %
 % Inputs:
 %
@@ -16,6 +16,7 @@
 %
 % Outputs:
 %
+% DJL.v - solution with applied boundary conditions
 % pde - structure of pde array coefficients
 % domain.BC - boundary conditions (4x2 cell)
 %

@@ -39,6 +39,7 @@ y(2)=maxi-mini;
 % initialise loop
 flag=0;
 i=1;
+j=0;
 secant=1;
 
 % loop until difference small, or divide by 0 due to 0 Newton iterations
@@ -75,7 +76,14 @@ while i<=option.Newtonmaxit
 
         % smaller step!
         u=(u+u2)/2;
+        fprintf('Reducing u to %d\n',u)
+        j=j+1;
         secant=0;
+        if j>option.Newtonmaxit
+            fprintf('Secant fail!\n')
+            flag=0;
+            return
+        end
 
     elseif newtonflag==1
 
@@ -90,6 +98,7 @@ while i<=option.Newtonmaxit
         v2=v;
         i=i+1;
         secant=1;
+        j=0;
     end
 end
 

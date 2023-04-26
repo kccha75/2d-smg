@@ -60,7 +60,7 @@ while j<steps
 
     % Newton 1 here ...
     DJL.u=W(j)+dw1*ds;
-    [v1,~,newtonflag1]=NewtonSolve(DJL.v,DJL,pde,domain,option); % important for BCs
+    [v1,~,newtonflag1]=NewtonSolve(DJL.v+dv1*ds,DJL,pde,domain,option); % important for BCs
     
     if j<=2 % at first step 
         % Newton 2 small delta adjustment
