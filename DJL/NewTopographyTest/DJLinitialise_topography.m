@@ -33,7 +33,7 @@ option.numit=1;
 
 % Linear solver / Newton tolerance
 option.tol=1e-12;
-option.Newtontol=1e-8;
+option.Newtontol=1e-7;
 option.Newtonmaxit=20;
 option.Newtonsolver='mg';
 
@@ -144,4 +144,4 @@ cont_option.ds_max=0.1; % Max continuation step size
 cont_option.N_opt=4;
 
 cont_option.Newtonmaxit=10; % Max Newton iterations before lowering step size
-cont_option.steps=200; % Max continuation steps
+cont_option.steps=1000; % Max continuation steps

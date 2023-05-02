@@ -21,7 +21,7 @@
 % flag - 1 if converged to tolerance
 %      - 0 if after max iteration did not reach tolerance  
 
-function [v,u,y,numsecantit,flag]=DJLtabletopsecant(v1,v2,u1,u2,DJL,pde,domain,option)
+function [v,u,y,i,flag]=DJLtabletopsecant(v1,v2,u1,u2,DJL,pde,domain,option)
 
 % find local minimum and local maximum
 [mini,maxi,minindex_x,maxindex_x,index_z]=locatemaxmin(v1,[],[]);
@@ -42,6 +42,10 @@ i=1;
 j=0;
 secant=1;
 
+% incase loop 1 coverge
+v=v2;
+u=u2;
+
 % loop until difference small, or divide by 0 due to 0 Newton iterations
 while i<=option.Newtonmaxit
 
@@ -50,14 +54,12 @@ while i<=option.Newtonmaxit
 
         fprintf('Converged after %d Secant Iterations \n',i-1)
         flag=1;
-        numsecantit=i-1;
         break
 
-    elseif y(i+1)-y(i)==0
+    elseif y(i+1)-y(i)==0 && abs(y(i+1))<1e-6
 
         fprintf('0 Newton Iterations detected!\n')
         flag=1;
-        numsecantit=i-1;
         break
 
     end
@@ -78,15 +80,6 @@ while i<=option.Newtonmaxit
 
         % smaller step!
         u=(u+u2)/2;
-
-        % too small ...
-        if min(abs(u-u1),abs(u-u2))<abs(u1-u2)
-            fprintf('Secant fail!\n')
-            flag=0;
-            return
-
-        end
-
         fprintf('Reducing u to %d\n',u)
         j=j+1;
         secant=0;
@@ -114,13 +107,16 @@ while i<=option.Newtonmaxit
 end
 
 % incase last loop
-if flag==1 || (abs(y(end))<option.tol) || numit==0
+if flag==1 || (abs(y(end))<option.tol) 
 
-    fprintf('Converged after %d Secant Iterations \n',i)
+    fprintf('Converged after %d Secant Iterations \n',i-1)
     flag=1;
 
-end
+elseif flag==0
+    
+    fprintf('Secant fail!\n')
+    return
 
-numsecantit=i;
+end
 
 end

@@ -42,6 +42,10 @@ i=1;
 j=0;
 secant=1;
 
+% incase loop 1 coverge
+v=v2;
+u=u2;
+
 % loop until difference small, or divide by 0 due to 0 Newton iterations
 while i<=option.Newtonmaxit
 
@@ -52,7 +56,7 @@ while i<=option.Newtonmaxit
         flag=1;
         break
 
-    elseif y(i+1)-y(i)==0
+    elseif y(i+1)-y(i)==0 && abs(y(i+1))<1e-6
 
         fprintf('0 Newton Iterations detected!\n')
         flag=1;
@@ -103,10 +107,18 @@ while i<=option.Newtonmaxit
 end
 
 % incase last loop
-if flag==1 || (abs(y(end))<option.tol) || numit==0
+
+%     Check convergence ..
+if (abs(y(i+1))<option.tol)
 
     fprintf('Converged after %d Secant Iterations \n',i-1)
     flag=1;
+
+elseif y(i+1)-y(i)==0 && abs(y(i+1))<1e-6
+
+    fprintf('0 Newton Iterations detected!\n')
+    flag=1;
+
 end
 
 end
