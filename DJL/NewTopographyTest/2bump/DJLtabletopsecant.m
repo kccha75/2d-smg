@@ -107,14 +107,13 @@ while i<=option.Newtonmaxit
 end
 
 % incase last loop
+% Check convergence ..
+if (abs(y(end))<option.tol)
 
-%     Check convergence ..
-if (abs(y(i+1))<option.tol)
-
-    fprintf('Converged after %d Secant Iterations \n',i-1)
+    fprintf('Converged after %d Secant Iterations \n',option.Newtonmaxit)
     flag=1;
 
-elseif y(i+1)-y(i)==0 && abs(y(i+1))<1e-6
+elseif y(end)-y(end-1)==0 && abs(y(end))<1e-6
 
     fprintf('0 Newton Iterations detected!\n')
     flag=1;
