@@ -56,7 +56,7 @@ while i<=option.Newtonmaxit
         flag=1;
         break
 
-    elseif y(i+1)-y(i)==0 %&& abs(y(i+1))<1e-6
+    elseif y(i+1)-y(i)==0 && abs(y(i+1))<1e-4
 
         fprintf('0 Newton Iterations detected!\n')
         flag=1;
@@ -101,7 +101,7 @@ while i<=option.Newtonmaxit
         v2=v;
         i=i+1;
         secant=1;
-        j=0;
+
     end
 end
 
@@ -112,7 +112,7 @@ if (abs(y(end))<option.tol) && i==option.Newtonmaxit
     fprintf('Converged after %d Secant Iterations \n',option.Newtonmaxit)
     flag=1;
 
-elseif y(end)-y(end-1)==0 && i==option.Newtonmaxit
+elseif y(end)-y(end-1)==0 && i==option.Newtonmaxit && abs(y(end))<1e-4
 
     fprintf('0 Newton Iterations detected!\n')
     flag=1;
