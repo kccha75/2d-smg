@@ -50,13 +50,13 @@ u=u2;
 while i<=option.Newtonmaxit
 
     % Check convergence ..
-    if (abs(y(i+1))<option.tol)
+    if (abs(y(i+1))<option.Newtontol)
 
         fprintf('Converged after %d Secant Iterations \n',i-1)
         flag=1;
         break
 
-    elseif y(i+1)-y(i)==0 && abs(y(i+1))<1e-6
+    elseif y(i+1)-y(i)==0 %&& abs(y(i+1))<1e-6
 
         fprintf('0 Newton Iterations detected!\n')
         flag=1;
@@ -81,9 +81,8 @@ while i<=option.Newtonmaxit
         % smaller step!
         u=(u+u2)/2;
         fprintf('Reducing u to %d\n',u)
-        j=j+1;
         secant=0;
-        if j>option.Newtonmaxit
+        if abs(u-u2)<abs(u1-u2)
             fprintf('Secant fail!\n')
             flag=0;
             return
@@ -108,12 +107,12 @@ end
 
 % incase last loop
 % Check convergence ..
-if (abs(y(end))<option.tol)
+if (abs(y(end))<option.tol) && i==option.Newtonmaxit
 
     fprintf('Converged after %d Secant Iterations \n',option.Newtonmaxit)
     flag=1;
 
-elseif y(end)-y(end-1)==0 && abs(y(end))<1e-6
+elseif y(end)-y(end-1)==0 && i==option.Newtonmaxit
 
     fprintf('0 Newton Iterations detected!\n')
     flag=1;
