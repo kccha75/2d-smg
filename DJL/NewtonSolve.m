@@ -37,6 +37,12 @@ for i=1:option.Newtonmaxit
     r=rms(J.f(:));
     fprintf('Residual Newton = %d\n',r)
 
+    if r>1e10 || isnan(r)
+        flag=0;
+        numNewtonit=i-1;
+        return
+    end
+
     if r<=option.Newtontol
 
         fprintf('Converged after %d Newton Iterations \n',i-1)

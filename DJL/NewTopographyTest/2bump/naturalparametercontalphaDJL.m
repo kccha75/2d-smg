@@ -73,8 +73,13 @@ while j<steps
         DJL.u=W(j)+1e-5;
         [v2,newtonit,newtonflag2]=NewtonSolve(v1,DJL,pde,domain,option);
 
-        % Update secant 
-        [V(:,:,j+1),W(j+1),y,i,secantflag]=DJLtabletopsecant(v1,v2,W(j)+dw1*ds,W(j)+1e-5,DJL,pde,domain,option);
+        if newtonflag1==1 && newtonflag2==1
+            % Update secant 
+            [V(:,:,j+1),W(j+1),y,i,secantflag]=DJLtabletopsecant(v1,v2,W(j)+dw1*ds,W(j)+1e-5,DJL,pde,domain,option);
+        else
+            secantflag=0;
+            i=0;
+        end
     
     else
 
@@ -87,8 +92,15 @@ while j<steps
             DJL.u=W(j)+1e-5;
             [v2,~,newtonflag2]=NewtonSolve(v1,DJL,pde,domain,option);
         end
-        % Update secant 
-        [V(:,:,j+1),W(j+1),y,i,secantflag]=DJLtabletopsecant(v1,v2,W(j)+dw1*ds,W(j)+dw2*ds,DJL,pde,domain,option);
+
+        if newtonflag1==1 && newtonflag2==1
+            % Update secant 
+            [V(:,:,j+1),W(j+1),y,i,secantflag]=DJLtabletopsecant(v1,v2,W(j)+dw1*ds,W(j)+dw2*ds,DJL,pde,domain,option);
+        else
+            secantflag=0;
+            i=0;
+        end
+
     end
 
     % Check secant convergence

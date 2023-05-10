@@ -56,12 +56,17 @@ while i<=option.Newtonmaxit
         flag=1;
         break
 
-    elseif y(i+1)-y(i)==0 && abs(y(i+1))<1e-4
+    elseif y(i+1)-y(i)==0 && abs(y(i+1))<=1e-4
 
         fprintf('0 Newton Iterations detected!\n')
         flag=1;
         break
 
+    elseif y(i+1)-y(i)==0 && abs(y(i+1))>1e-4
+
+        flag=0;
+        return
+    
     end
 
     if secant==1
