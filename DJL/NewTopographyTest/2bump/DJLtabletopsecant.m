@@ -87,7 +87,7 @@ while i<=option.Newtonmaxit
         u=(u+u2)/2;
         fprintf('Reducing u to %d\n',u)
         secant=0;
-        if abs(u-u2)<abs(u1-u2)
+        if abs(u-u2)<=abs(u1-u2)
             fprintf('Secant fail!\n')
             flag=0;
             return

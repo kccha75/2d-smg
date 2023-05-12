@@ -26,7 +26,7 @@ DJL.mu=mu;
 DJL.mode=mode;
 DJL.N2=N2;
 DJL.N2d=N2d;
-DJL.topography=@(X) sech(X+12).^2+sech(X-12).^2; % in KAI domain ...
+DJL.topography=@(X) sech(X+16).^2+sech(X-16).^2; % in KAI domain ...
 
 DJL.KAI=KAI;
 
