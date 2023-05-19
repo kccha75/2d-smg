@@ -40,7 +40,7 @@ j=1;
 dv1=0; % Initial gradient guess ...
 dw1=0;
 ds1=ds;
-
+skip=1;
 while j<steps
     
     if j<=2
@@ -135,7 +135,7 @@ while j<steps
             dv2=(V(:,:,j-1)*ds1^2-V(:,:,j)*(ds1+ds2)^2+V(:,:,j+1)*ds2*(2*ds1+ds2))/(ds1*ds2*(ds1+ds2));
             dw2=(W(j-1)*ds1^2-W(j)*(ds1+ds2)^2+W(j+1)*ds2*(2*ds1+ds2))/(ds1*ds2*(ds1+ds2));
         end
-        
+        skip=1;
         j=j+1;
         
         % Optimal step length control for next step (minus first..)
@@ -154,12 +154,13 @@ while j<steps
             if ds>ds_max
                 ds=ds_max;
             elseif ds<ds_min
-                fprintf('Minimum step length of %f exceeded, breaking loop\n',ds_min)
-                return
+
+%                 fprintf('Minimum step length of %f exceeded, breaking loop\n',ds_min)
+%                 return
             end
             fprintf('New step size to %f\n',ds)
         end
-
+    
     elseif secantflag==0 || max(max(abs(V(:,:,j+1))))<=tailtol || max(max(abs(V(1,:,j+1))))>=tailtol
 
         if secantflag==0
@@ -184,12 +185,18 @@ while j<steps
         
         % Break loop if minimum step size exceeded
         if ds<=ds_min
-            fprintf('Minimum step length of %f exceeded, breaking loop\n',ds_min)
-            % Clear last non-converged step
-            V(:,:,end)=[];
-            U(end)=[];
-            W(end)=[];
-            return % end function
+            if skip==1
+                ds=0.1;
+                skip=0;
+            else
+
+                fprintf('Minimum step length of %f exceeded, breaking loop\n',ds_min)
+                % Clear last non-converged step
+                V(:,:,end)=[];
+                U(end)=[];
+                W(end)=[];
+                return % end function
+            end
         end
 
     end

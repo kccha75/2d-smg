@@ -11,7 +11,7 @@ DJL.soltype=3;
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
 gamma_star=0.3;% mu=0.7;
-mu=0.90; % topography width scale
+mu=0.85; % topography width scale
 KAI=25; % fKdV domain, since L=200
 
 % N^2 function
@@ -26,7 +26,7 @@ DJL.mu=mu;
 DJL.mode=mode;
 DJL.N2=N2;
 DJL.N2d=N2d;
-DJL.topography=@(X) sech(X+16).^2+sech(X-16).^2; % in KAI domain ...
+DJL.topography=@(X) sech(X+12).^2+sech(X-12).^2; % in KAI domain ...
 
 DJL.KAI=KAI;
 
@@ -145,12 +145,11 @@ end
 % % Find dv
 % dv=vv-v;
 % dw=uu-u;
-tic
 % Continuation
 if secantflag==1
     [V,U,W]=naturalparametercontalphaDJL(v,u,DJL.alpha,DJL,domain,option,cont_option);
 end
-toc
+time=toc
 % % -------------------------------------------------------------------------
 % % Newton solve solution 1
 % % -------------------------------------------------------------------------
