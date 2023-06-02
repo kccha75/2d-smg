@@ -134,6 +134,11 @@ while j<steps
 
             dv2=(V(:,:,j-1)*ds1^2-V(:,:,j)*(ds1+ds2)^2+V(:,:,j+1)*ds2*(2*ds1+ds2))/(ds1*ds2*(ds1+ds2));
             dw2=(W(j-1)*ds1^2-W(j)*(ds1+ds2)^2+W(j+1)*ds2*(2*ds1+ds2))/(ds1*ds2*(ds1+ds2));
+
+            % Minimum 'step size' for w
+            if abs(dw1-dw2)<1e-5
+                dw2=dw1+sign(dw1-dw2)*1e-5;
+            end
         end
         skip=1;
         j=j+1;
