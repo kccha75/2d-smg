@@ -116,12 +116,12 @@ while j<steps
 
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
-        % check overturning
-%         diffv=2*real(ifct(chebdiff(real(fct(transpose(V(:,:,j+1)))),1)));
-%         if max(diffv(:))>1
-%             fprintf('Overturning detected!\n')
-%             return
-%         end
+%         check overturning
+        diffv=2*real(ifct(chebdiff(real(fct(transpose(V(:,:,j+1)))),1)));
+        if max(diffv(:))>1
+            fprintf('Overturning detected!\n')
+            return
+        end
 
         % Update for next Newton iteration
         dv1=(V(:,:,j+1)-V(:,:,j))/ds; % simple dv estimate
@@ -136,6 +136,11 @@ while j<steps
 
             dv2=(V(:,:,j-1)*ds1^2-V(:,:,j)*(ds1+ds2)^2+V(:,:,j+1)*ds2*(2*ds1+ds2))/(ds1*ds2*(ds1+ds2));
             dw2=(W(j-1)*ds1^2-W(j)*(ds1+ds2)^2+W(j+1)*ds2*(2*ds1+ds2))/(ds1*ds2*(ds1+ds2));
+
+            % Minimum 'step size' for w
+            if abs(dw1-dw2)<1e-5
+                dw2=dw1+sign(dw1-dw2)*1e-5;
+            end
         end
         skip=1;
         j=j+1;
@@ -187,10 +192,10 @@ while j<steps
         
         % Break loop if minimum step size exceeded
         if abs(ds)<=ds_min
-%             if skip==1
-%                 ds=0.1;
-%                 skip=0;
-%             else
+            if skip==1
+                ds=sign(ds)*0.1;
+                skip=0;
+            else
 
                 fprintf('Minimum step length of %f exceeded, breaking loop\n',ds_min)
                 % Clear last non-converged step
@@ -198,7 +203,7 @@ while j<steps
                 U(end)=[];
                 W(end)=[];
                 return % end function
-%             end
+            end
         end
 
     end
