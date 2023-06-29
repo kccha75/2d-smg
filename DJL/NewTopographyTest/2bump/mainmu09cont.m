@@ -7,6 +7,10 @@ load('mu09results/U.mat')
 load('mu09results/V.mat')
 load('mu09results/W.mat')
 
+load('mu09gammastar05/U.mat')
+load('mu09gammastar05/V.mat')
+load('mu09gammastar05/W.mat')
+
 % -------------------------------------------------------------------------
 % DJL parameters PICK alpha / mu
 % -------------------------------------------------------------------------
@@ -55,6 +59,7 @@ H=domain.H;
 v=V(:,:,1); % continuation point!
 u=W(1); % continuation point!
 
+% pick +ve or -ve direction
 cont_option.ds=-cont_option.ds;
 
 [V,U,W]=naturalparametercontalphaDJLmu(v,u,mu,DJL,domain,option,cont_option);

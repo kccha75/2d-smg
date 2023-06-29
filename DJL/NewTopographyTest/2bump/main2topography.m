@@ -10,15 +10,15 @@ DJL.soltype=3;
 
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
-gamma_star=0.5;% mu=0.7;
-mu=0.90; % topography width scale
+gamma_star=0.3;% mu=0.7;
+mu=0.80; % topography width scale
 KAI=25; % fKdV domain, since L=200
 
 % N^2 function
-N2=@(psi) 1.0/(exp(1.0)-1)*exp(.0*psi);N2=@(psi) 2*(-psi+1);N2=@(psi) 1-sech((psi-0.8)/0.2);
+N2=@(psi) 1.0/(exp(1.0)-1)*exp(.0*psi);N2=@(psi) 2*(-psi+1);%N2=@(psi) 1-sech((psi-0.8)/0.2);
 
 % (N^2)'
-N2d=@(psi) 1.0/(exp(1.0)-1)*exp(.0*psi);N2d=@(psi) -2+0*psi;Nd2=@(psi) 1/0.2*sech((psi-0.8)/0.2)*tanh((psi-0.8)/0.2);
+N2d=@(psi) 1.0/(exp(1.0)-1)*exp(.0*psi);N2d=@(psi) -2+0*psi;%Nd2=@(psi) 1/0.2*sech((psi-0.8)/0.2)*tanh((psi-0.8)/0.2);
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;

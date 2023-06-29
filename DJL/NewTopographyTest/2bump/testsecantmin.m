@@ -1,1 +1,0 @@
-[v,u,y,i,flag]=DJLtabletopsecant(v1,v2,u1,u2,DJL,pde,domain,option);
