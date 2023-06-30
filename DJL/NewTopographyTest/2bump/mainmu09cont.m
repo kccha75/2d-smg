@@ -3,9 +3,9 @@
 
 % load data here!
 clear; 
-load('mu09results/U.mat')
-load('mu09results/V.mat')
-load('mu09results/W.mat')
+% load('mu09results/U.mat')
+% load('mu09results/V.mat')
+% load('mu09results/W.mat')
 
 load('mu09gammastar05/U.mat')
 load('mu09gammastar05/V.mat')

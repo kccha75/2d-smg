@@ -3,7 +3,7 @@
 
 % load data here! 
 clear; 
-load('mu09results/U.mat') % initial alpha
+load('gammastar05/mu09/U.mat') % initial alpha
 alpha=U(1);
 
 % change if want to go positive or negative direction
@@ -11,9 +11,9 @@ alpha=U(1);
 % load('mu09continuationstarting/V.mat') % solution
 % load('mu09continuationstarting/W.mat') % alpha
 
-load('mu09continuationneg/U.mat') % mu
-load('mu09continuationneg/V.mat') % solution
-load('mu09continuationneg/W.mat') % alpha
+load('gammastar05/mu09contneg/U.mat') % mu
+load('gammastar05/mu09contneg/V.mat') % solution
+load('gammastar05/mu09contneg/W.mat') % alpha
 
 % -------------------------------------------------------------------------
 % DJL parameters PICK alpha / mu
@@ -23,7 +23,7 @@ load('mu09continuationneg/W.mat') % alpha
 % 1 - fKdV continuation plot!
 DJL.soltype=3; 
 
-mu=1.0; % topography width scale
+mu=0.7; % topography width scale
 KAI=25; % fKdV domain, since L=200
 
 % N^2 function
