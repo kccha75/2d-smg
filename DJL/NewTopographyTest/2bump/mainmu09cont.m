@@ -6,10 +6,17 @@ clear;
 % load('mu09results/U.mat')
 % load('mu09results/V.mat')
 % load('mu09results/W.mat')
+% 
+% load('gammastar05/mu09/U.mat')
+% load('gammastar05/mu09/V.mat')
+% load('gammastar05/mu09/W.mat')
 
-load('mu09gammastar05/U.mat')
-load('mu09gammastar05/V.mat')
-load('mu09gammastar05/W.mat')
+load('U.mat')
+load('V.mat')
+load('W.mat')
+
+% continuation point in data
+contpoint=length(U)-4;
 
 % -------------------------------------------------------------------------
 % DJL parameters PICK alpha / mu
@@ -32,7 +39,7 @@ DJL.mu=mu;
 DJL.N2=N2;
 DJL.N2d=N2d;
 DJL.topography=@(X) sech(X+12).^2+sech(X-12).^2; % in KAI domain ...
-DJL.alpha=U(1); % continuation point!
+DJL.alpha=U(contpoint); % continuation point!
 DJL.KAI=KAI;
 DJL.Lx=2*KAI/mu^2;
 % -------------------------------------------------------------------------
@@ -56,10 +63,10 @@ H=domain.H;
 % Initialise PDE
 [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
 
-v=V(:,:,1); % continuation point!
-u=W(1); % continuation point!
+v=V(:,:,contpoint); % continuation point!
+u=W(contpoint); % continuation point!
 
 % pick +ve or -ve direction
-cont_option.ds=-cont_option.ds;
+cont_option.ds=cont_option.ds;
 
 [V,U,W]=naturalparametercontalphaDJLmu(v,u,mu,DJL,domain,option,cont_option);

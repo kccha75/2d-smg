@@ -10,8 +10,8 @@ DJL.soltype=3;
 
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
-gamma_star=0.3;% mu=0.7;
-mu=0.80; % topography width scale
+gamma_star=0.5;% mu=0.7;
+mu=0.90; % topography width scale
 KAI=25; % fKdV domain, since L=200
 
 % N^2 function
