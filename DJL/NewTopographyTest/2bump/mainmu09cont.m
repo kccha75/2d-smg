@@ -1,5 +1,6 @@
 % Continuation on a specific point on mu09 continuation. attempts to
 % continuation negatively (from 0.9 towards -infinity) to overturning
+% can pick positive direction, see ds
 
 % load data here!
 clear; 
