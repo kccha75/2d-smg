@@ -11,14 +11,14 @@ DJL.soltype=3;
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
 gamma_star=0.5;% mu=0.7;
-mu=0.90; % topography width scale
+mu=0.70; % topography width scale
 KAI=25; % fKdV domain, since L=200
 
 % N^2 function
-N2=@(psi) 1.0/(exp(1.0)-1)*exp(.0*psi);N2=@(psi) 2*(-psi+1);%N2=@(psi) 1-sech((psi-0.8)/0.2);
+N2=@(psi) exp(-1.0*psi)/((exp(-1.0)-1)/-1.0);%N2=@(psi) 2*(-psi+1);%N2=@(psi) sech((psi-0)).^2/(tanh(1));
 
 % (N^2)'
-N2d=@(psi) 1.0/(exp(1.0)-1)*exp(.0*psi);N2d=@(psi) -2+0*psi;%Nd2=@(psi) 1/0.2*sech((psi-0.8)/0.2)*tanh((psi-0.8)/0.2);
+N2d=@(psi) -1.0*exp(-1.0*psi)/((exp(-1.0)-1)/-1.0);%N2d=@(psi) -2+0*psi;%N2d=@(psi) -2*sech((psi-0)).*tanh((psi-0))/(tanh(1));
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;
@@ -60,7 +60,7 @@ v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'makima',NaN);
 
 % Set BC here ... (but causes huge residual due to discont)
 v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
-
+v0(:,1)=0; % maybe needed to remove cases of NaN
 % Interpolate missing data (negative bump generally)
 v0(isnan(v0))=griddata(YY(~isnan(v0)),XX(~isnan(v0)),v0(~isnan(v0)),YY(isnan(v0)),XX(isnan(v0)),'cubic');
 
