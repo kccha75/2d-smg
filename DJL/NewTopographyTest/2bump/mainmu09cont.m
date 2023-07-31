@@ -8,16 +8,16 @@ clear;
 % load('mu09results/V.mat')
 % load('mu09results/W.mat')
 % 
-% load('gammastar05/mu09/U.mat')
-% load('gammastar05/mu09/V.mat')
-% load('gammastar05/mu09/W.mat')
+load('gammastar05/exp/U.mat')
+load('gammastar05/exp/V.mat')
+load('gammastar05/exp/W.mat')
 
-load('U.mat')
-load('V.mat')
-load('W.mat')
+% load('U.mat')
+% load('V.mat')
+% load('W.mat')
 
 % continuation point in data
-contpoint=length(U)-4;
+contpoint=1;
 
 % -------------------------------------------------------------------------
 % DJL parameters PICK alpha / mu
@@ -27,14 +27,14 @@ contpoint=length(U)-4;
 % 1 - fKdV continuation plot!
 DJL.soltype=3; 
 
-mu=0.9; % topography width scale
+mu=0.7; % topography width scale
 KAI=25; % fKdV domain, since L=200
 
 % N^2 function
-N2=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);N2=@(psi) 2*(-psi+1);
+N2=@(psi) exp(-1.0*psi)/((exp(-1.0)-1)/-1.0);
 
 % (N^2)'
-N2d=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);N2d=@(psi) -2+0*psi;
+N2d=@(psi) -1.0*exp(-1.0*psi)/((exp(-1.0)-1)/-1.0);
 
 DJL.mu=mu;
 DJL.N2=N2;
@@ -68,6 +68,6 @@ v=V(:,:,contpoint); % continuation point!
 u=W(contpoint); % continuation point!
 
 % pick +ve or -ve direction
-cont_option.ds=cont_option.ds;
+cont_option.ds=-cont_option.ds;
 
 [V,U,W]=naturalparametercontalphaDJLmu(v,u,mu,DJL,domain,option,cont_option);

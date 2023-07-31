@@ -3,7 +3,7 @@
 
 % load data here! 
 clear; 
-load('gammastar05/mu09/U.mat') % initial alpha
+load('gammastar05/exp/U.mat') % initial alpha
 alpha=U(1);
 
 % change if want to go positive or negative direction
@@ -11,9 +11,9 @@ alpha=U(1);
 % load('mu09continuationstarting/V.mat') % solution
 % load('mu09continuationstarting/W.mat') % alpha
 
-load('gammastar05/mu09contpos/U.mat') % mu
-load('gammastar05/mu09contpos/V.mat') % solution
-load('gammastar05/mu09contpos/W.mat') % alpha
+load('gammastar05/expcontpos/U.mat')
+load('gammastar05/expcontpos/V.mat')
+load('gammastar05/expcontpos/W.mat')
 
 % -------------------------------------------------------------------------
 % DJL parameters PICK alpha / mu
@@ -27,10 +27,10 @@ mu=1.0; % topography width scale
 KAI=25; % fKdV domain, since L=200
 
 % N^2 function
-N2=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);N2=@(psi) 2*(-psi+1);
+N2=@(psi) exp(-1.0*psi)/((exp(-1.0)-1)/-1.0);
 
 % (N^2)'
-N2d=@(psi) 1.0/(exp(1.0)-1)*exp(1.0*psi);N2d=@(psi) -2+0*psi;
+N2d=@(psi) -1.0*exp(-1.0*psi)/((exp(-1.0)-1)/-1.0);
 
 % find mu index or approximately ...
 [~,muindex]=min(abs(U-mu));
