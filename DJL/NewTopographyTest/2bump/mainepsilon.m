@@ -22,7 +22,7 @@ KAI=25; % fKdV domain, since L=200
 % N^2 function
 epsilon=0.99;
 global psi0 d;
-psi0=1;d=1;
+psi0=0;d=1;
 N2=@(psi) (epsilon*(-psi+1)+(1-epsilon)*sech((psi-psi0)/d).^2)/(epsilon/2-d*(epsilon-1)*(tanh((1-psi0)/d)+tanh(psi0/d)));
 
 % (N^2)'
