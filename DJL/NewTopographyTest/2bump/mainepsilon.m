@@ -2,11 +2,11 @@
 
 % load data here! 
 clear; 
-load('gammastar05/mu09/U.mat') % initial alpha
+load('gammastar05/exp/U.mat') % initial alpha
 alpha=U(1);
 
-load('gammastar05/mu09/V.mat') % solution
-load('gammastar05/mu09/W.mat') % alpha
+load('gammastar05/exp/V.mat') % solution
+load('gammastar05/exp/W.mat') % alpha
 
 % -------------------------------------------------------------------------
 % DJL parameters PICK alpha / mu
@@ -16,17 +16,15 @@ load('gammastar05/mu09/W.mat') % alpha
 % 1 - fKdV continuation plot!
 DJL.soltype=3; 
 
-mu=0.9; % topography width scale
+mu=0.7; % topography width scale
 KAI=25; % fKdV domain, since L=200
 
 % N^2 function
-epsilon=0.99;
-global psi0 d;
-psi0=0;d=1;
-N2=@(psi) (epsilon*(-psi+1)+(1-epsilon)*sech((psi-psi0)/d).^2)/(epsilon/2-d*(epsilon-1)*(tanh((1-psi0)/d)+tanh(psi0/d)));
+epsilon=-1;
+N2=@(psi) exp(epsilon*psi)/((exp(epsilon)-1)/epsilon);
 
 % (N^2)'
-N2d=@(psi) (epsilon*(-1)+(1-epsilon)*(-2*sech((psi-psi0)/d).^2.*tanh((psi-psi0)/d))/d)/(epsilon/2-d*(epsilon-1)*(tanh((1-psi0)/d)+tanh(psi0/d)));
+N2d=@(psi) epsilon*exp(epsilon*psi)/((exp(epsilon)-1)/epsilon);
 
 DJL.mu=mu;
 DJL.N2=N2;
@@ -95,7 +93,7 @@ end
 
 [v,u,y,i,secantflag]=DJLtabletopsecant(v1,v2,u1,u2,DJL,pde,domain,option);
 
-cont_option.ds=-cont_option.ds;
+cont_option.ds=cont_option.ds;
 
 % continuation
 if secantflag==1

@@ -144,4 +144,4 @@ cont_option.ds_max=0.1; % Max continuation step size
 cont_option.N_opt=4;
 
 cont_option.Newtonmaxit=10; % Max Newton iterations before lowering step size
-cont_option.steps=1000; % Max continuation steps
+cont_option.steps=500; % Max continuation steps

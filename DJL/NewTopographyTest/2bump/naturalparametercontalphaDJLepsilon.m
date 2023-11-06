@@ -18,7 +18,7 @@
 % U - parameter vector
 
 function [V,U,W]=naturalparametercontalphaDJLepsilon(v,delta,epsilon,DJL,domain,option,cont_option)
-global psi0 d
+% global psi0 d
 ds=cont_option.ds;
 ds_min=cont_option.ds_min;
 ds_max=cont_option.ds_max;
@@ -65,8 +65,8 @@ while j<steps
     [DJL,domain]=conformalmapping(DJL,domain,option);
 
     epsilon=U(j+1);
-    DJL.N2=@(psi) (epsilon*(-psi+1)+(1-epsilon)*sech((psi-psi0)/d).^2)/(epsilon/2-d*(epsilon-1)*(tanh((1-psi0)/d)+tanh(psi0/d)));
-    DJL.N2d=@(psi) (epsilon*(-1)+(1-epsilon)*(-2*sech((psi-psi0)/d).^2.*tanh((psi-psi0)/d))/d)/(epsilon/2-d*(epsilon-1)*(tanh((1-psi0)/d)+tanh(psi0/d)));
+    DJL.N2=@(psi) exp(epsilon*psi)/((exp(epsilon)-1)/epsilon);
+    DJL.N2d=@(psi) epsilon*exp(epsilon*psi)/((exp(epsilon)-1)/epsilon);
 
     % Update pde / jacobian
     [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);

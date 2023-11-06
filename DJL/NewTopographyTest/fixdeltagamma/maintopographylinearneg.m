@@ -10,15 +10,15 @@ DJL.soltype=1;
 
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
-gamma_star=0.25;% mu=0.7;
-mu=0.70; % topography width scale
+gamma_star=-0.5;% mu=0.7;
+mu=0.9; % topography width scale
 KAI=30;KAI=20; % fKdV domain
 
 % N^2 function
-N2=@(psi) 2*(-psi+1);%N2=@(psi) psi;
+N2=@(psi) 2*(psi);%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) -2+0*psi;%N2d=@(psi) 1+0*psi;
+N2d=@(psi) 2+0*psi;%N2d=@(psi) 1+0*psi;
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;
@@ -83,7 +83,7 @@ end
 % Newton solve solution 2 negative direction
 % -------------------------------------------------------------------------
 
-ds=cont_option.ds;
+ds=1e-6;
 
 DJL.u=u1-ds;
 [v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
@@ -127,6 +127,8 @@ end
 % -------------------------------------------------------------------------
 % Continuation DJL positive direction
 % -------------------------------------------------------------------------
+
+ds=1e-6;
 
 v=v1;
 u=u1;
