@@ -7,14 +7,14 @@ clear;%close all;%clc
 epsilon=1;%epsilon=10;
 alpha=epsilon^2; % no dependence on alpha (since no topography ...)
 mu=sqrt(epsilon);% no dependence on mu at all for v0... but does have dependence on newton ...
-u=0.24;u=0.34;
+u=0.33;
 mode=1;
 
 % N^2 function
-N2=@(psi) 2*psi;
+N2=@(psi) 1/(exp(1)-1)*exp(psi);
 
 % (N^2)'
-N2d=@(psi) 0*psi+2;
+N2d=@(psi) 1/(exp(1)-1)*exp(psi);
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;

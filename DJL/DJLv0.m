@@ -72,7 +72,7 @@ C=1/sqrt(lambda);
 int_phi_2=clenshaw_curtis(phi.^2)/2; % clenshaw_curtis (divide 2 for domain)
 
 % differentiate
-dphi=2*ifct(chebdiff(fct(phi),1)); % 2x since change in domain to [0,1]
+dphi=2*real(ifct(chebdiff(fct(phi),1))); % 2x since change in domain to [0,1]
 
 % phi_z(0)
 phiz0=dphi(end);
@@ -139,13 +139,14 @@ cN2=1/lambda;
 % A_xx in x domain (KAI/mu)
 A_xx=ifft(-(pi/(1/mu*KAI)*domain.k{1}).^2.*fft(A));
 
-% beta
-beta=-A_xx*int1+A.^2*((cN2./(2*cn2)-2).*int2);
+% A_xx coefficient
+a1=-int1./int3.*cN2./(cn2-cN2);
 
-beta=beta./(cn2.*int3);
+% A^2 coefficient
+a2=(cN2./(2*cn2)-2).*cN2./(cn2-cN2).*int2./int3;
 
-% coefficients
-an=beta./(lambdas(mode)-lambdas);
+% an
+an=A_xx*a1+A.^2*a2;
 
 % n=N case
 an(:,mode)=0;
@@ -156,4 +157,19 @@ v1=epsilon^2*an*phis';
 % solution!
 v=v0+v1;
 % v=v0;
+
+DJL.phis=phis;
+DJL.a1=a1;
+DJL.a2=a2;
+DJL.v=v;
+
+DJL.C=C;
+DJL.phi=phi;
+DJL.r=r;
+DJL.s=s;
+DJL.gamma=gamma;
+DJL.delta=delta;
+DJL.u=u;
+DJL.deltastar=delta_star;
+
 end

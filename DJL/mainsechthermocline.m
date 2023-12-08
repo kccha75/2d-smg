@@ -1,20 +1,20 @@
-clear;%close all;%clc
+clear;close all;%clc
 
 % -------------------------------------------------------------------------
 % DJL parameters
 % -------------------------------------------------------------------------
 
-epsilon=1;%epsilon=10;
-alpha=epsilon^2; % no dependence on alpha (since no topography ...)
-mu=sqrt(epsilon);% no dependence on mu at all for v0... but does have dependence on newton ...
-u=0.24;u=0.34;
+epsilon=1;
+alpha=epsilon^2;
+mu=sqrt(epsilon);
+u=0.286;% CHECK WITH v0 TO MAKE SURE
 mode=1;
 
 % N^2 function
-N2=@(psi) 2*psi;
+N2=@(psi) sech((psi-0.2)/0.6).^2;
 
 % (N^2)'
-N2d=@(psi) 0*psi+2;
+N2d=@(psi) -2/0.6*sech((psi-0.2)/0.6).^2.*tanh((psi-0.2)/0.6);
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
@@ -40,7 +40,7 @@ time=tic;
 disp(rms(rms(pde.f-(Lu(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2))))
 
 % Newton solve
-tic;[v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);toc;
+[v,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
 
 if flag ==0
 
@@ -50,15 +50,7 @@ if flag ==0
 end
 
 % Continuation
-[Vpos,Upos]=naturalparametercontinuation(v,u,DJL,domain,option,cont_option);
-
-% Negative direction
-cont_option.direction=-1;
-[Vneg,Uneg]=naturalparametercontinuation(v,u,DJL,domain,option,cont_option);
-
-% Combine
-U=[fliplr(Uneg) Upos];
-V=cat(3,flip(Vneg,3),Vpos);
+[V,U]=naturalparametercontinuation(v,u,DJL,domain,option,cont_option);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)

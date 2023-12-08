@@ -22,9 +22,11 @@ ds_max=cont_option.ds_max;
 N_opt=cont_option.N_opt;
 Newtonmaxit=cont_option.Newtonmaxit;
 steps=cont_option.steps;
+direction=cont_option.direction;
 
 % Set max Newton iterations to continuation option
 option.Newtonmaxit=Newtonmaxit;
+tailtol=cont_option.tailtol;
 
 % Initialise
 U(1)=u;
@@ -37,7 +39,7 @@ while j<steps
     % Predictor
     V(:,:,j+1)=V(:,:,j)+dv*ds;
 
-    U(j+1)=U(j)+ds;
+    U(j+1)=U(j)+sign(direction)*ds;
 
     % Update variable
     DJL.u=U(j+1);
@@ -49,7 +51,7 @@ while j<steps
     [V(:,:,j+1),i,flag]=NewtonSolve(V(:,:,j+1),DJL,pde,domain,option);
     
     % Converged and not 0 solution
-    if flag==1 && max(max(abs(V(:,:,j+1))))>=1e-8
+    if flag==1 && max(max(abs(V(:,:,j+1))))>tailtol && max(max(abs(V(1,:,j+1))))<tailtol
 
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
@@ -84,7 +86,7 @@ while j<steps
             end
             fprintf('New step size to %f\n',ds)
 
-    elseif flag==0 || max(max(abs(V(:,:,j+1))))<1e-8 % not converged or 0 solution
+    elseif flag==0 || max(max(abs(V(:,:,j+1))))<=tailtol || max(max(abs(V(1,:,j+1))))>=tailtol% not converged or 0 solution
         
         if flag==0
             fprintf('Did not converge to required tolerance  after %d Newton Iterations at step %d\n',i,j)

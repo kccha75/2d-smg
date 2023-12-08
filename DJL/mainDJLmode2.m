@@ -7,14 +7,14 @@ clear;close all;%clc
 epsilon=1;
 alpha=epsilon^2;
 mu=sqrt(epsilon);
-u=0.1115;
+u=0.1115;u=0.158;
 mode=2;
 
 % N^2 function
-N2=@(psi) psi;
+N2=@(psi) 2*psi;
 
 % (N^2)'
-N2d=@(psi) 0*psi+1;
+N2d=@(psi) 0*psi+2;
 
 DJL.epsilon = epsilon;
 DJL.alpha = alpha;
@@ -50,7 +50,15 @@ if flag ==0
 end
 
 % Continuation
-[V,U]=naturalparametercontinuation(v,u,DJL,domain,option,cont_option);
+[Vpos,Upos]=naturalparametercontinuation(v,u,DJL,domain,option,cont_option);
+
+% Negative direction
+cont_option.direction=-1;
+[Vneg,Uneg]=naturalparametercontinuation(v,u,DJL,domain,option,cont_option);
+
+% Combine
+U=[fliplr(Uneg) Upos];
+V=cat(3,flip(Vneg,3),Vpos);
 
 dt=toc(time);
 fprintf('Elapsed Time is %f s\n',dt)

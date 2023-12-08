@@ -127,6 +127,8 @@ option.jacobian=@jacobianDJL;
 cont_option.ds=0.001;
 cont_option.ds_min=1e-6;
 cont_option.ds_max=0.001;
+cont_option.tailtol=1e-6;
+cont_option.direction=1;
 
 % Iterations
 cont_option.N_opt=4;
