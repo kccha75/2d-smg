@@ -49,3 +49,10 @@ plot(delta,P0,delta,P1,delta,P)
 xlabel('\Delta')
 ylabel('Momentum')
 legend('0th order','1st order','DJL')
+
+% check overturning
+diffv=2*ifct(chebdiff(fct(zeta(:,:,end)'),1));
+if max(diffv(:))>1
+    fprintf('Overturning detected!\n')
+    return
+end
