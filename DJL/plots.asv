@@ -1,10 +1,8 @@
 % Script to generate nice plots comparing DJL and 0th/1st order
 % perturbation
-
 UU=linspace(DJL.C,DJL.C*1.2);
 
 delta=(U-DJL.C)/epsilon;
-delta0=(UU-DJL.C)/epsilon;
 delta1=(UU-DJL.C)/epsilon;
 deltastar=delta1/(DJL.s*DJL.mu^2);
 
@@ -37,27 +35,19 @@ zeta1=pagemtimes(an,DJL.phis');
 zeta=epsilon*(zeta0+epsilon*zeta1);
 
 % check overturning
-diffv_zeta0=zeros(length(UU),1);
-diffv_zeta0(1:end)=max(max(2*real(ifct(chebdiff(fct(permute(zeta0(:,:,1:end),[2 1 3])),1)))));
+diffv_zeta=zeros(length(UU),1);
+diffv_zeta(1:end)=max(max(2*real(ifct(chebdiff(fct(permute(zeta0(:,:,1:end),[2 1 3])),1)))));
+diffv_zeta(diffv_zeta(1:end)>1)=[];
 
-diffv_zeta1=zeros(length(UU),1);
-diffv_zeta1(1:end)=max(max(2*real(ifct(chebdiff(fct(permute(zeta(:,:,1:end),[2 1 3])),1)))));
-
-% make sure its monotonically increasing
-if min(diff(diffv_zeta0))<0
-    fprintf('Not monotonically increasing!\n');
+% check overturning
+for i=1:length(UU)
+    diffv0(i)=max(max(2*ifct(chebdiff(fct(zeta0(:,:,i)'),1))));
+    if diffv0(i)>1
+        fprintf('Overturning detected!\n')
+        break
+    end
 end
-
-if min(diff(diffv_zeta1))<0
-    fprintf('Not monotonically increasing!\n');
-end
-
-% filter out
-delta0(diffv_zeta0(1:end)>1)=[];
-zeta0(:,:,diffv_zeta0(1:end)>1)=[];
-
-delta1(diffv_zeta1(1:end)>1)=[];
-zeta(:,:,diffv_zeta1(1:end)>1)=[];
+zeta0=zeta0(:,:,1:i);
 
 % Calculate momentum 0th order
 P0=trapI((epsilon*zeta0).^2,domain.dx{1}); % Integrate x
@@ -76,7 +66,7 @@ P1=permute(P1,[3,1,2]);
 % P1=P1(1:length(diffv_zeta));
 
 figure;
-plot(delta0,P0,delta1,P1,delta,P)
+plot(delta1,P0,delta1,P1,delta,P)
 xlabel('\Delta')
 ylabel('Momentum')
 legend('0th order','1st order','DJL')
