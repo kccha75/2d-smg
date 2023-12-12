@@ -7,8 +7,8 @@ clear;close all;%clc
 epsilon=1;
 alpha=epsilon^2;
 mu=sqrt(epsilon);
-u=0.328; u=0.1595;% CHECK WITH v0 TO MAKE SURE
-mode=2;
+u=0.328;% u=0.1595;% CHECK WITH v0 TO MAKE SURE
+mode=1;
 
 % N^2 function
 N2=@(psi) 1/tanh(1)*sech((psi)/1).^2;
