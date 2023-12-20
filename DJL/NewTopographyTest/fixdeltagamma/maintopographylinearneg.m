@@ -11,7 +11,7 @@ DJL.soltype=1;
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
 gamma_star=-0.5;% mu=0.7;
-mu=0.9; % topography width scale
+mu=0.6; % topography width scale
 KAI=30;KAI=20; % fKdV domain
 
 % N^2 function
@@ -200,7 +200,7 @@ delta=fKdV.delta;
 % -------------------------------------------------------------------------
 % KdV solve 2 negative direction
 % -------------------------------------------------------------------------
-
+ds=1e-6;
 fKdV.delta=delta-ds;
 
 [fKdV,pdefkdv,domainfkdv]=fKdVpdeinitialise(fKdV,domainfkdv); % update parameter
@@ -275,8 +275,8 @@ zeta0=pagemtimes(A,DJL.phi');
 
 % Conformal map!
 for jj=1:size(zeta0,3)
-    zeta0(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta0(:,:,jj),YY,XX,'spline');
-    zeta0(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+    zeta0c(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta0(:,:,jj),YY,XX,'spline');
+    zeta0c(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 end
 % -------------------------------------------------------------------------
 % 1st order DJL approx
@@ -300,8 +300,8 @@ zeta=zeta0+zai;
 
 % Conformal map!
 for jj=1:size(zeta,3)
-    zeta(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta(:,:,jj),YY,XX,'spline');
-    zeta(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+    zetac(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta(:,:,jj),YY,XX,'spline');
+    zetac(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 end
 
 % -------------------------------------------------------------------------
