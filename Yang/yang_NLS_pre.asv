@@ -1,0 +1,27 @@
+% Function performs Yang's preconditioner for NLS
+% 
+% Preconditioner in the form H=c-u_xx-u_yy
+%
+% Inputs:
+% v - not used except for size purposes
+% pde.a
+% pde.b
+% pde.f
+% domain.dim - can only do 1D or 2D
+% domain.discretisation - cheb or fourier
+% domain.BC - BC for cheb
+% domain.N
+% domain.dx
+% 
+% Ouputs:
+% v - solution
+
+
+function v=yang_NLS_pre(RHS,pde,domain,~)
+
+    c=3;
+
+    K2=KX.^2+KY.^2;
+    v=ifft2(fft2(RHS)./-(c+K2));
+    
+end
