@@ -39,9 +39,11 @@ finestgrid = 10;
 coarsestgrid = 6;
 
 % PDE Parameters
-a=@(X,Y) 1;
-b=@(X,Y) 1;
-c=@(X,Y) -V0*(sin(X*5).^2+sin(Y*5).^2)+mu;
+a=@(X,Y) 1/60^6;
+b=@(X,Y) 2/60^4;
+mu=-1.2;
+c=@(X,Y) -mu/60^2;
+d=@(X,Y) 1/30^2;
 
 % RHS
 f=@(X,Y) 0*X;
@@ -71,8 +73,8 @@ option.solver='FMG';
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
-option.operator=@Lu;
-option.coarsegridsolver=@cg;
+option.operator=@Lu_kp;
+option.coarsegridsolver=@bicg;
 option.relaxation=@MRR;
 
 % Restriction for pde coefficients
@@ -125,6 +127,7 @@ end
 a=a(X,Y);
 b=b(X,Y);
 c=c(X,Y);
+d=d(X,Y);
 f=f(X,Y);
 
 v0=v0(X,Y);
@@ -163,6 +166,7 @@ domain.dx = dx;
 pde.a = a;
 pde.b = b;
 pde.c = c;
+pde.d = d;
 pde.f = f;
 
 option.finestgrid=finestgrid;
@@ -202,18 +206,20 @@ end
 % -------------------------------------------------------------------------
 
 % New b(x) function in Newton
-cnew=c+3*v0.^2;
+cnew=c+6*v0;
 v=v0;
 
 % Error guess (keep at 0)
 e0=zeros(Nx,Ny);
+
+[KX,KY]=ndgrid(domain.k{1},domain.k{2});
 
 tic
 for i=1:20
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)+v.^3);
+    pde.f=f-(option.operator(v,pde,domain)+3*ifft(-KX^2.*fft2(v.^2)));
     
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -226,13 +232,13 @@ for i=1:20
     pde.c=cnew;
 
     option.tol=1e-1*r;
-%     [e,r]=cg(e0,pde,domain,option);
-    [e,r]=mg(v,pde,domain,option);
+    [e,r]=cg(e0,pde,domain,option);
+%     [e,r]=mg(v,pde,domain,option);
 
     % Update correction
     v=v+real(e);
     
-    cnew=c+3*v.^2;
+    cnew=c+6*v;
     
 end
 

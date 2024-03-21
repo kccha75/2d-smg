@@ -125,8 +125,8 @@ for i=1:20
     
     % Solve linear equation
 %     option.tol=1e-4*r;
-%     [e,r]=bicgstab(e0,jacobian,domain,option);
-    [e,r]=mg(e0,jacobian,domain,option);
+    [e,r]=bicgstab(e0,jacobian,domain,option);
+%     [e,r]=mg(e0,jacobian,domain,option);
 
     % Update correction
     v=v+e;

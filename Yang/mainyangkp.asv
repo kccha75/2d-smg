@@ -1,24 +1,22 @@
 clear;close all;%clc
-%
+
 % -------------------------------------------------------------------------
-% Solve PDE au_xxxx + bu_xx + cu + du^2= f using Fourier Cheb Spectral Multigrid
-% Fifth-order KdV equation (see Yang)
-% -------------------------------------------------------------------------
-% INPUT PARAMETERS
+% Yang paper example 5.1
+% IN PROGRESS
 % -------------------------------------------------------------------------
 
 % Dimension of problem
-dim=1;
+dim=2;
 
 % Discretisation flag for each dimension
 % 1 - Fourier
 % 2 - Cheb
-discretisation=1;
+discretisation=[1 1];
 
 % Boundary conditions for each discretisation (if fourier not used)
-% x(1) a1*u+b1*u'=rhs1
-alpha1{1}=@(y) 0;
-beta1{1}=@(y) 1;
+% x(1) a11*u+b11*u'=rhs11 
+alpha1{1}=@(y) 1;
+beta1{1}=@(y) 0;
 BCRHS1{1}=@(y) 0;
 
 % x(end) a21*u+b21*u'= rhs21
@@ -26,21 +24,32 @@ alpha2{1}=@(y) 1;
 beta2{1}=@(y) 0; 
 BCRHS2{1}=@(y) 0;
 
+% y(1) a12*u+b12*u'=rhs12 
+alpha1{2}=@(x) -1;
+beta1{2}=@(x) -1;
+BCRHS1{2}=@(x) -23121;
+
+% y(end) a22*u+b22*u'= rhs22
+alpha2{2}=@(x) -1;
+beta2{2}=@(x) -1;
+BCRHS2{2}=@(x) -2311;
+
 % Grid size
 finestgrid = 10;
-coarsestgrid = 7;
+coarsestgrid = 6;
 
 % PDE Parameters
+a=@(X,Y) 1;
+b=@(X,Y) 2;
 mu=-1.2;
-a=@(X) 1/15^4;
-b=@(X) 2/15^2;
-c=@(X) -mu;
+c=@(X,Y) -mu;
+d=@(X,Y) 1;
 
 % RHS
-f=@(X) 0*X;
+f=@(X,Y) 0*X;
 
 % Initial guess
-v0=@(X) 0.25*sech(0.3*X*15).*cos(X*15);
+v0=@(X,Y) -0.43*sech(0.3*sqrt(X.^2+Y.^2)).*cos(X);
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -48,7 +57,7 @@ v0=@(X) 0.25*sech(0.3*X*15).*cos(X*15);
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG or number of decent iterations
-option.numit=100;
+option.numit=1;
 
 % Solver / solution tolerance
 option.tol=1e-10;
@@ -61,24 +70,24 @@ option.Nu=1;
 option.solver='FMG';
 
 % Multigrid scheme: 'Correction' or 'FAS'
-option.mgscheme='FAS';
+option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
-option.operator=@Lu_kdv;
+option.operator=@Lu_kp;
 option.coarsegridsolver=@cg;
 option.relaxation=@MRR;
 
 % Restriction for pde coefficients
-option.restriction=@(vf) fourier_restrict_filtered(vf);
+option.restriction=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@fourier_restrict_filtered);
 
 % Restriction for residual and RHS
-option.restriction_residual=@(vf) fourier_restrict_filtered(vf);
+option.restriction_residual=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@fourier_restrict_filtered);
 
 % Prolongation
-option.prolongation=@(vc) fourier_prolong_filtered(vc);
+option.prolongation=@(vc) prolong_2d(vc,@fourier_prolong_filtered,@fourier_prolong_filtered);
 
 % Preconditioner
-option.preconditioner=@yang_kdv_pre;
+option.preconditioner=@yang_NLS_pre;
 
 % Number of preconditioned relaxations
 option.prenumit=1;
@@ -86,7 +95,7 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-N=ones(1,max(dim,2)); 
+N=zeros(1,dim);
 x=cell(1,dim);
 k=cell(1,dim);
 dx=cell(1,dim);
@@ -113,14 +122,15 @@ for i=1:length(discretisation)
     
 end
 
-X=x{1};
+[X,Y] = ndgrid(x{1},x{2});
 
-a=a(X);
-b=b(X);
-c=c(X);
-f=f(X);
+a=a(X,Y);
+b=b(X,Y);
+c=c(X,Y);
+d=d(X,Y);
+f=f(X,Y);
 
-v0=v0(X);
+v0=v0(X,Y);
 
 % -------------------------------------------------------------------------
 % Set up BCs
@@ -156,6 +166,7 @@ domain.dx = dx;
 pde.a = a;
 pde.b = b;
 pde.c = c;
+pde.d = d;
 pde.f = f;
 
 option.finestgrid=finestgrid;
@@ -185,6 +196,7 @@ for i=1:domain.dim
     
 end
 
+% v0(1,:)=0;v0(end,:)=0;
 % -------------------------------------------------------------------------
 % SOLVE HERE
 % -------------------------------------------------------------------------
@@ -217,14 +229,14 @@ for i=1:20
     % Solve linear equation
     pde.c=cnew;
 
-%     option.tol=1e-1*r;
+    option.tol=1e-1*r;
     [e,r]=cg(e0,pde,domain,option);
 %     [e,r]=mg(v,pde,domain,option);
 
     % Update correction
     v=v+real(e);
     
-    cnew=c+6*v;
+    cnew=c+3*v.^2;
     
 end
 
@@ -235,5 +247,4 @@ if i==20
 end 
 toc
 
-plot(v);
-
+surf(v);
