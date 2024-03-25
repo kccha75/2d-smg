@@ -101,8 +101,12 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
+m=5;
+t_mg=zeros(1,m);
+t_cg=zeros(1,m);
+mg_tol=zeros(1,m);
 
-for jj=1:3 % loop grid sizes
+for jj=1:m % loop grid sizes
 
 N=zeros(1,dim);
 x=cell(1,dim);
@@ -240,7 +244,7 @@ for i=1:20
 
     option.tol=1e-10;
     [e,r]=mg(v,pde,domain,option);
-    mg_tol(jj)=rms(rms(r));
+    mg_tol(jj)=rms(r(:));
 
     % Update correction
     v=v+real(e);
@@ -304,10 +308,16 @@ end
 % -------------------------------------------------------------------------
 % Plot
 % -------------------------------------------------------------------------
-figure('Position',[300 300 300 300]); fsz=15; lw=2;
+figure('Position',[300 300 600 300]); fsz=15; lw=2;
 
-subplot(1,1,1)
+subplot(1,2,1)
 surf(X*Dx,Y*Dy,v,'LineStyle','none')
 xlabel('$x$','interpreter','latex','fontsize',fsz)
 ylabel('$y$','interpreter','latex','fontsize',fsz)
 zlabel('$u$','interpreter','latex','fontsize',fsz)
+
+subplot(1,2,2)
+M=linspace(1,m,m)+coarsestgrid;
+semilogy(M,t_cg,'-x',M,t_mg,'-o')
+xlabel('$2^N$','interpreter','latex','fontsize',fsz)
+ylabel('$t$','interpreter','latex','fontsize',fsz)

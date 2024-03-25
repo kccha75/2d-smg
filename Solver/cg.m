@@ -19,7 +19,7 @@
 
 function [v,r]=cg(v,pde,domain,option)
 f=pde.f;
-maxit=100;
+maxit=1000;
 
 % Initial residual
 r=pde.f-option.operator(v,pde,domain);
