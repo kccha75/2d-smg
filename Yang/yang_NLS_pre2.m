@@ -17,10 +17,9 @@
 % v - solution
 
 
-function v=yang_NLS_pre(f,pde,domain,~)
+function v=yang_NLS_pre2(f,pde,domain,~)
 
-
-    c=3;
+    c=1;
     [KX,KY]=ndgrid(domain.k{1},domain.k{2});
     K2=pde.a.*KX.^2+pde.b.*KY.^2;
     
@@ -29,6 +28,5 @@ function v=yang_NLS_pre(f,pde,domain,~)
     else
         v=ifft2(fft2(f)./(c+K2));
     end
-    
     
 end

@@ -22,6 +22,6 @@ function v=yang_kp_pre(~,pde,domain,~)
     c=0.0001;
     [KX,KY]=ndgrid(domain.k{1},domain.k{2});
 
-    v=ifft2(fft2(pde.f)./(c+KX.^6.*pde.a-KX.^4.*pde.b+KX.^2.*pde.c));
+    v=ifft2(fft2(pde.f)./(c+KX.^6.*pde.a-KX.^4.*pde.b-KX.^2.*pde.c+KY.^2*pde.d));
     
 end

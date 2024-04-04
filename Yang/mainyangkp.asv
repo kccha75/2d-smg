@@ -87,7 +87,7 @@ option.restriction_residual=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@fou
 option.prolongation=@(vc) prolong_2d(vc,@fourier_prolong_filtered,@fourier_prolong_filtered);
 
 % Preconditioner
-option.preconditioner=@yang_kp_pre;
+option.preconditioner=@yang_NLS_pre;
 
 % Number of preconditioned relaxations
 option.prenumit=1;
@@ -216,14 +216,10 @@ e0=zeros(Nx,Ny);
 
 tic
 for i=1:20
-
-    v=fft2(v);
-    v(1,1)=0;
-    v=ifft2(v);
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)+3*real(ifft(-k{1}.^2.*fft(v.^2))));
+    pde.f=f-(option.operator(v,pde,domain)+3*real(ifft(-KX^2.*fft(v.^2))));
     
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -236,9 +232,11 @@ for i=1:20
     pde.c=cnew;
 
     option.tol=1e-10;
-    e=gmres(@(x) reshape(Lu_kp(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),[],option.tol,1000,@(M) reshape(yang_kp_pre(reshape(M,domain.N(1),domain.N(2)),pde,domain,[]),domain.N(1)*domain.N(2),1));
-    e=reshape(e,domain.N(1),domain.N(2));
-    
+    [e,r]=bicg(e0,pde,domain,option);
+
+    bicg(@Lu_kp,)
+%     [e,r]=mg(v,pde,domain,option);
+
     % Update correction
     v=v+real(e);
     

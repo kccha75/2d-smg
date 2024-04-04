@@ -6,10 +6,10 @@ clear;close all;%clc
 % -------------------------------------------------------------------------
 
 % x domain [-Dx pi, Dx pi]
-Dx=10;
+Dx=15/pi;
 
 % y domain [-Dy pi, Dy pi]
-Dy=10;
+Dy=15/pi;
 
 % Dimension of problem
 dim=2;
@@ -48,14 +48,14 @@ coarsestgrid = 7;
 aa=@(X,Y) 1/Dx^2;
 bb=@(X,Y) 1/Dy^2;
 
-V0=6;mu=4.11;
-cc=@(X,Y) -V0*(sin(X*Dx).^2+sin(Y*Dy).^2)+mu;
+mu=1;
+cc=@(X,Y) -mu;
 
 % RHS
 ff=@(X,Y) 0*X;
 
 % Initial guess
-vv0=@(X,Y) 0.49*sech(2*sqrt((X*Dx).^2+(Y*Dy).^2));
+vv0=@(X,Y) 2.2*exp(-(X*Dx).^2-(Y*Dy).^2);
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -93,7 +93,7 @@ option.restriction_residual=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@fou
 option.prolongation=@(vc) prolong_2d(vc,@fourier_prolong_filtered,@fourier_prolong_filtered);
 
 % Preconditioner
-option.preconditioner=@yang_NLS_pre;
+option.preconditioner=@yang_NLS_pre2;
 
 % Number of preconditioned relaxations
 option.prenumit=1;
@@ -101,7 +101,7 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-m=5;
+m=1;
 t_mg=zeros(1,m);
 t_cg=zeros(1,m);
 mg_tol=zeros(1,m);
@@ -222,12 +222,10 @@ v=v0;
 % Error guess (keep at 0)
 e0=zeros(Nx,Ny);
 
-% -------------------------------------------------------------------------
-% SMG
-% -------------------------------------------------------------------------
+
 tic
 for i=1:20
-    
+
     pde.c=c;
     % Initial RHS of linear equation
     pde.f=f-(option.operator(v,pde,domain)+v.^3);
@@ -242,52 +240,11 @@ for i=1:20
     % Solve linear equation
     pde.c=cnew;
 
-    option.tol=1e-10;
-    [e,r]=mg(v,pde,domain,option);
-    mg_tol(jj)=rms(r(:));
-
-    % Update correction
-    v=v+real(e);
-    
-    cnew=c+3*v.^2;
-    
-end
-
-if i==20
-    
-    fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
-    
-end 
-t_mg(jj)=toc;
-
-% -------------------------------------------------------------------------
-% CG
-% -------------------------------------------------------------------------
-
-% New b(x) function in Newton
-cnew=C+3*v0.^2;
-v=v0;
-
-tic
-for i=1:20
-    
-    pde.c=c;
-    % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)+v.^3);
-    
-    r=rms(rms(pde.f));
-    fprintf('Residual Newton = %d\n',r)
-    if r<=1e-10
-        fprintf('Converged after %d Newton Iterations \n',i-1)
-        break
-    end
-    
-    % Solve linear equation
-    pde.c=cnew;
-
-    option.tol=max(1e-10,mg_tol(jj));
-    [e,r]=cg(e0,pde,domain,option);
-
+    option.tol=max(1e-1*r,1e-10);
+%     [e,r]=cg(e0,pde,domain,option);
+%     e=gmres(@(x) reshape(Lu(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),[],option.tol,1000,@(M) reshape(yang_NLS_pre(reshape(M,domain.N(1),domain.N(2)),pde,domain,[]),domain.N(1)*domain.N(2),1));
+    e=bicgstab(@(x) reshape(Lu(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),option.tol,1000,@(M) reshape(yang_NLS_pre(reshape(M,domain.N(1),domain.N(2)),pde,domain,[]),domain.N(1)*domain.N(2),1));
+    e=reshape(e,domain.N(1),domain.N(2));
     % Update correction
     v=v+real(e);
     

@@ -1,9 +1,15 @@
 clear;close all;%clc
 
 % -------------------------------------------------------------------------
-% Yang paper example 3.5 first part
-% coarse grid 5 or above, seems to work best with 6-7 ish
+% Yang paper example 3.4 first part
+% coarse grid cannot go below 6, but higher is slightly? better
 % -------------------------------------------------------------------------
+
+% x domain [-Dx pi, Dx pi]
+Dx=5;
+
+% y domain [-Dy pi, Dy pi]
+Dy=5;
 
 % Dimension of problem
 dim=2;
@@ -35,21 +41,21 @@ beta2{2}=@(x) -1;
 BCRHS2{2}=@(x) -2311;
 
 % Grid size
-finestgrid = 10;
+finestgrid = 9;
 coarsestgrid = 7;
 
 % PDE Parameters
-a=@(X,Y) 1/5^2;
-b=@(X,Y) 1/5^2;
+aa=@(X,Y) 1/Dx^2;
+bb=@(X,Y) 1/Dy^2;
 
 V0=6;mu=5;
-c=@(X,Y) -V0*(sin(X*5).^2+sin(Y*5).^2)+mu;
+cc=@(X,Y) -V0*(sin(X*Dx).^2+sin(Y*Dy).^2)+mu;
 
 % RHS
-f=@(X,Y) 0*X;
+ff=@(X,Y) 0*X;
 
 % Initial guess
-v0=@(X,Y) 1.15*sech(0.5*sqrt((X*5).^2+(Y*5).^2)).*cos(X*5).*cos(Y*5);
+vv0=@(X,Y) 1.15*sech(2*sqrt((X*Dx).^2+(Y*Dy).^2));
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -95,6 +101,13 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
+m=3;
+t_mg=zeros(1,m);
+t_cg=zeros(1,m);
+mg_tol=zeros(1,m);
+
+for jj=1:m % loop grid sizes
+
 N=zeros(1,dim);
 x=cell(1,dim);
 k=cell(1,dim);
@@ -124,12 +137,12 @@ end
 
 [X,Y] = ndgrid(x{1},x{2});
 
-a=a(X,Y);
-b=b(X,Y);
-c=c(X,Y);
-f=f(X,Y);
+a=aa(X,Y);
+b=bb(X,Y);
+c=cc(X,Y);
+f=ff(X,Y);
 
-v0=v0(X,Y);
+v0=vv0(X,Y);
 
 % -------------------------------------------------------------------------
 % Set up BCs
@@ -194,21 +207,66 @@ for i=1:domain.dim
     
 end
 
-% v0(1,:)=0;v0(end,:)=0;
 % -------------------------------------------------------------------------
 % SOLVE HERE
 % -------------------------------------------------------------------------
-
+C=c;
 % -------------------------------------------------------------------------
 % NEWTON HERE
 % -------------------------------------------------------------------------
 
 % New b(x) function in Newton
-cnew=c-3*v0.^2;
+cnew=C-3*v0.^2;
 v=v0;
 
 % Error guess (keep at 0)
 e0=zeros(Nx,Ny);
+
+% -------------------------------------------------------------------------
+% SMG
+% -------------------------------------------------------------------------
+tic
+for i=1:20
+    
+    pde.c=c;
+    % Initial RHS of linear equation
+    pde.f=f-(option.operator(v,pde,domain)-v.^3);
+    
+    r=rms(rms(pde.f));
+    fprintf('Residual Newton = %d\n',r)
+    if r<=1e-10
+        fprintf('Converged after %d Newton Iterations \n',i-1)
+        break
+    end
+    
+    % Solve linear equation
+    pde.c=cnew;
+
+    option.tol=1e-10;
+    [e,r]=mg(v,pde,domain,option);
+    mg_tol(jj)=rms(r(:));
+
+    % Update correction
+    v=v+real(e);
+    
+    cnew=c-3*v.^2;
+    
+end
+
+if i==20
+    
+    fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
+    
+end 
+t_mg(jj)=toc;
+
+% -------------------------------------------------------------------------
+% CG
+% -------------------------------------------------------------------------
+
+% New b(x) function in Newton
+cnew=C-3*v0.^2;
+v=v0;
 
 tic
 for i=1:20
@@ -227,9 +285,8 @@ for i=1:20
     % Solve linear equation
     pde.c=cnew;
 
-    option.tol=1e-1*r;
-%     [e,r]=cg(e0,pde,domain,option);
-    [e,r]=mg(v,pde,domain,option);
+    option.tol=max(1e-10,mg_tol(jj));
+    [e,r]=cg(e0,pde,domain,option);
 
     % Update correction
     v=v+real(e);
@@ -243,6 +300,24 @@ if i==20
     fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
     
 end 
-toc
+t_cg(jj)=toc;
 
-surf(v);
+finestgrid = finestgrid+1;
+end
+
+% -------------------------------------------------------------------------
+% Plot
+% -------------------------------------------------------------------------
+figure('Position',[300 300 600 300]); fsz=15; lw=2;
+
+subplot(1,2,1)
+surf(X*Dx,Y*Dy,v,'LineStyle','none')
+xlabel('$x$','interpreter','latex','fontsize',fsz)
+ylabel('$y$','interpreter','latex','fontsize',fsz)
+zlabel('$u$','interpreter','latex','fontsize',fsz)
+
+subplot(1,2,2)
+M=linspace(1,m,m)+coarsestgrid;
+semilogy(M,t_cg,'-x',M,t_mg,'-o')
+xlabel('$2^N$','interpreter','latex','fontsize',fsz)
+ylabel('$t$','interpreter','latex','fontsize',fsz)
