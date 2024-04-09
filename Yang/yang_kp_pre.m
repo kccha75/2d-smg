@@ -17,11 +17,17 @@
 % v - solution
 
 
-function v=yang_kp_pre(~,pde,domain,~)
+function v=yang_kp_pre(f,pde,domain,~)
 
     c=0.0001;
     [KX,KY]=ndgrid(domain.k{1},domain.k{2});
+    
 
-    v=ifft2(fft2(pde.f)./(c+KX.^6.*pde.a-KX.^4.*pde.b-KX.^2.*pde.c+KY.^2*pde.d));
+    if isempty(f)
+        v=ifft2(fft2(pde.f)./(c+KX.^6.*pde.a-KX.^4.*pde.b-KX.^2.*pde.c+KY.^2*pde.d));
+    else
+        v=ifft2(fft2(f)./(c+KX.^6.*pde.a-KX.^4.*pde.b-KX.^2.*pde.c+KY.^2*pde.d));
+    end
+
     
 end
