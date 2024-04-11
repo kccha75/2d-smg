@@ -35,7 +35,7 @@ beta2{2}=@(x) -1;
 BCRHS2{2}=@(x) -2311;
 
 % Grid size
-finestgrid = 10;
+finestgrid = 8;
 coarsestgrid = 6;
 
 % PDE Parameters
@@ -216,14 +216,10 @@ e0=zeros(Nx,Ny);
 
 tic
 for i=1:20
-
-    v=fft2(v);
-    v(1,1)=0;
-    v=ifft2(v);
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)+3*real(ifft(-k{1}.^2.*fft(v.^2))));
+    pde.f=f-(option.operator(v,pde,domain)+3/60^2*real(ifft(-k{1}.^2.*fft(v.^2))));
     
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -236,11 +232,16 @@ for i=1:20
     pde.c=cnew;
 
     option.tol=1e-10;
-    e=gmres(@(x) reshape(Lu_kp(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),[],option.tol,1000,@(M) reshape(yang_kp_pre(reshape(M,domain.N(1),domain.N(2)),pde,domain,[]),domain.N(1)*domain.N(2),1));
+%     e=gmres(@(x) reshape(Lu_kp(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),[],option.tol,1000,@(M) reshape(yang_kp_pre(reshape(M,domain.N(1),domain.N(2)),pde,domain,[]),domain.N(1)*domain.N(2),1));
+    e=bicgstab(@(x) reshape(Lu_kp(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),option.tol,1000,@(M) reshape(yang_kp_pre(reshape(M,domain.N(1),domain.N(2)),pde,domain,[]),domain.N(1)*domain.N(2),1));
     e=reshape(e,domain.N(1),domain.N(2));
     
     % Update correction
     v=v+real(e);
+
+    v=fft2(v);
+    v(1,1)=0;
+    v=ifft2(v);
     
     cnew=c+6*v;
     
