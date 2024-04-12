@@ -24,9 +24,9 @@ function v=yang_kp_pre(f,pde,domain,~)
     
 
     if isempty(f)
-        v=ifft2(fft2(pde.f)./(c+KX.^6.*pde.a-KX.^4.*pde.b-KX.^2.*pde.c+KY.^2.*pde.d));
+        v=ifft2(fft2(pde.f)./(c+KX.^2.*(pde.a.*KX.^4-pde.b.*KX.^2+pde.c)+0*pde.d.*KY.^2));
     else
-        v=ifft2(fft2(f)./(c+KX.^6.*pde.a-KX.^4.*pde.b-KX.^2.*pde.c+KY.^2.*pde.d));
+        v=ifft2(fft2(f)./(c+KX.^2.*(pde.a.*KX.^4-pde.b.*KX.^2+pde.c)+0*pde.d.*KY.^2));
     end
 
     v=real(v);
