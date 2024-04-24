@@ -105,8 +105,8 @@ m=5;
 t_mg=zeros(1,m);
 t_cg=zeros(1,m);
 mg_tol=zeros(1,m);
-
-for jj=1:m % loop grid sizes
+finestgrid=finestgrid+m-1;
+for jj=m:-1:1 % loop grid sizes
 
 N=zeros(1,dim);
 x=cell(1,dim);
@@ -302,7 +302,7 @@ if i==20
 end 
 t_cg(jj)=toc;
 
-finestgrid = finestgrid+1;
+finestgrid = finestgrid-1;
 end
 
 % -------------------------------------------------------------------------
@@ -321,3 +321,4 @@ M=linspace(1,m,m)+coarsestgrid;
 semilogy(M,t_cg,'-x',M,t_mg,'-o')
 xlabel('$2^N$','interpreter','latex','fontsize',fsz)
 ylabel('$t$','interpreter','latex','fontsize',fsz)
+legend('CG','SMG','Location','NorthWest')

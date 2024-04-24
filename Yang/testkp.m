@@ -1,4 +1,4 @@
-clear;close all;%clc
+clear;%close all;%clc
 
 % -------------------------------------------------------------------------
 % Yang paper example 5.1
@@ -106,7 +106,11 @@ for i=1:length(discretisation)
 
         % Fourier discretisation
         case 1
-            N(i) = 2^finestgrid;
+            if i==2
+                N(i)=2^(finestgrid-3);
+            else
+                N(i) = 2^finestgrid;
+            end
             k{i} = [0:N(i)/2-1 -N(i)/2 -N(i)/2+1:-1]';
             x{i} = 2*pi*(-N(i)/2:N(i)/2-1)'/N(i);
             dx{i} = x{i}(2)-x{i}(1);
