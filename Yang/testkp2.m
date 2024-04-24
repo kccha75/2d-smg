@@ -87,7 +87,7 @@ surf(v);
 function u=Lukp(v,a,b,c,d)
 global Nx Ny Lx Ly kx ky KX KY x y X Y mu
 
-u=real(ifft((-a.*kx.^6+b.*kx.^4-c.*kx.^2).*fft(v)))-real(transpose(ifft(d.*ky.^2.*fft(transpose(v)))));
+u=real(ifft((-a.*kx.^6+b.*kx.^4).*fft(v))-ifft(kx.^2.*fft(c.*v))-transpose(ifft(d.*ky.^2.*fft(transpose(v)))));
 
 end
 
@@ -99,6 +99,6 @@ global Nx Ny Lx Ly kx ky KX KY x y X Y mu
 
     C=0.0001;
 
-    u=real(ifft2(fft2(f)./(C+KX.^2.*(a.*KX.^4-b.*KX.^2+c)+0*d.*KY.^2)));
+    u=real(ifft2(fft2(f)./(C+KX.^2.*(a.*KX.^4-b.*KX.^2+c)+1*d.*KY.^2)));
 
 end
