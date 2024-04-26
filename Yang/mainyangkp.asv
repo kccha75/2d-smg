@@ -1,12 +1,15 @@
-clear;%close all;%clc
+clear;close all;%clc
 
 % -------------------------------------------------------------------------
 % Yang paper example 5.1
-% IN PROGRESS
 % -------------------------------------------------------------------------
 
 % Dimension of problem
 dim=2;
+
+% Domain size
+Lx=120*pi;
+Ly=60*pi;
 
 % Discretisation flag for each dimension
 % 1 - Fourier
@@ -36,20 +39,20 @@ BCRHS2{2}=@(x) -2311;
 
 % Grid size
 finestgrid = 10;
-coarsestgrid = 6;
+coarsestgrid = 9;
 
 % PDE Parameters
-a=@(X,Y) 1;
-b=@(X,Y) 2;
+aa=@(X,Y) 1;
+bb=@(X,Y) 2;
 mu=-1.2;
-c=@(X,Y) -mu;
-d=@(X,Y) 1;
+cc=@(X,Y) -mu;
+dd=@(X,Y) 1;
 
 % RHS
-f=@(X,Y) 0*X;
+ff=@(X,Y) 0*X;
 
 % Initial guess
-v0=@(X,Y) -0.43*sech(0.3*sqrt((X).^2+(Y).^2)).*cos(X);
+vv0=@(X,Y) -0.43*sech(0.3*sqrt((X).^2+(Y).^2)).*cos(X);
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -74,7 +77,7 @@ option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
 option.operator=@Lu_kp;
-option.coarsegridsolver=@bicg;
+option.coarsegridsolver=@bicgstabmg;
 option.relaxation=@MRR;
 
 % Restriction for pde coefficients
@@ -95,47 +98,35 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
+m=2;
+t_mg=zeros(1,m);
+t_cg=zeros(1,m);
+mg_tol=zeros(1,m);
+finestgrid=finestgrid+m-1;
+for jj=m:-1:1 % loop grid sizes
+
 N=zeros(1,dim);
 x=cell(1,dim);
 k=cell(1,dim);
 dx=cell(1,dim);
 
-for i=1:length(discretisation)
-    
-    switch discretisation(i)
+N(1)=2^finestgrid;
+k{1}=2*pi/Lx*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
+x{1}=Lx*(-N(1)/2:N(1)/2-1)'/N(1);
 
-        % Fourier discretisation
-        case 1
-            if i==2
-                N(i)=2^(finestgrid-3);
-            else
-                N(i) = 2^finestgrid;
-            end
-            k{i} = [0:N(i)/2-1 -N(i)/2 -N(i)/2+1:-1]';
-            x{i} = 2*pi*(-N(i)/2:N(i)/2-1)'/N(i);
-            dx{i} = x{i}(2)-x{i}(1);
-            
-       % Chebyshev discretisation
-        case 2
-            N(i) = 2^finestgrid+1;
-            k{i} = (0:N(i)-1)';
-            x{i} = cos(pi*k{i}/(N(i)-1));
-            dx{i} = x{i}(2:end)-x{i}(1:end-1); % is negative but ok :)
-            
-    end
-    
-end
-k{1}=k{1}/60;k{2}=k{2}/30;x{1}=x{1}*60;x{2}=x{2}*30;
-dx{1}=x{1}(2)-x{1}(1);dx{2}=x{2}(2)-x{2}(1);
+N(2)=2^(finestgrid-3);
+k{2}=2*pi/Ly*[0:N(2)/2-1 -N(2)/2 -N(2)/2+1:-1]';
+x{2}=Ly*(-N(2)/2:N(2)/2-1)'/N(2);
+
 [X,Y] = ndgrid(x{1},x{2});
 
-a=a(X,Y);
-b=b(X,Y);
-c=c(X,Y);
-d=d(X,Y);
-f=f(X,Y);
+a=aa(X,Y);
+b=bb(X,Y);
+c=cc(X,Y);
+d=dd(X,Y);
+f=ff(X,Y);
 
-v0=v0(X,Y);
+v0=vv0(X,Y);
 
 % -------------------------------------------------------------------------
 % Set up BCs
@@ -201,27 +192,28 @@ for i=1:domain.dim
     
 end
 
-% v0(1,:)=0;v0(end,:)=0;
 % -------------------------------------------------------------------------
 % SOLVE HERE
 % -------------------------------------------------------------------------
+C=c;
 
 % -------------------------------------------------------------------------
 % NEWTON HERE
 % -------------------------------------------------------------------------
 
 % New b(x) function in Newton
-cnew=c+6*v0;
+cnew=C+6*v0;
 v=v0;
 
 % Error guess (keep at 0)
 e0=zeros(Nx,Ny);
 
-[KX,KY]=ndgrid(domain.k{1},domain.k{2});
-
+% -------------------------------------------------------------------------
+% SMG
+% -------------------------------------------------------------------------
 tic
 for i=1:20
-
+    
     pde.c=c;
     % Initial RHS of linear equation
     pde.f=f-(option.operator(v,pde,domain)+3*real(ifft(-k{1}.^2.*fft(v.^2))));
@@ -233,25 +225,23 @@ for i=1:20
         break
     end
     
-    option.tol=1e-10/r;
     % Solve linear equation
     pde.c=cnew;
 
-%     option.tol=1e-10;
-%     e=gmres(@(x) reshape(Lu_kp(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),[],option.tol,1000,@(M) reshape(yang_kp_pre(reshape(M,domain.N(1),domain.N(2)),pde,domain,[]),domain.N(1)*domain.N(2),1));
-    e=bicgstab(@(x) reshape(Lu_kp(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),option.tol,100,@(M) reshape(yang_kp_pre(reshape(M,domain.N(1),domain.N(2)),pde,domain,[]),domain.N(1)*domain.N(2),1));
-%     e=bicg(@(x) reshape(Lu_kp(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),option.tol,100,@(M) reshape(yang_kp_pre(reshape(M,domain.N(1),domain.N(2)),pde,domain,[]),domain.N(1)*domain.N(2),1));
-    e=reshape(e,domain.N(1),domain.N(2));
-    
+    option.tol=1e-10;
+    [e,r]=mg(v,pde,domain,option);
+    mg_tol(jj)=rms(r(:));
+
     % Update correction
     v=v+real(e);
 
+    % Mean 0 solution
     v=fft2(v);
     v(1,1)=0;
-    v=ifft2(v);
-
+    v=real(ifft2(v));
+    
     cnew=c+6*v;
-       
+    
 end
 
 if i==20
@@ -259,6 +249,72 @@ if i==20
     fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
     
 end 
-toc
+t_mg(jj)=toc;
 
-surf(v);
+% -------------------------------------------------------------------------
+% CG
+% -------------------------------------------------------------------------
+
+% New b(x) function in Newton
+cnew=C+6*v0;
+v=v0;
+
+tic
+for i=1:20
+    
+    pde.c=c;
+    % Initial RHS of linear equation
+    pde.f=f-(option.operator(v,pde,domain)+3*real(ifft(-k{1}.^2.*fft(v.^2))));
+    
+    r=rms(rms(pde.f));
+    fprintf('Residual Newton = %d\n',r)
+    if r<=1e-10
+        fprintf('Converged after %d Newton Iterations \n',i-1)
+        break
+    end
+    
+    % Solve linear equation
+    pde.c=cnew;
+
+    option.tol=max(1e-10,mg_tol(jj));
+    [e,r]=option.coarsegridsolver(e0,pde,domain,option);
+
+    % Update correction
+    v=v+real(e);
+
+    % Mean 0 solution
+    v=fft2(v);
+    v(1,1)=0;
+    v=real(ifft2(v));
+    
+    cnew=c+6*v;    
+    
+end
+
+if i==20
+    
+    fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
+    
+end 
+t_cg(jj)=toc;
+
+finestgrid = finestgrid-1;
+end
+
+% -------------------------------------------------------------------------
+% Plot
+% -------------------------------------------------------------------------
+figure('Position',[300 300 600 300]); fsz=15; lw=2;
+
+subplot(1,2,1)
+surf(X,Y,v,'LineStyle','none')
+xlabel('$x$','interpreter','latex','fontsize',fsz)
+ylabel('$y$','interpreter','latex','fontsize',fsz)
+zlabel('$u$','interpreter','latex','fontsize',fsz)
+
+subplot(1,2,2)
+M=linspace(1,m,m)+coarsestgrid;
+semilogy(M,t_cg,'-x',M,t_mg,'-o')
+xlabel('$2^N$','interpreter','latex','fontsize',fsz)
+ylabel('$t$','interpreter','latex','fontsize',fsz)
+legend('CG','SMG','Location','NorthWest')

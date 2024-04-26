@@ -35,7 +35,7 @@ beta2{2}=@(x) -1;
 BCRHS2{2}=@(x) -2311;
 
 % Grid size
-finestgrid = 10;
+finestgrid = 13;
 coarsestgrid = 9;
 
 % PDE Parameters
@@ -240,11 +240,11 @@ for i=1:20
     % Solve linear equation
     pde.c=cnew;
 
-%     option.tol=1e-10;
+    option.tol=1e-10;
 %     e=gmres(@(x) reshape(Lu_kp(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),[],option.tol,1000,@(M) reshape(yang_kp_pre(reshape(M,domain.N(1),domain.N(2)),pde,domain,[]),domain.N(1)*domain.N(2),1));
-%     e=bicgstab(@(x) reshape(Lu_kp(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),option.tol,100,@(M) reshape(yang_kp_pre(reshape(M,domain.N(1),domain.N(2)),pde1,domain,[]),domain.N(1)*domain.N(2),1));
+    e=bicgstab(@(x) reshape(Lu_kp(reshape(x,domain.N(1),domain.N(2)),pde,domain),domain.N(1)*domain.N(2),1),pde.f(:),option.tol,100,@(M) reshape(yang_kp_pre(reshape(M,domain.N(1),domain.N(2)),pde1,domain,[]),domain.N(1)*domain.N(2),1));
 
-    [e,r]=mg(v,pde,domain,option);
+%     [e,r]=mg(v,pde,domain,option);
     e=reshape(e,domain.N(1),domain.N(2));
     
     % Update correction
@@ -265,4 +265,5 @@ if i==20
 end 
 toc
 
+disp(rms(rms(pde.f)))
 surf(v);
