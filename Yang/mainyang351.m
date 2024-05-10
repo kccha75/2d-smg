@@ -1,8 +1,8 @@
 clear;close all;%clc
 
 % -------------------------------------------------------------------------
-% Yang paper example 3.4 first part
-% coarse grid cannot go below 6, but higher is slightly? better
+% Yang paper example 3.5 first part
+% coarse grid cannot go below 5, but higher is slightly? better
 % -------------------------------------------------------------------------
 
 % x domain [-Dx pi, Dx pi]
@@ -42,7 +42,7 @@ BCRHS2{2}=@(x) -2311;
 
 % Grid size
 finestgrid = 8;
-coarsestgrid = 7;
+coarsestgrid = 6;
 
 % PDE Parameters
 aa=@(X,Y) 1/Dx^2;

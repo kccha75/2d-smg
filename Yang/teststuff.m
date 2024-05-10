@@ -1,7 +1,7 @@
 clear;close all;%clc
 
 % -------------------------------------------------------------------------
-% Yang paper example 3.4 first part
+% Yang paper example 3.5 first part
 % coarse grid cannot go below 6, but higher is slightly? better
 % -------------------------------------------------------------------------
 
@@ -41,14 +41,14 @@ beta2{2}=@(x) -1;
 BCRHS2{2}=@(x) -2311;
 
 % Grid size
-finestgrid = 8;
-coarsestgrid = 6;
+finestgrid = 6;
+coarsestgrid = 5;
 
 % PDE Parameters
 aa=@(X,Y) 1/Dx^2;
 bb=@(X,Y) 1/Dy^2;
 
-V0=6;mu=3.7;
+V0=6;mu=5;
 cc=@(X,Y) -V0*(sin(X*Dx).^2+sin(Y*Dy).^2)+mu;
 
 % RHS
@@ -63,7 +63,7 @@ vv0=@(X,Y) 1.15*sech(2*sqrt((X*Dx).^2+(Y*Dy).^2));
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG or number of decent iterations
-option.numit=0;
+option.numit=1;
 
 % Solver / solution tolerance
 option.tol=1e-10;
@@ -101,7 +101,7 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-m=5;
+m=1;
 t_mg=zeros(1,m);
 t_cg=zeros(1,m);
 mg_tol=zeros(1,m);
@@ -216,7 +216,7 @@ C=c;
 % -------------------------------------------------------------------------
 
 % New b(x) function in Newton
-cnew=C+3*v0.^2;
+cnew=C-3*v0.^2;
 v=v0;
 
 % Error guess (keep at 0)
@@ -230,7 +230,7 @@ for i=1:20
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)+v.^3);
+    pde.f=f-(option.operator(v,pde,domain)-v.^3);
     
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -249,7 +249,7 @@ for i=1:20
     % Update correction
     v=v+real(e);
     
-    cnew=c+3*v.^2;
+    cnew=c-3*v.^2;
     
 end
 
@@ -259,13 +259,13 @@ if i==20
     
 end 
 t_mg(jj)=toc;
-
+surf(v);title('mg')
 % -------------------------------------------------------------------------
 % CG
 % -------------------------------------------------------------------------
 
 % New b(x) function in Newton
-cnew=C+3*v0.^2;
+cnew=C-3*v0.^2;
 v=v0;
 
 tic
@@ -273,7 +273,7 @@ for i=1:20
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)+v.^3);
+    pde.f=f-(option.operator(v,pde,domain)-v.^3);
     
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -291,7 +291,7 @@ for i=1:20
     % Update correction
     v=v+real(e);
     
-    cnew=c+3*v.^2;
+    cnew=c-3*v.^2;
     
 end
 
@@ -301,24 +301,8 @@ if i==20
     
 end 
 t_cg(jj)=toc;
+figure;surf(v);title('cg')
 
 finestgrid = finestgrid-1;
 end
 
-% -------------------------------------------------------------------------
-% Plot
-% -------------------------------------------------------------------------
-figure('Position',[300 300 600 300]); fsz=15; lw=2;
-
-subplot(1,2,1)
-surf(X*Dx,Y*Dy,v,'LineStyle','none')
-xlabel('$x$','interpreter','latex','fontsize',fsz)
-ylabel('$y$','interpreter','latex','fontsize',fsz)
-zlabel('$u$','interpreter','latex','fontsize',fsz)
-
-subplot(1,2,2)
-M=linspace(1,m,m)+coarsestgrid;
-semilogy(M,t_cg,'-x',M,t_mg,'-o')
-xlabel('$2^N$','interpreter','latex','fontsize',fsz)
-ylabel('$t$','interpreter','latex','fontsize',fsz)
-legend('CG','SMG','Location','NorthWest')

@@ -1,15 +1,19 @@
 clear;close all;%clc
 
 % -------------------------------------------------------------------------
-% Yang paper example 5.1
+% Yang paper example 3.5 first part
+% coarse grid cannot go below 6, but higher is slightly? better
+% Coarse grid comparison ...?
 % -------------------------------------------------------------------------
+
+% x domain [-Dx pi, Dx pi]
+Dx=5;
+
+% y domain [-Dy pi, Dy pi]
+Dy=5;
 
 % Dimension of problem
 dim=2;
-
-% Domain size
-Lx=120*pi;
-Ly=60*pi;
 
 % Discretisation flag for each dimension
 % 1 - Fourier
@@ -38,21 +42,21 @@ beta2{2}=@(x) -1;
 BCRHS2{2}=@(x) -2311;
 
 % Grid size
-finestgrid = 10;
-coarsestgrid = 9;
+finestgrid = 8;
+coarsestgrid = 7;
 
 % PDE Parameters
-aa=@(X,Y) 1;
-bb=@(X,Y) 2;
-mu=-1.2;
-cc=@(X,Y) -mu;
-dd=@(X,Y) 1;
+aa=@(X,Y) 1/Dx^2;
+bb=@(X,Y) 1/Dy^2;
+
+V0=6;mu=5;
+cc=@(X,Y) -V0*(sin(X*Dx).^2+sin(Y*Dy).^2)+mu;
 
 % RHS
 ff=@(X,Y) 0*X;
 
 % Initial guess
-vv0=@(X,Y) -0.43*sech(0.3*sqrt((X).^2+(Y).^2)).*cos(X);
+vv0=@(X,Y) 1.15*sech(2*sqrt((X*Dx).^2+(Y*Dy).^2));
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -76,8 +80,8 @@ option.solver='FMG';
 option.mgscheme='Correction';
 
 % Operator, coarse grid solver, Relaxation
-option.operator=@Lu_kp;
-option.coarsegridsolver=@bicgstabmg;
+option.operator=@Lu;
+option.coarsegridsolver=@cg;
 option.relaxation=@MRR;
 
 % Restriction for pde coefficients
@@ -90,7 +94,7 @@ option.restriction_residual=@(vf) restrict_2d(vf,@fourier_restrict_filtered,@fou
 option.prolongation=@(vc) prolong_2d(vc,@fourier_prolong_filtered,@fourier_prolong_filtered);
 
 % Preconditioner
-option.preconditioner=@yang_kp_pre;
+option.preconditioner=@yang_NLS_pre;
 
 % Number of preconditioned relaxations
 option.prenumit=1;
@@ -98,7 +102,7 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-m=2;
+m=5;
 t_mg=zeros(1,m);
 t_cg=zeros(1,m);
 mg_tol=zeros(1,m);
@@ -110,20 +114,33 @@ x=cell(1,dim);
 k=cell(1,dim);
 dx=cell(1,dim);
 
-N(1)=2^finestgrid;
-k{1}=2*pi/Lx*[0:N(1)/2-1 -N(1)/2 -N(1)/2+1:-1]';
-x{1}=Lx*(-N(1)/2:N(1)/2-1)'/N(1);
+for i=1:length(discretisation)
+    
+    switch discretisation(i)
 
-N(2)=2^(finestgrid-3);
-k{2}=2*pi/Ly*[0:N(2)/2-1 -N(2)/2 -N(2)/2+1:-1]';
-x{2}=Ly*(-N(2)/2:N(2)/2-1)'/N(2);
+        % Fourier discretisation
+        case 1
+            N(i) = 2^finestgrid;
+            k{i} = [0:N(i)/2-1 -N(i)/2 -N(i)/2+1:-1]';
+            x{i} = 2*pi*(-N(i)/2:N(i)/2-1)'/N(i);
+            dx{i} = x{i}(2)-x{i}(1);
+            
+       % Chebyshev discretisation
+        case 2
+            N(i) = 2^finestgrid+1;
+            k{i} = (0:N(i)-1)';
+            x{i} = cos(pi*k{i}/(N(i)-1));
+            dx{i} = x{i}(2:end)-x{i}(1:end-1); % is negative but ok :)
+            
+    end
+    
+end
 
 [X,Y] = ndgrid(x{1},x{2});
 
 a=aa(X,Y);
 b=bb(X,Y);
 c=cc(X,Y);
-d=dd(X,Y);
 f=ff(X,Y);
 
 v0=vv0(X,Y);
@@ -162,7 +179,6 @@ domain.dx = dx;
 pde.a = a;
 pde.b = b;
 pde.c = c;
-pde.d = d;
 pde.f = f;
 
 option.finestgrid=finestgrid;
@@ -196,13 +212,12 @@ end
 % SOLVE HERE
 % -------------------------------------------------------------------------
 C=c;
-
 % -------------------------------------------------------------------------
 % NEWTON HERE
 % -------------------------------------------------------------------------
 
 % New b(x) function in Newton
-cnew=C+6*v0;
+cnew=C-3*v0.^2;
 v=v0;
 
 % Error guess (keep at 0)
@@ -211,12 +226,15 @@ e0=zeros(Nx,Ny);
 % -------------------------------------------------------------------------
 % SMG
 % -------------------------------------------------------------------------
+for kk=3:-1:1
+    option.coarsestgrid=option.coarsestgrid-kk+1;
+    option.grids=option.finestgrid-option.coarsestgrid+1;
 tic
 for i=1:20
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)+3*real(ifft(-k{1}.^2.*fft(v.^2))));
+    pde.f=f-(option.operator(v,pde,domain)-v.^3);
     
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -234,13 +252,8 @@ for i=1:20
 
     % Update correction
     v=v+real(e);
-
-    % Mean 0 solution
-    v=fft2(v);
-    v(1,1)=0;
-    v=real(ifft2(v));
     
-    cnew=c+6*v;
+    cnew=c-3*v.^2;
     
 end
 
@@ -249,14 +262,16 @@ if i==20
     fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
     
 end 
-t_mg(jj)=toc;
+t_mg(jj,kk)=toc;
+end
+option.coarsestgrid=coarsestgrid;
 
 % -------------------------------------------------------------------------
 % CG
 % -------------------------------------------------------------------------
 
 % New b(x) function in Newton
-cnew=C+6*v0;
+cnew=C-3*v0.^2;
 v=v0;
 
 tic
@@ -264,7 +279,7 @@ for i=1:20
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)+3*real(ifft(-k{1}.^2.*fft(v.^2))));
+    pde.f=f-(option.operator(v,pde,domain)-v.^3);
     
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -277,17 +292,12 @@ for i=1:20
     pde.c=cnew;
 
     option.tol=max(1e-10,mg_tol(jj));
-    [e,r]=option.coarsegridsolver(e0,pde,domain,option);
+    [e,r]=cg(e0,pde,domain,option);
 
     % Update correction
     v=v+real(e);
-
-    % Mean 0 solution
-    v=fft2(v);
-    v(1,1)=0;
-    v=real(ifft2(v));
     
-    cnew=c+6*v;    
+    cnew=c-3*v.^2;
     
 end
 
@@ -307,7 +317,7 @@ end
 figure('Position',[300 300 600 300]); fsz=15; lw=2;
 
 subplot(1,2,1)
-surf(X,Y,v,'LineStyle','none')
+surf(X*Dx,Y*Dy,v,'LineStyle','none')
 xlabel('$x$','interpreter','latex','fontsize',fsz)
 ylabel('$y$','interpreter','latex','fontsize',fsz)
 zlabel('$u$','interpreter','latex','fontsize',fsz)

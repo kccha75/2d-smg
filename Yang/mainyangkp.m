@@ -2,6 +2,7 @@ clear;close all;%clc
 
 % -------------------------------------------------------------------------
 % Yang paper example 5.1
+% Very very rough code ... is not clean
 % -------------------------------------------------------------------------
 
 % Dimension of problem
@@ -52,7 +53,7 @@ dd=@(X,Y) 1;
 ff=@(X,Y) 0*X;
 
 % Initial guess
-vv0=@(X,Y) -0.43*sech(0.3*sqrt((X).^2+(Y).^2)).*cos(X);
+vv0=@(X,Y) 0.43*sech(0.3*sqrt((X).^2+(Y).^2)).*cos(X);
 
 % -------------------------------------------------------------------------
 % Multigrid Options here
@@ -60,7 +61,7 @@ vv0=@(X,Y) -0.43*sech(0.3*sqrt((X).^2+(Y).^2)).*cos(X);
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG or number of decent iterations
-option.numit=1;
+option.numit=0;
 
 % Solver / solution tolerance
 option.tol=1e-5;
@@ -324,6 +325,6 @@ zlabel('$u$','interpreter','latex','fontsize',fsz)
 subplot(1,2,2)
 M=linspace(1,m,m)+coarsestgrid;
 semilogy(M,t_cg,'-x',M,t_mg,'-o')
-xlabel('$2^N$','interpreter','latex','fontsize',fsz)
+xlabel('$2^N\times2^{(N-3)}$','interpreter','latex','fontsize',fsz)
 ylabel('$t$','interpreter','latex','fontsize',fsz)
 legend('CG','SMG','Location','NorthWest')
