@@ -1,8 +1,8 @@
 clear;close all;%clc
 
 % -------------------------------------------------------------------------
-% Yang paper example 3.5 first part
-% coarse grid cannot go below 5, 5 is ok
+% Yang paper example 3.4 first part
+% coarse grid cannot go below 6, but 6 is ok
 % -------------------------------------------------------------------------
 
 % x domain [-Dx pi, Dx pi]
@@ -48,7 +48,7 @@ coarsestgrid = 7;
 aa=@(X,Y) 1/Dx^2;
 bb=@(X,Y) 1/Dy^2;
 
-V0=6;mu=5;
+V0=6;mu=3.7;
 cc=@(X,Y) -V0*(sin(X*Dx).^2+sin(Y*Dy).^2)+mu;
 
 % RHS
@@ -216,7 +216,7 @@ C=c;
 % -------------------------------------------------------------------------
 
 % New b(x) function in Newton
-cnew=C-3*v0.^2;
+cnew=C+3*v0.^2;
 v=v0;
 
 % Error guess (keep at 0)
@@ -225,7 +225,7 @@ e0=zeros(Nx,Ny);
 % -------------------------------------------------------------------------
 % SMG
 % -------------------------------------------------------------------------
-for kk=3:-1:1
+for kk=2:-1:1
     option.coarsestgrid=coarsestgrid-kk+1;
     option.grids=option.finestgrid-option.coarsestgrid+1;
     v=v0;
@@ -234,7 +234,7 @@ for i=1:20
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)-v.^3);
+    pde.f=f-(option.operator(v,pde,domain)+v.^3);
     
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -253,7 +253,7 @@ for i=1:20
     % Update correction
     v=v+real(e);
     
-    cnew=c-3*v.^2;
+    cnew=c+3*v.^2;
     
 end
 
@@ -270,7 +270,7 @@ end
 % -------------------------------------------------------------------------
 
 % New b(x) function in Newton
-cnew=C-3*v0.^2;
+cnew=C+3*v0.^2;
 v=v0;
 
 tic
@@ -278,7 +278,7 @@ for i=1:20
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)-v.^3);
+    pde.f=f-(option.operator(v,pde,domain)+v.^3);
     
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -296,7 +296,7 @@ for i=1:20
     % Update correction
     v=v+real(e);
     
-    cnew=c-3*v.^2;
+    cnew=c+3*v.^2;
     
 end
 
@@ -323,7 +323,7 @@ zlabel('$u$','interpreter','latex','fontsize',fsz)
 
 subplot(1,2,2)
 M=linspace(1,m,m)+coarsestgrid;
-semilogy(M,t_cg,'-x',M,t_mg(:,3),'-o',M,t_mg(:,2),'-o',M,t_mg(:,1),'-o')
+semilogy(M,t_cg,'-x',M,t_mg(:,2),'-o',M,t_mg(:,1),'-o')
 xlabel('$2^N$','interpreter','latex','fontsize',fsz)
 ylabel('$t$','interpreter','latex','fontsize',fsz)
-legend('CG','SMG N=5','N=6','N=7','Location','NorthWest')
+legend('CG','N=6','N=7','Location','NorthWest')

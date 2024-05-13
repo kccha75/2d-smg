@@ -63,7 +63,7 @@ vv0=@(X,Y) 0.56*sech(2*sqrt((X*Dx).^2+(Y*Dy).^2));
 
 % Number of V-cycles if option is chosen, otherwise number of v-cycles done
 % after FMG or number of decent iterations
-option.numit=1;
+option.numit=0;
 
 % Solver / solution tolerance
 option.tol=1e-10;

@@ -1,8 +1,8 @@
 clear;close all;%clc
 
 % -------------------------------------------------------------------------
-% Yang paper example 3.5 first part
-% coarse grid cannot go below 5, 5 is ok
+% Yang paper example 3.4 first part
+% coarse grid cannot go below 6, but higher is slightly? better
 % -------------------------------------------------------------------------
 
 % x domain [-Dx pi, Dx pi]
@@ -41,14 +41,14 @@ beta2{2}=@(x) -1;
 BCRHS2{2}=@(x) -2311;
 
 % Grid size
-finestgrid = 8;
-coarsestgrid = 7;
+finestgrid = 7;
+coarsestgrid = 5;
 
 % PDE Parameters
 aa=@(X,Y) 1/Dx^2;
 bb=@(X,Y) 1/Dy^2;
 
-V0=6;mu=5;
+V0=6;mu=3.7;
 cc=@(X,Y) -V0*(sin(X*Dx).^2+sin(Y*Dy).^2)+mu;
 
 % RHS
@@ -101,12 +101,6 @@ option.prenumit=1;
 % -------------------------------------------------------------------------
 % Set up parameters
 % -------------------------------------------------------------------------
-m=5;
-t_mg=zeros(1,m);
-t_cg=zeros(1,m);
-mg_tol=zeros(1,m);
-finestgrid=finestgrid+m-1;
-for jj=m:-1:1 % loop grid sizes
 
 N=zeros(1,dim);
 x=cell(1,dim);
@@ -216,7 +210,7 @@ C=c;
 % -------------------------------------------------------------------------
 
 % New b(x) function in Newton
-cnew=C-3*v0.^2;
+cnew=C+3*v0.^2;
 v=v0;
 
 % Error guess (keep at 0)
@@ -224,17 +218,13 @@ e0=zeros(Nx,Ny);
 
 % -------------------------------------------------------------------------
 % SMG
-% -------------------------------------------------------------------------
-for kk=3:-1:1
-    option.coarsestgrid=coarsestgrid-kk+1;
-    option.grids=option.finestgrid-option.coarsestgrid+1;
-    v=v0;
+% % -------------------------------------------------------------------------
 tic
 for i=1:20
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)-v.^3);
+    pde.f=f-(option.operator(v,pde,domain)+v.^3);
     
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -248,12 +238,12 @@ for i=1:20
 
     option.tol=1e-10;
     [e,r]=mg(v,pde,domain,option);
-    mg_tol(jj)=rms(r(:));
+    mg_tol=rms(r(:));
 
     % Update correction
     v=v+real(e);
     
-    cnew=c-3*v.^2;
+    cnew=c+3*v.^2;
     
 end
 
@@ -262,15 +252,14 @@ if i==20
     fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
     
 end 
-t_mg(jj,kk)=toc;
-end
-
+toc;
+surf(v);
 % -------------------------------------------------------------------------
 % CG
 % -------------------------------------------------------------------------
 
 % New b(x) function in Newton
-cnew=C-3*v0.^2;
+cnew=C+3*v0.^2;
 v=v0;
 
 tic
@@ -278,7 +267,7 @@ for i=1:20
     
     pde.c=c;
     % Initial RHS of linear equation
-    pde.f=f-(option.operator(v,pde,domain)-v.^3);
+    pde.f=f-(option.operator(v,pde,domain)+v.^3);
     
     r=rms(rms(pde.f));
     fprintf('Residual Newton = %d\n',r)
@@ -290,13 +279,13 @@ for i=1:20
     % Solve linear equation
     pde.c=cnew;
 
-    option.tol=max(1e-10,mg_tol(jj));
+    option.tol=max(1e-10);
     [e,r]=cg(e0,pde,domain,option);
 
     % Update correction
     v=v+real(e);
     
-    cnew=c-3*v.^2;
+    cnew=c+3*v.^2;
     
 end
 
@@ -305,10 +294,7 @@ if i==20
     fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
     
 end 
-t_cg(jj)=toc;
-
-finestgrid = finestgrid-1;
-end
+toc
 
 % -------------------------------------------------------------------------
 % Plot
@@ -323,7 +309,7 @@ zlabel('$u$','interpreter','latex','fontsize',fsz)
 
 subplot(1,2,2)
 M=linspace(1,m,m)+coarsestgrid;
-semilogy(M,t_cg,'-x',M,t_mg(:,3),'-o',M,t_mg(:,2),'-o',M,t_mg(:,1),'-o')
+semilogy(M,t_cg,'-x',M,t_mg,'-o')
 xlabel('$2^N$','interpreter','latex','fontsize',fsz)
 ylabel('$t$','interpreter','latex','fontsize',fsz)
-legend('CG','SMG N=5','N=6','N=7','Location','NorthWest')
+legend('CG','SMG','Location','NorthWest')
