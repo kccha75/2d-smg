@@ -228,6 +228,7 @@ e0=zeros(Nx,Ny);
 for kk=2:-1:1
     option.coarsestgrid=coarsestgrid-kk+1;
     option.grids=option.finestgrid-option.coarsestgrid+1;
+    cnew=C+3*v0.^2;
     v=v0;
 tic
 for i=1:20
@@ -326,4 +327,4 @@ M=linspace(1,m,m)+coarsestgrid;
 semilogy(M,t_cg,'-x',M,t_mg(:,2),'-o',M,t_mg(:,1),'-o')
 xlabel('$2^N$','interpreter','latex','fontsize',fsz)
 ylabel('$t$','interpreter','latex','fontsize',fsz)
-legend('CG','N=6','N=7','Location','NorthWest')
+legend('CG','SMG coarse grid N=6','SMG coarse grid N=7','Location','NorthWest')

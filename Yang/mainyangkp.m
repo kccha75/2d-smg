@@ -116,6 +116,7 @@ elseif m==2
 elseif m==1
     option.tol=1e-10;
 end
+tol=option.tol;
 N=zeros(1,dim);
 x=cell(1,dim);
 k=cell(1,dim);
@@ -239,6 +240,7 @@ for i=1:20
     % Solve linear equation
     pde.c=cnew;
 
+    option.reltol=tol/r;
     [e,r]=mg(v,pde,domain,option);
     mg_tol(jj)=rms(r(:));
 
@@ -286,7 +288,7 @@ for i=1:20
     % Solve linear equation
     pde.c=cnew;
 
-    option.tol=max(option.tol,mg_tol(jj))/r;
+    option.reltol=max(tol,mg_tol(jj))/r;
     [e,r]=option.coarsegridsolver(e0,pde,domain,option);
 
     % Update correction

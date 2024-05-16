@@ -105,17 +105,17 @@ t_cg=zeros(1,m);
 mg_tol=zeros(1,m);
 finestgrid=finestgrid+m-1;
 for jj=m:-1:1 % loop grid sizes
-% if m==5
-%     option.tol=1e-5;
-% elseif m==4
-%     option.tol=1e-7;
-% elseif m==3
-%     option.tol=1e-8;
-% elseif m==2
-%     option.tol=1e-9;
-% elseif m==1
-%     option.tol=1e-10;
-% end
+if m==5
+    option.tol=1e-5;
+elseif m==4
+    option.tol=1e-7;
+elseif m==3
+    option.tol=1e-8;
+elseif m==2
+    option.tol=1e-9;
+elseif m==1
+    option.tol=1e-10;
+end
 N=zeros(1,dim);
 x=cell(1,dim);
 k=cell(1,dim);

@@ -1,8 +1,8 @@
 clear;close all;%clc
 
 % -------------------------------------------------------------------------
-% Yang paper example 3.4 first part
-% coarse grid cannot go below 6, but higher is slightly? better
+% Yang paper example 3.1
+% coarse grid can go low to 3
 % -------------------------------------------------------------------------
 
 % x domain [-Dx pi, Dx pi]
