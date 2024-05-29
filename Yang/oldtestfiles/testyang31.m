@@ -216,9 +216,15 @@ v=v0;
 % Error guess (keep at 0)
 e0=zeros(Nx,Ny);
 
+
 % -------------------------------------------------------------------------
-% SMG
+% CG
 % -------------------------------------------------------------------------
+
+% New b(x) function in Newton
+cnew=C+3*v0.^2;
+v=v0;
+
 tic
 for i=1:20
     
@@ -236,9 +242,8 @@ for i=1:20
     % Solve linear equation
     pde.c=cnew;
 
-    option.tol=1e-10;
-    [e,r]=mg(v,pde,domain,option);
-    mg_tol=rms(r(:));
+    option.tol=max(1e-10);
+    [e,r]=cg2(e0,pde,domain,option);
 
     % Update correction
     v=v+real(e);
@@ -252,49 +257,7 @@ if i==20
     fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
     
 end 
-t_mg=toc
-
-% -------------------------------------------------------------------------
-% CG
-% -------------------------------------------------------------------------
-% 
-% % New b(x) function in Newton
-% cnew=C+3*v0.^2;
-% v=v0;
-% 
-% tic
-% for i=1:20
-%     
-%     pde.c=c;
-%     % Initial RHS of linear equation
-%     pde.f=f-(option.operator(v,pde,domain)+v.^3);
-%     
-%     r=rms(rms(pde.f));
-%     fprintf('Residual Newton = %d\n',r)
-%     if r<=1e-10
-%         fprintf('Converged after %d Newton Iterations \n',i-1)
-%         break
-%     end
-%     
-%     % Solve linear equation
-%     pde.c=cnew;
-% 
-%     option.tol=max(1e-10);
-%     [e,r]=cg(e0,pde,domain,option);
-% 
-%     % Update correction
-%     v=v+real(e);
-%     
-%     cnew=c+3*v.^2;
-%     
-% end
-% 
-% if i==20
-%     
-%     fprintf('Did not converge to required tolerance after %d Newton Iterations\n',i)
-%     
-% end 
-% t_cg=toc;
+t_cg=toc;
 
 
 % -------------------------------------------------------------------------
