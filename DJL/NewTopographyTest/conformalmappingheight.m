@@ -6,22 +6,35 @@
 % Conformal mapping done on x=(-pi,pi) and z=(0,1) domain
 %
 % Uses Fast spectral Fourier Cheb Poisson solver
-% -------------------------------------------------------------------------
 
-Nx=512;
+% Script compares topography height to number of iterations? for n=10?
+% -------------------------------------------------------------------------
+clear;
+
+topoheight=(0.05:0.05:0.3);
+numit=zeros(length(topoheight),1);
+
+for jj=1:length(topoheight)
+
+N=10;
+Nx=2^N;
 x=2*pi*(-Nx/2:Nx/2-1)'/Nx;
 kx=[0:Nx/2-1 -Nx/2 -Nx/2+1:-1]';
 dx=x(2)-x(1);
 
-
-Ny=257;
+Ny=2^(N-1)+1;
 ky=(0:Ny-1)';
 y=cos(pi*ky/(Ny-1));
 
+[xgrid,ygrid]=ndgrid(x,y);
+
+% domain struct for solver
+domain.N(1)=Nx;
+domain.N(2)=Ny;
+domain.k{1}=kx;
 
 % topography parameters
-alpha=0.1;
-topography=@(X) sech(X).^2;
+alpha=topoheight(jj);
 Lx=2*pi;
 
 % -------------------------------------------------------------------------
@@ -29,10 +42,11 @@ Lx=2*pi;
 % -------------------------------------------------------------------------
 H0=2*pi/Lx; % Calculate to keep aspect ratio correct
 
-h = @(x) alpha*H0*topography(x*1.5*pi); % Bump function
+% h = @(x) alpha*H0*sech(x*pi).^2; % Bump function
+h = @(x) alpha*H0*sech(3/2*(x+pi/3)*pi).^2+alpha*H0*sech(3/2*(x-pi/3)*pi).^2; % Bump function
 
 % Maximum iterations
-loops=100;
+loops=1000;
 
 % Start iterating!
 u=x;
@@ -57,13 +71,13 @@ for i=1:loops
 %     pde.f=-Lu_2d(y_bc+(H0-y_bc).*V/L,pde,domain); % Alternative ...
 
     % Solve here
-    Y=FastChebFourierPoisson([],pde,domain,option);
+    Y=FastChebFourierPoisson([],pde,domain,'');
     
     % Transform back to original coordinates
-    y=y_bc.*(1-V/L)+H0*V/L+Y;
+    yy=y_bc.*(1-V/L)+H0*V/L+Y;
 
     % find dy/dv
-    dy=2/L*real(ifct(chebdiff(real(fct(transpose(y))),1)));
+    dy=2/L*real(ifct(chebdiff(real(fct(transpose(yy))),1)));
     dy=dy';
 
     % at Bottom boundary
@@ -97,55 +111,57 @@ ex=real(ifft(kinv.*fft(dy-1)));
 
 % Output coordinates
 XX=U+ex;
-YY=y;
+YY=yy;
 
-domain.YY=YY;
-domain.XX=XX;
-% DJL.Ly=L;
+numit=i;
 
-% -------------------------------------------------------------------------
-% Jacobian Calculation
-% -------------------------------------------------------------------------
+end
 
-% dx/du
-dxdu=1+ifft(1i*domain.k{1}.*fft(ex));
+plot(topoheight,numit)
 
-% dx/dv
-dxdv=ifct(2/L*chebdiff(real(fct(transpose(ex))),1));
-dxdv=dxdv';
-
-% dz/du
-dzdu=ifft(1i*domain.k{1}.*fft(y));
-
-% dz/dv
-dzdv=ifct(2/L*chebdiff(real(fct(transpose(y))),1));
-dzdv=dzdv';
-
-% Check Cauchy-Riemann equations
-figure;
-surf(real(dxdu)-dzdv)
-figure;
-surf(real(dzdu)+dxdv)
-
-% Jacobian calculation
-jac=real(dzdv).^2+real(dzdu).^2;
-
-% Mapping plots
-figure('Position',[300 300 600 300]); fsz=15;
-
-subplot(2,1,1)
-contour(XX,YY,domain.X{1},50,'Color','#0072BD');
-hold on
-contour(XX,YY,domain.X{2},50,'Color','#0072BD');
-plot(XX(:,1),h(XX(:,1)))
-xlabel('$x$','interpreter','latex','fontsize',fsz);
-ylabel('$y$','interpreter','latex','fontsize',fsz)
-
-subplot(2,1,2)
-contour(domain.X{1},domain.X{2},XX,50,'Color','#0072BD');
-hold on;
-contour(domain.X{1},domain.X{2},YY,50,'Color','#0072BD');
-xlabel('$u$','interpreter','latex','fontsize',fsz);
-ylabel('$v$','interpreter','latex','fontsize',fsz)
-
-
+% % -------------------------------------------------------------------------
+% % Jacobian Calculation
+% % -------------------------------------------------------------------------
+% 
+% % dx/du
+% dxdu=1+ifft(1i*kx.*fft(ex));
+% 
+% % dx/dv
+% dxdv=ifct(2/L*chebdiff(real(fct(transpose(ex))),1));
+% dxdv=dxdv';
+% 
+% % dz/du
+% dzdu=ifft(1i*kx.*fft(yy));
+% 
+% % dz/dv
+% dzdv=ifct(2/L*chebdiff(real(fct(transpose(yy))),1));
+% dzdv=dzdv';
+% 
+% % Check Cauchy-Riemann equations
+% figure;
+% surf(real(dxdu)-dzdv)
+% figure;
+% surf(real(dzdu)+dxdv)
+% 
+% % Jacobian calculation
+% jac=real(dzdv).^2+real(dzdu).^2;
+% 
+% % Mapping plots
+% figure('Position',[300 300 600 300]); fsz=15;
+% 
+% subplot(2,1,1)
+% contour(XX,YY,xgrid,50,'Color','#0072BD');
+% hold on
+% contour(XX,YY,ygrid,50,'Color','#0072BD');
+% plot(XX(:,1),h(XX(:,1)))
+% xlabel('$x$','interpreter','latex','fontsize',fsz);
+% ylabel('$y$','interpreter','latex','fontsize',fsz)
+% 
+% subplot(2,1,2)
+% contour(xgrid,ygrid,XX,50,'Color','#0072BD');
+% hold on;
+% contour(xgrid,ygrid,YY,50,'Color','#0072BD');
+% xlabel('$u$','interpreter','latex','fontsize',fsz);
+% ylabel('$v$','interpreter','latex','fontsize',fsz)
+% 
+% 

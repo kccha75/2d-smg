@@ -6,17 +6,23 @@
 % Conformal mapping done on x=(-pi,pi) and z=(0,1) domain
 %
 % Uses Fast spectral Fourier Cheb Poisson solver
+
+% Script compares number of iterations to grid resolution
 % -------------------------------------------------------------------------
 clear;
 
-N=9;
+N=(1:7)+5;
+numit=zeros(length(N),1);
 
-Nx=2^N;
+
+for jj=1:length(N)
+
+Nx=2^N(jj);
 x=2*pi*(-Nx/2:Nx/2-1)'/Nx;
 kx=[0:Nx/2-1 -Nx/2 -Nx/2+1:-1]';
 dx=x(2)-x(1);
 
-Ny=2^(N-1)+1;
+Ny=2^(N(jj)-1)+1;
 ky=(0:Ny-1)';
 y=cos(pi*ky/(Ny-1));
 
@@ -36,8 +42,8 @@ Lx=2*pi;
 % -------------------------------------------------------------------------
 H0=2*pi/Lx; % Calculate to keep aspect ratio correct
 
-h = @(x) alpha*H0*sech(x*pi).^2; % Bump function
-% h = @(x) alpha*H0*sech(3/2*(x+pi/3)*pi).^2+alpha*H0*sech(3/2*(x-pi/3)*pi).^2; % Bump function
+% h = @(x) alpha*H0*sech(x*pi).^2; % Bump function
+h = @(x) alpha*H0*sech(3/2*(x+pi/3)*pi).^2+alpha*H0*sech(3/2*(x-pi/3)*pi).^2; % Bump function
 
 % Maximum iterations
 loops=1000;
@@ -107,53 +113,55 @@ ex=real(ifft(kinv.*fft(dy-1)));
 XX=U+ex;
 YY=yy;
 
-% domain.YY=YY;
-% domain.XX=XX;
-% DJL.Ly=L;
+numit(jj)=i;
 
-% -------------------------------------------------------------------------
-% Jacobian Calculation
-% -------------------------------------------------------------------------
+end
 
-% dx/du
-dxdu=1+ifft(1i*kx.*fft(ex));
+plot(N,numit)
 
-% dx/dv
-dxdv=ifct(2/L*chebdiff(real(fct(transpose(ex))),1));
-dxdv=dxdv';
-
-% dz/du
-dzdu=ifft(1i*kx.*fft(yy));
-
-% dz/dv
-dzdv=ifct(2/L*chebdiff(real(fct(transpose(yy))),1));
-dzdv=dzdv';
-
-% Check Cauchy-Riemann equations
-figure;
-surf(real(dxdu)-dzdv)
-figure;
-surf(real(dzdu)+dxdv)
-
-% Jacobian calculation
-jac=real(dzdv).^2+real(dzdu).^2;
-
-% Mapping plots
-figure('Position',[300 300 600 300]); fsz=15;
-
-subplot(2,1,1)
-contour(XX,YY,xgrid,50,'Color','#0072BD');
-hold on
-contour(XX,YY,ygrid,50,'Color','#0072BD');
-plot(XX(:,1),h(XX(:,1)))
-xlabel('$x$','interpreter','latex','fontsize',fsz);
-ylabel('$y$','interpreter','latex','fontsize',fsz)
-
-subplot(2,1,2)
-contour(xgrid,ygrid,XX,50,'Color','#0072BD');
-hold on;
-contour(xgrid,ygrid,YY,50,'Color','#0072BD');
-xlabel('$u$','interpreter','latex','fontsize',fsz);
-ylabel('$v$','interpreter','latex','fontsize',fsz)
-
-
+% % -------------------------------------------------------------------------
+% % Jacobian Calculation
+% % -------------------------------------------------------------------------
+% 
+% % dx/du
+% dxdu=1+ifft(1i*kx.*fft(ex));
+% 
+% % dx/dv
+% dxdv=ifct(2/L*chebdiff(real(fct(transpose(ex))),1));
+% dxdv=dxdv';
+% 
+% % dz/du
+% dzdu=ifft(1i*kx.*fft(yy));
+% 
+% % dz/dv
+% dzdv=ifct(2/L*chebdiff(real(fct(transpose(yy))),1));
+% dzdv=dzdv';
+% 
+% % Check Cauchy-Riemann equations
+% figure;
+% surf(real(dxdu)-dzdv)
+% figure;
+% surf(real(dzdu)+dxdv)
+% 
+% % Jacobian calculation
+% jac=real(dzdv).^2+real(dzdu).^2;
+% 
+% % Mapping plots
+% figure('Position',[300 300 600 300]); fsz=15;
+% 
+% subplot(2,1,1)
+% contour(XX,YY,xgrid,50,'Color','#0072BD');
+% hold on
+% contour(XX,YY,ygrid,50,'Color','#0072BD');
+% plot(XX(:,1),h(XX(:,1)))
+% xlabel('$x$','interpreter','latex','fontsize',fsz);
+% ylabel('$y$','interpreter','latex','fontsize',fsz)
+% 
+% subplot(2,1,2)
+% contour(xgrid,ygrid,XX,50,'Color','#0072BD');
+% hold on;
+% contour(xgrid,ygrid,YY,50,'Color','#0072BD');
+% xlabel('$u$','interpreter','latex','fontsize',fsz);
+% ylabel('$v$','interpreter','latex','fontsize',fsz)
+% 
+% 
