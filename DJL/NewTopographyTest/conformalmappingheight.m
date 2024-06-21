@@ -11,12 +11,13 @@
 % -------------------------------------------------------------------------
 clear;
 
-topoheight=(0.05:0.05:0.3);
+topoheight=(0.02:0.02:0.3);
 numit=zeros(length(topoheight),1);
+converge=1;
 
 for jj=1:length(topoheight)
 
-N=10;
+N=9;
 Nx=2^N;
 x=2*pi*(-Nx/2:Nx/2-1)'/Nx;
 kx=[0:Nx/2-1 -Nx/2 -Nx/2+1:-1]';
@@ -46,7 +47,7 @@ H0=2*pi/Lx; % Calculate to keep aspect ratio correct
 h = @(x) alpha*H0*sech(3/2*(x+pi/3)*pi).^2+alpha*H0*sech(3/2*(x-pi/3)*pi).^2; % Bump function
 
 % Maximum iterations
-loops=1000;
+loops=200;
 
 % Start iterating!
 u=x;
@@ -97,15 +98,24 @@ for i=1:loops
         break;
     end
     
+    
     fprintf('x diff is %d\n',rms(x_new - x_old))
     
     % Check final loop
     if i~=loops
         x_old=x_new;
+        numit(jj)=i;
+    else
+        fprintf('did not converge')
+        converge=0;
+        break
     end
     
 end
 
+if converge==0
+    break
+end
 % x=u+e
 ex=real(ifft(kinv.*fft(dy-1)));
 
@@ -113,10 +123,10 @@ ex=real(ifft(kinv.*fft(dy-1)));
 XX=U+ex;
 YY=yy;
 
-numit=i;
-
 end
 
+numit=numit(1:jj-1);
+topoheight=topoheight(1:length(numit));
 plot(topoheight,numit)
 
 % % -------------------------------------------------------------------------
