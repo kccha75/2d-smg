@@ -9,7 +9,7 @@
 % -------------------------------------------------------------------------
 clear;
 
-N=9;
+N=10;
 
 Nx=2^N;
 x=2*pi*(-Nx/2:Nx/2-1)'/Nx;
@@ -36,8 +36,8 @@ Lx=2*pi;
 % -------------------------------------------------------------------------
 H0=2*pi/Lx; % Calculate to keep aspect ratio correct
 
-h = @(x) alpha*H0*sech(x*pi).^2; % Bump function
-% h = @(x) alpha*H0*sech(3/2*(x+pi/3)*pi).^2+alpha*H0*sech(3/2*(x-pi/3)*pi).^2; % Bump function
+% h = @(x) alpha*H0*sech(x*pi).^2; % Bump function
+h = @(x) alpha*H0*sech(3/2*(x+pi/3)*pi).^2+alpha*H0*sech(3/2*(x-pi/3)*pi).^2; % Bump function
 
 % Maximum iterations
 loops=1000;
@@ -142,17 +142,17 @@ jac=real(dzdv).^2+real(dzdu).^2;
 figure('Position',[300 300 600 300]); fsz=15;
 
 subplot(2,1,1)
-contour(XX,YY,xgrid,50,'Color','#0072BD');
+contour(XX,YY,U,50,'Color','#0072BD');
 hold on
-contour(XX,YY,ygrid,50,'Color','#0072BD');
+contour(XX,YY,V,50,'Color','#0072BD');
 plot(XX(:,1),h(XX(:,1)))
 xlabel('$x$','interpreter','latex','fontsize',fsz);
 ylabel('$y$','interpreter','latex','fontsize',fsz)
 
 subplot(2,1,2)
-contour(xgrid,ygrid,XX,50,'Color','#0072BD');
+contour(U,V,XX,50,'Color','#0072BD');
 hold on;
-contour(xgrid,ygrid,YY,50,'Color','#0072BD');
+contour(U,V,YY,50,'Color','#0072BD');
 xlabel('$u$','interpreter','latex','fontsize',fsz);
 ylabel('$v$','interpreter','latex','fontsize',fsz)
 

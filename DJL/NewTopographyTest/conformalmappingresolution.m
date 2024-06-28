@@ -13,7 +13,8 @@ clear;
 
 N=(1:7)+5;
 numit=zeros(length(N),1);
-
+cr1=zeros(length(N),1);
+cr2=zeros(length(N),1);
 
 for jj=1:length(N)
 
@@ -42,8 +43,8 @@ Lx=2*pi;
 % -------------------------------------------------------------------------
 H0=2*pi/Lx; % Calculate to keep aspect ratio correct
 
-% h = @(x) alpha*H0*sech(x*pi).^2; % Bump function
-h = @(x) alpha*H0*sech(3/2*(x+pi/3)*pi).^2+alpha*H0*sech(3/2*(x-pi/3)*pi).^2; % Bump function
+h = @(x) alpha*H0*sech(x*pi).^2; % Bump function
+% h = @(x) alpha*H0*sech(3/2*(x+pi/3)*pi).^2+alpha*H0*sech(3/2*(x-pi/3)*pi).^2; % Bump function
 
 % Maximum iterations
 loops=1000;
@@ -114,6 +115,24 @@ XX=U+ex;
 YY=yy;
 
 numit(jj)=i;
+
+% Cauchy-Riemann
+% dx/du
+dxdu=1+ifft(1i*kx.*fft(ex));
+
+% dx/dv
+dxdv=ifct(2/L*chebdiff(real(fct(transpose(ex))),1));
+dxdv=dxdv';
+
+% dz/du
+dzdu=ifft(1i*kx.*fft(yy));
+
+% dz/dv
+dzdv=ifct(2/L*chebdiff(real(fct(transpose(yy))),1));
+dzdv=dzdv';
+
+cr1(jj)=abs(real(dxdu)-dzdv).^2;
+cr2(jj)=abs(real(dzdu)+dxdv).^2;
 
 end
 

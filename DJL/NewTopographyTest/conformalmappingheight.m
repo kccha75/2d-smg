@@ -11,7 +11,10 @@
 % -------------------------------------------------------------------------
 clear;
 
-topoheight=(0.02:0.02:0.3);
+% positive or negative bump
+topoheight=(0.0:-0.02:-0.5);
+% topoheight=(0.0:0.02:0.5);
+
 numit=zeros(length(topoheight),1);
 converge=1;
 
@@ -47,7 +50,7 @@ H0=2*pi/Lx; % Calculate to keep aspect ratio correct
 h = @(x) alpha*H0*sech(3/2*(x+pi/3)*pi).^2+alpha*H0*sech(3/2*(x-pi/3)*pi).^2; % Bump function
 
 % Maximum iterations
-loops=200;
+loops=1000;
 
 % Start iterating!
 u=x;
@@ -125,9 +128,11 @@ YY=yy;
 
 end
 
+if converge==0
 numit=numit(1:jj-1);
+end
 topoheight=topoheight(1:length(numit));
-plot(topoheight,numit)
+plot(topoheight,numit,'-x')
 
 % % -------------------------------------------------------------------------
 % % Jacobian Calculation
