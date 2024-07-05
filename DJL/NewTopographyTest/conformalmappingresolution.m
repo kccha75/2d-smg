@@ -35,7 +35,7 @@ domain.N(2)=Ny;
 domain.k{1}=kx;
 
 % topography parameters
-alpha=0.25;
+alpha=0.1;
 Lx=2*pi;
 
 % -------------------------------------------------------------------------
@@ -131,9 +131,17 @@ dzdu=ifft(1i*kx.*fft(yy));
 dzdv=ifct(2/L*chebdiff(real(fct(transpose(yy))),1));
 dzdv=dzdv';
 
-cr1(jj)=abs(real(dxdu)-dzdv).^2;
-cr2(jj)=abs(real(dzdu)+dxdv).^2;
+%L2?
+cr1(jj)=sqrt(L/2*clenshaw_curtis(transpose(trapI(abs(real(dxdu)-dzdv).^2,dx))));
+cr2(jj)=sqrt(L/2*clenshaw_curtis(transpose(trapI(abs(real(dzdu)+dxdv).^2,dx))));
 
+%L1
+% cr1(jj)=clenshaw_curtis(transpose(trapI(abs(real(dxdu)-dzdv),dx)));
+% cr2(jj)=clenshaw_curtis(transpose(trapI(abs(real(dzdu)+dxdv),dx)));
+
+% something
+% cr1(jj)=sqrt(L/2*clenshaw_curtis(transpose(trapI(abs(dxdu-dzdv).^2,dx))));
+% cr2(jj)=sqrt(L/2*clenshaw_curtis(transpose(trapI(abs(dzdu+dxdv).^2,dx))));
 end
 
 plot(N,numit)
