@@ -275,8 +275,8 @@ zeta0=pagemtimes(A,DJL.phi');
 
 % Conformal map!
 for jj=1:size(zeta0,3)
-    zeta0c(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta0(:,:,jj),YY,XX,'spline');
-    zeta0c(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+    zeta0(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta0(:,:,jj),YY,XX,'spline');
+    zeta0(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 end
 % -------------------------------------------------------------------------
 % 1st order DJL approx
@@ -300,8 +300,8 @@ zeta=zeta0+zai;
 
 % Conformal map!
 for jj=1:size(zeta,3)
-    zetac(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta(:,:,jj),YY,XX,'spline');
-    zetac(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+    zeta(:,:,jj)=interp2(H*(domain.X{2}+1)/2,domain.X{1},zeta(:,:,jj),YY,XX,'spline');
+    zeta(:,end,jj)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 end
 
 % -------------------------------------------------------------------------

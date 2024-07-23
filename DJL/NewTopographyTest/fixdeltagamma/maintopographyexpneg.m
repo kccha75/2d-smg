@@ -65,130 +65,130 @@ v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
 r=pde.f-(Lu(v0,pde,domain)+N2((domain.X{2}+1)/2-v0).*v0/DJL.u^2);
 disp(rms(rms(r)))
 
-% % -------------------------------------------------------------------------
-% % Newton solve solution 1
-% % -------------------------------------------------------------------------
-% 
-% u1=DJL.u;
-% [v1,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
-% 
-% if flag ==0
-% 
-%     fprintf('Initial Newton did not converge ...\n')
-%     return
-% 
-% end
-% 
-% % -------------------------------------------------------------------------
-% % Newton solve solution 2 negative direction
-% % -------------------------------------------------------------------------
-% 
-% ds=1e-6;
-% 
-% DJL.u=u1-ds;
-% [v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
-% 
-% if flag ==0
-% 
-%     fprintf('Initial Newton did not converge ...\n')
-%     return
-% 
-% end
-% 
-% % -------------------------------------------------------------------------
-% % Continuation DJL negative direction
-% % -------------------------------------------------------------------------
-% 
-% v=v1;
-% u=u1;
-% dv=(v2-v1)/ds;
-% du=-1; % +1 for positive direction, -1 for negative direction
-% 
-% % Continuation
-% [Vneg,Uneg]=pseudocontDJL(v,dv,u,du,DJL,domain,option,cont_option);
-% 
-% dt=toc(time);
-% fprintf('Elapsed Time is %f s\n',dt)
-% 
-% % -------------------------------------------------------------------------
-% % Newton solve solution 2 positive direction
-% % -------------------------------------------------------------------------
-% 
-% ds=1e-6;
-% 
-% DJL.u=u1+ds;
-% [v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
-% 
-% if flag ==0
-% 
-%     fprintf('Initial Newton did not converge ...\n')
-%     return
-% 
-% end
-% 
-% % -------------------------------------------------------------------------
-% % Continuation DJL positive direction
-% % -------------------------------------------------------------------------
-% 
-% v=v1;
-% u=u1;
-% dv=(v2-v1)/ds;
-% du=1; % +1 for positive direction, -1 for negative direction
-% 
-% % Continuation
-% [Vpos,Upos]=pseudocontDJL(v,dv,u,du,DJL,domain,option,cont_option);
-% 
-% dt=toc(time);
-% fprintf('Elapsed Time is %f s\n',dt)
-% 
-% 
-% % -------------------------------------------------------------------------
-% % PLOTS
-% % -------------------------------------------------------------------------
-% U=[fliplr(Uneg) Upos];
-% V=cat(3,flip(Vneg,3),Vpos);
-% 
-% X2=domain.X{1}/pi*KAI/mu;
-% Y2=(domain.X{2}+1)/2;
-% 
-% % Calculate momentum
-% P=trapI(V.^2,2*KAI/mu/domain.N(1)); % Integrate x
-% P=permute(P,[2,1,3]);
-% P=clenshaw_curtis(P)/2; % Integrate y
-% P=permute(P,[3,1,2]);
-% 
-% % u vs momentum
-% plot(U,P)
-% xlabel('u');ylabel('Momentum');title('mode 1 DJL')
-% 
-% % Contour of final solution
-% figure
-% contour(X2,Y2,Y2-Vneg(:,:,end),100)
-% title("Negative C=" + Uneg(end))
-% 
-% figure
-% contour(X2,Y2,Y2-Vpos(:,:,end),100)
-% title("Positive C=" + Upos(end))
-% 
-% % Plot(s) of final solution
-% figure;
-% plot(X2,Y2-Vneg(:,:,end))
-% title("Negative C=" + Uneg(end))
-% 
-% % Plot(s) of final solution
-% figure;
-% plot(X2,Y2-Vpos(:,:,end))
-% title("Positive C=" + Upos(end))
-% 
-% % check dv<1 requirement
-% dv=2*real(ifct(chebdiff(real(fct(transpose(Vneg(:,:,end)))),1)));
-% max(dv(:))
-% min(dv(:))
-% dv=2*real(ifct(chebdiff(real(fct(transpose(Vpos(:,:,end)))),1)));
-% max(dv(:))
-% min(dv(:))
-% 
-% fprintf('Domain is %d\n',KAI/mu^2)
+% -------------------------------------------------------------------------
+% Newton solve solution 1
+% -------------------------------------------------------------------------
+
+u1=DJL.u;
+[v1,i,flag]=NewtonSolve(v0,DJL,pde,domain,option);
+
+if flag ==0
+
+    fprintf('Initial Newton did not converge ...\n')
+    return
+
+end
+
+% -------------------------------------------------------------------------
+% Newton solve solution 2 negative direction
+% -------------------------------------------------------------------------
+
+ds=1e-6;
+
+DJL.u=u1-ds;
+[v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
+
+if flag ==0
+
+    fprintf('Initial Newton did not converge ...\n')
+    return
+
+end
+
+% -------------------------------------------------------------------------
+% Continuation DJL negative direction
+% -------------------------------------------------------------------------
+
+v=v1;
+u=u1;
+dv=(v2-v1)/ds;
+du=-1; % +1 for positive direction, -1 for negative direction
+
+% Continuation
+[Vneg,Uneg]=pseudocontDJL(v,dv,u,du,DJL,domain,option,cont_option);
+
+dt=toc(time);
+fprintf('Elapsed Time is %f s\n',dt)
+
+% -------------------------------------------------------------------------
+% Newton solve solution 2 positive direction
+% -------------------------------------------------------------------------
+
+ds=1e-6;
+
+DJL.u=u1+ds;
+[v2,i,flag]=NewtonSolve(v1,DJL,pde,domain,option);
+
+if flag ==0
+
+    fprintf('Initial Newton did not converge ...\n')
+    return
+
+end
+
+% -------------------------------------------------------------------------
+% Continuation DJL positive direction
+% -------------------------------------------------------------------------
+
+v=v1;
+u=u1;
+dv=(v2-v1)/ds;
+du=1; % +1 for positive direction, -1 for negative direction
+
+% Continuation
+[Vpos,Upos]=pseudocontDJL(v,dv,u,du,DJL,domain,option,cont_option);
+
+dt=toc(time);
+fprintf('Elapsed Time is %f s\n',dt)
+
+
+% -------------------------------------------------------------------------
+% PLOTS
+% -------------------------------------------------------------------------
+U=[fliplr(Uneg) Upos];
+V=cat(3,flip(Vneg,3),Vpos);
+
+X2=domain.X{1}/pi*KAI/mu;
+Y2=(domain.X{2}+1)/2;
+
+% Calculate momentum
+P=trapI(V.^2,2*KAI/mu/domain.N(1)); % Integrate x
+P=permute(P,[2,1,3]);
+P=clenshaw_curtis(P)/2; % Integrate y
+P=permute(P,[3,1,2]);
+
+% u vs momentum
+plot(U,P)
+xlabel('u');ylabel('Momentum');title('mode 1 DJL')
+
+% Contour of final solution
+figure
+contour(X2,Y2,Y2-Vneg(:,:,end),100)
+title("Negative C=" + Uneg(end))
+
+figure
+contour(X2,Y2,Y2-Vpos(:,:,end),100)
+title("Positive C=" + Upos(end))
+
+% Plot(s) of final solution
+figure;
+plot(X2,Y2-Vneg(:,:,end))
+title("Negative C=" + Uneg(end))
+
+% Plot(s) of final solution
+figure;
+plot(X2,Y2-Vpos(:,:,end))
+title("Positive C=" + Upos(end))
+
+% check dv<1 requirement
+dv=2*real(ifct(chebdiff(real(fct(transpose(Vneg(:,:,end)))),1)));
+max(dv(:))
+min(dv(:))
+dv=2*real(ifct(chebdiff(real(fct(transpose(Vpos(:,:,end)))),1)));
+max(dv(:))
+min(dv(:))
+
+fprintf('Domain is %d\n',KAI/mu^2)
 
 % -------------------------------------------------------------------------
 % KdV solution 1
