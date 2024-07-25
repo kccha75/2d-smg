@@ -11,14 +11,14 @@ DJL.soltype=1;
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
 gamma_star=0.25;% mu=0.7;
-mu=0.90; % topography width scale
+mu=0.70; % topography width scale
 KAI=30;KAI=20; % fKdV domain
 
 % N^2 function
-N2=@(psi) 1/(exp(1)-1)*exp(psi);N2=@(psi) 1/(exp(1)-2)*(exp(psi)-1);
+N2=@(psi) 1/tanh(1)*sech((psi-1)/1).^2;%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) 1/(exp(1)-1)*exp(psi);N2d=@(psi) 1/(exp(1)-2)*exp(psi);
+N2d=@(psi) -1/tanh(1)*2*sech((psi-1)/1).^2.*tanh((psi-1)/1);%N2d=@(psi) 1+0*psi;
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;
@@ -202,7 +202,7 @@ dv=2*real(ifct(chebdiff(real(fct(transpose(Vpos(:,:,end)))),1)));
 max(dv(:))
 min(dv(:))
 
-fprintf('Domain is %d\n',2*KAI/mu^2)
+fprintf('Domain is %d\n',2*KAI/mu)
 
 % -------------------------------------------------------------------------
 % KdV solution 1
@@ -381,23 +381,8 @@ PP3=permute(PP3,[2,1,3]);
 PP3=clenshaw_curtis(PP3)/2; % Integrate y
 PP3=permute(PP3,[3,1,2]);
 
-% u vs momentum
-% figure;
-% plot(DJL.C+D*DJL.s*mu^2,P2)
-% xlabel('delta');ylabel('Momentum');title('fKdV mode 1')
-
-% % u vs momentum
-% figure;
-% plot(DJL.C+D*DJL.s*mu^2,P3)
-% xlabel('delta');ylabel('Momentum');title('fKdV mode 1')
-
 % Compare all 
 figure;
 plot(DJL.C+D*DJL.s*mu^2,P2,DJL.C+D*DJL.s*mu^2,P3,U,P)
 xlabel('delta');ylabel('Momentum');title('DJL momentums')
 legend('0th order fKdV approx of DJL','1st order fKdV approx of DJL','Exact DJL')
-
-% figure;
-% plot(DJL.C+D*DJL.s*mu^2,P2,U,P)
-% xlabel('delta');ylabel('Momentum');title('DJL momentums')
-% legend('0th order fKdV approx of DJL','Exact DJL')
