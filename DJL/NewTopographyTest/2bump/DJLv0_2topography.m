@@ -254,7 +254,7 @@ u=delta+C;
 
 % Set DJL parameters
 DJL.u=u;
-DJL.Lx=2*KAI/mu^2;
+DJL.Lx=2*KAI/mu;
 
 % 1st order perturbation
 v0=A*phi';
