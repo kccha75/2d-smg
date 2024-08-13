@@ -11,14 +11,14 @@ DJL.soltype=1;
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
 gamma_star=0.25;% mu=0.7;
-mu=0.8; % topography width scale
+mu=0.90; % topography width scale
 KAI=30;KAI=20; % fKdV domain
 
 % N^2 function
-N2=@(psi) 1/tanh(1)*sech((psi-1)/1).^2;%N2=@(psi) psi;
+N2=@(psi) 1/(exp(1)-1)*exp(psi);N2=@(psi) 1/(exp(1)-2)*(exp(psi)-1);
 
 % (N^2)'
-N2d=@(psi) -1/tanh(1)*2*sech((psi-1)/1).^2.*tanh((psi-1)/1);%N2d=@(psi) 1+0*psi;
+N2d=@(psi) 1/(exp(1)-1)*exp(psi);N2d=@(psi) 1/(exp(1)-2)*exp(psi);
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;
@@ -202,7 +202,7 @@ dv=2*real(ifct(chebdiff(real(fct(transpose(Vpos(:,:,end)))),1)));
 max(dv(:))
 min(dv(:))
 
-fprintf('Domain is %d\n',2*KAI/mu^2)
+fprintf('Domain is %d\n',2*KAI/mu)
 
 % -------------------------------------------------------------------------
 % KdV solution 1
@@ -381,23 +381,98 @@ PP3=permute(PP3,[2,1,3]);
 PP3=clenshaw_curtis(PP3)/2; % Integrate y
 PP3=permute(PP3,[3,1,2]);
 
-% u vs momentum
-% figure;
-% plot(DJL.C+D*DJL.s*mu^2,P2)
-% xlabel('delta');ylabel('Momentum');title('fKdV mode 1')
-
-% % u vs momentum
-% figure;
-% plot(DJL.C+D*DJL.s*mu^2,P3)
-% xlabel('delta');ylabel('Momentum');title('fKdV mode 1')
-
 % Compare all 
 figure;
 plot(DJL.C+D*DJL.s*mu^2,P2,DJL.C+D*DJL.s*mu^2,P3,U,P)
 xlabel('delta');ylabel('Momentum');title('DJL momentums')
 legend('0th order fKdV approx of DJL','1st order fKdV approx of DJL','Exact DJL')
 
-% figure;
-% plot(DJL.C+D*DJL.s*mu^2,P2,U,P)
-% xlabel('delta');ylabel('Momentum');title('DJL momentums')
-% legend('0th order fKdV approx of DJL','Exact DJL')
+% -------------------------------------------------------------------------
+% Overturning filter
+% -------------------------------------------------------------------------
+C=DJL.C;
+s=DJL.s;
+
+delta0=C+D*s*mu^2;
+delta1=C+D*s*mu^2;
+
+delta2=C+D*s*mu^2;
+delta3=C+D*s*mu^2;
+
+delta=U;
+
+% Remove the boundary discontinuity
+zeta0_map(:,end,:)=zeta0_map(:,end-1,:);
+zeta_map(:,end,:)=zeta_map(:,end-1,:); % for bumps
+
+% -------------------------------------------------------------------------
+% Check overturning
+% -------------------------------------------------------------------------
+diffv_zeta0_map=zeros(size(zeta0_map,3),1);
+diffv_zeta0_map(1:end)=max(max(domain.H/DJL.Ly*2*real(ifct(chebdiff(fct(permute(zeta0_map(:,:,1:end),[2 1 3])),1)))));
+
+diffv_zeta_map=zeros(size(zeta_map,3),1);
+diffv_zeta_map(1:end)=max(max(domain.H/DJL.Ly*2*real(ifct(chebdiff(fct(permute(zeta_map(:,:,1:end),[2 1 3])),1)))));
+
+diffv_zeta0=zeros(size(zeta0,3),1);
+diffv_zeta0(1:end)=max(max(2*real(ifct(chebdiff(fct(permute(zeta0(:,:,1:end),[2 1 3])),1)))));
+
+diffv_zeta=zeros(size(zeta,3),1);
+diffv_zeta(1:end)=max(max(2*real(ifct(chebdiff(fct(permute(zeta(:,:,1:end),[2 1 3])),1)))));
+
+% make sure its index is monotonically increasing and in steps
+if min(diff(find(diffv_zeta0_map<1)))~=1
+    fprintf('Not monotonically increasing!\n');
+end
+
+if min(diff(find(diffv_zeta_map<1)))~=1
+    fprintf('Not monotonically increasing!\n');
+end
+
+if min(diff(find(diffv_zeta0<1)))~=1
+    fprintf('Not monotonically increasing!\n');
+end
+
+if min(diff(find(diffv_zeta<1)))~=1
+    fprintf('Not monotonically increasing!\n');
+end
+% -------------------------------------------------------------------------
+% Filter out overturning solutions
+% -------------------------------------------------------------------------
+
+validindex0=find(diffv_zeta0_map<1);
+validindex1=find(diffv_zeta_map<1);
+
+validindex2=find(diffv_zeta0<1);
+validindex3=find(diffv_zeta<1);
+
+% find length
+index0=[validindex0(1)-1;validindex0;validindex0(end)+1];
+index1=[validindex1(1)-1;validindex1;validindex1(end)+1];
+
+index2=[validindex2(1)-1;validindex2;validindex2(end)+1];
+index3=[validindex3(1)-1;validindex3;validindex3(end)+1];
+
+% Filter to valid solution + first invalid solution
+delta0=delta0(index0);
+zeta0_map=zeta0_map(:,:,index0);
+P2=P2(index0);
+
+delta1=delta1(index1);
+zeta_map=zeta_map(:,:,index1);
+P3=P3(index1);
+
+delta2=delta2(index2);
+zeta0=zeta0(:,:,index2);
+PP2=PP2(index2);
+
+delta3=delta3(index3);
+zeta=zeta(:,:,index3);
+PP3=PP3(index3);
+
+% PLOT!
+
+figure;
+plot(DJL.C+D*DJL.s*mu^2,P2,DJL.C+D*DJL.s*mu^2,P3,U,P)
+xlabel('delta');ylabel('Momentum');title('DJL momentums')
+legend('0th order fKdV approx of DJL','1st order fKdV approx of DJL','Exact DJL')

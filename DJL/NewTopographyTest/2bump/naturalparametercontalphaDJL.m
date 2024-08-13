@@ -191,7 +191,7 @@ while j<steps
         % Break loop if minimum step size exceeded
         if ds<=ds_min
             if skip==1
-                ds=0.1;
+                ds=0.005;
                 skip=0;
             else
 
