@@ -115,8 +115,14 @@ while j<steps
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
         % check overturning
-        diffv=2*real(ifct(chebdiff(real(fct(transpose(V(:,:,j+1)))),1)));
-        if max(diffv(:))>1
+        kx=domain.k{1}*2*pi/DJL.Lx;
+        L=DJL.Ly/domain.H;
+        
+        dzetadu=real(ifft(1i*kx.*fft(V(:,:,j+1))));
+        dzetadv=ifct(2/L*chebdiff(real(fct(transpose(V(:,:,j+1)))),1));
+        dzetadv=transpose(dzetadv);
+        dzetadz=(domain.dxdu.*dzetadv-domain.dxdv.*dzetadu)./domain.jac;
+        if max(abs(dzetadz(:)))>1
             fprintf('Overturning detected!\n')
             return
         end

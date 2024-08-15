@@ -26,6 +26,10 @@
 % domain.XX - X coordinates in (u,v)
 % domain.jac - Jacobian (dz/dv)^2+(dz/du)^2
 % domain.H - original height in conformal mapping
+% domain.dxdu - used in derivative calculations
+% domain.dxdv - used in derivative calculations 
+% domain.dzdu - used in derivative calculations
+% domain.dzdv - used in derivative calculations
 
 function [DJL,domain]=conformalmapping(DJL,domain,option)
 
@@ -127,14 +131,14 @@ dxdu=1+ifft(1i*domain.k{1}.*fft(ex));
 
 % dx/dv
 dxdv=ifct(2/L*chebdiff(real(fct(transpose(ex))),1));
-dxdv=dxdv';
+dxdv=transpose(dxdv);
 
 % dz/du
 dzdu=ifft(1i*domain.k{1}.*fft(y));
 
 % dz/dv
 dzdv=ifct(2/L*chebdiff(real(fct(transpose(y))),1));
-dzdv=dzdv';
+dzdv=transpose(dzdv);
 
 % Check Cauchy-Riemann equations
 % surf(real(dxdu)-dzdv)
@@ -146,5 +150,9 @@ jac=real(dzdv).^2+real(dzdu).^2;
 
 domain.jac=jac;
 domain.H=H0;
+domain.dzdv=dzdv;
+domain.dxdv=dxdv;
+domain.dzdu=dzdu;
+domain.dxdu=dxdu;
 
 end
