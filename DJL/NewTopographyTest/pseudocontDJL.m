@@ -29,6 +29,18 @@ steps=cont_option.steps; % maximum steps allowed
 Newtontol=option.Newtontol;
 tailtol=option.tailtol;
 
+% domain stuff (to check overturning)
+XX=domain.XX/pi*DJL.KAI/DJL.mu;
+YY=domain.YY/domain.H;
+X=domain.X{1}/pi*DJL.KAI/DJL.mu;
+
+kx=domain.k{1}*2*pi/DJL.Lx;
+L=DJL.Ly/domain.H;
+
+dxdu=1+real(ifft(1i*kx.*fft(XX-X)));
+dxdv=ifct(2/L*chebdiff(real(fct(transpose(XX))),1));
+dxdv=transpose(dxdv);
+
 % Set max Newton iterations to continuation option
 option.Newtonmaxit=Newtonmaxit;
 
@@ -131,8 +143,13 @@ while j<steps
         fprintf('Converged after %d Newton Iterations step = %d\n',numNewtonit,j)
 
         % check overturning
-        diffv=domain.H/DJL.Ly*2*real(ifct(chebdiff(real(fct(transpose(V(:,:,j+1)))),1)));
-        if max(diffv(:))>1
+        % chain rule here
+        dzetadu=real(ifft(1i*kx.*fft(V(:,:,j+1))));
+        dzetadv=ifct(2/L*chebdiff(real(fct(transpose(V(:,:,j+1)))),1));
+        dzetadv=transpose(dzetadv);
+        dzetadz=(dxdu.*dzetadv-dxdv.*dzetadu)./domain.jac;
+        
+        if max(abs(dzetadz(:)))>1
             fprintf('Overturning detected!\n')
             return
         end
