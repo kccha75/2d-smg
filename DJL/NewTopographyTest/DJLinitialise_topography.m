@@ -124,7 +124,7 @@ domain.X = X;
 % Jacobian option
 % -------------------------------------------------------------------------
 
-option.jacobian=@jacobianDJL; % Jacobian function
+option.jacobian=@jacobianDJLtopography; % Jacobian function
 
 % -------------------------------------------------------------------------
 % Continuation Options here

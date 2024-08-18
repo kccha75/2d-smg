@@ -63,7 +63,7 @@ while j<steps
 
     % Update pde / jacobian
     [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
-
+    DJL.v(:,end)=domain.YY(:,end)/domain.H; %testing something here ...
     % Newton 1 here ...
     DJL.u=W(j)+dw1*ds;
     [v1,~,newtonflag1]=NewtonSolve(DJL.v,DJL,pde,domain,option); % important for BCs
@@ -96,6 +96,10 @@ while j<steps
         if newtonflag1==1 && newtonflag2==1
             % Update secant 
             [V(:,:,j+1),W(j+1),y,i,secantflag]=DJLtabletopsecant(v1,v2,W(j)+dw1*ds,W(j)+dw2*ds,DJL,pde,domain,option);
+            if secantflag==1
+            DJL.u=W(j+1);
+            [V(:,:,j+1),~,secantflag]=NewtonSolve(V(:,:,j+1),DJL,pde,domain,option);% 1 more newton ...
+            end
         else
             secantflag=0;
             i=0;
@@ -186,7 +190,7 @@ while j<steps
             fprintf('Did not converge to required tolerance after %d Newton Iterations at step %d\n',i,j)
         end
 
-        if abs(max(V(1,:,j+1)))>=1e-8
+        if abs(max(V(1,:,j+1)))>=1e-7
             fprintf('Non decaying solution at step %d\n',j)
         end
 
@@ -197,7 +201,7 @@ while j<steps
         % Break loop if minimum step size exceeded
         if ds<=ds_min
             if skip==1
-                ds=0.005;
+                ds=0.02;
                 skip=0;
             else
 

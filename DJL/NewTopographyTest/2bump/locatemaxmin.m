@@ -21,21 +21,24 @@
 
 function [mini,maxi,minindex_x,maxindex_x,index_z]=locatemaxmin(v,minindex_x,maxindex_x)
 
-[maxi,index_z]=max(max(v)); % locate maximum, and index for max (for z)
+% Look between middle - 1/8 domain and middle +1/8 domain rectangle
+[maxi,index_z]=max(max(v(size(v,1)/2-size(v,1)/8:size(v,1)/2+size(v,1)/8, ...
+    ceil(size(v,2)/2-size(v,2)/8):ceil(size(v,2)/2+size(v,2)/8))));
+index_z=index_z+ceil(3*size(v,2)/8)-1;
 
 % if empty inputs ... find the indices!
 if isempty(maxindex_x) && isempty(minindex_x)
 
     % locate local minimum at slice v1(:,indexmax)
-    % looks at middle +-50 for minimum
-    [mini,minindex_x]=min(v(size(v,1)/2-50:size(v,1)/2+50,index_z)); 
+    % looks at middle +-1/8th for minimum
+    [mini,minindex_x]=min(v(size(v,1)/2-size(v,1)/8:size(v,1)/2+size(v,1)/8,index_z)); 
     % adjust location
-    minindex_x=size(v,1)/2-50+minindex_x-1;
+    minindex_x=3/8*size(v,1)+minindex_x-1;
 
     % locate local minimum at slice v1(:,indexmax)]
-    [maxi,maxindex_x]=max(v(size(v,1)/2-50:size(v,1)/2+50,index_z)); 
+    [maxi,maxindex_x]=max(v(size(v,1)/2-size(v,1)/8:size(v,1)/2+size(v,1)/8,index_z));
     % adjust location
-    maxindex_x=size(v,1)/2-50+maxindex_x-1;
+    maxindex_x=3/8*size(v,1)+maxindex_x-1;
 
 else
 

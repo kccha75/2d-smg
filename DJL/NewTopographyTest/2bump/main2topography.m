@@ -10,15 +10,15 @@ DJL.soltype=3;
 
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % not used in 2 bump really
-gamma_star=0.1;% keep small! to get the initial solution
-mu=0.9; % topography width scale
+gamma_star=0.2;% keep small! to get the initial solution
+mu=0.7; % topography width scale
 KAI=25; % fKdV domain, since L=200
 
 % N^2 function
-N2=@(psi) 1/(exp(1)-1)*exp(-psi+1);%N2=@(psi) psi;
+N2=@(psi) 1/tanh(1)*sech((psi)/1).^2;%N2=@(psi) psi;
 
 % (N^2)'
-N2d=@(psi) -1/(exp(1)-1)*exp(-psi+1);%N2d=@(psi) 1+0*psi;
+N2d=@(psi) -1/tanh(1)*2*sech((psi)/1).^2.*tanh((psi)/1);%N2d=@(psi) 1+0*psi;
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;
@@ -31,7 +31,7 @@ DJL.topography=@(X) sech(X+12).^2+sech(X-12).^2; % in KAI domain ...
 DJL.KAI=KAI;
 
 % -------------------------------------------------------------------------
-time=tic;
+tic;
 
 % Initialise
 [domain,option,cont_option]=DJLinitialise_topography();
@@ -59,7 +59,8 @@ H=domain.H;
 v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'makima',NaN);
 
 % Set BC here ... (but causes huge residual due to discont)
-v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+% v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+v0(:,end)=YY(:,end)/domain.H;
 v0(:,1)=0; % maybe needed to remove cases of NaN
 % Interpolate missing data (negative bump generally)
 v0(isnan(v0))=griddata(YY(~isnan(v0)),XX(~isnan(v0)),v0(~isnan(v0)),YY(isnan(v0)),XX(isnan(v0)),'cubic');
@@ -149,7 +150,7 @@ end
 if secantflag==1
     [V,U,W]=naturalparametercontalphaDJL(v,u,DJL.alpha,DJL,domain,option,cont_option);
 end
-time=toc
+toc
 % % -------------------------------------------------------------------------
 % % Newton solve solution 1
 % % -------------------------------------------------------------------------
