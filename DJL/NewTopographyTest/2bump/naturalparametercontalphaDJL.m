@@ -97,8 +97,8 @@ while j<steps
             % Update secant 
             [V(:,:,j+1),W(j+1),y,i,secantflag]=DJLtabletopsecant(v1,v2,W(j)+dw1*ds,W(j)+dw2*ds,DJL,pde,domain,option);
             if secantflag==1
-            DJL.u=W(j+1);
-            [V(:,:,j+1),~,secantflag]=NewtonSolve(V(:,:,j+1),DJL,pde,domain,option);% 1 more newton ...
+                DJL.u=W(j+1);
+                [V(:,:,j+1),~,secantflag]=NewtonSolve(V(:,:,j+1),DJL,pde,domain,option); % 1 more newton
             end
         else
             secantflag=0;
@@ -114,7 +114,8 @@ while j<steps
 
     % Converged and not 0 solution
     if secantflag==1 &&...
-            max(max(abs(v1)))>tailtol && max(max(abs(v2)))>tailtol
+            max(max(abs(v1)))>tailtol && max(max(abs(v2)))>tailtol &&  ...
+            max(max(abs(V(1,:,j+1))))<tailtol && max(max(abs(V(:,:,j+1))))>tailtol
 
         fprintf('Converged after %d Newton Iterations step = %d\n',i,j)
 
@@ -201,7 +202,7 @@ while j<steps
         % Break loop if minimum step size exceeded
         if ds<=ds_min
             if skip==1
-                ds=0.02;
+                ds=0.04;
                 skip=0;
             else
 

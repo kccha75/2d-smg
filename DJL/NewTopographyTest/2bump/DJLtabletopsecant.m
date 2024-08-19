@@ -50,7 +50,7 @@ u=u2;
 while i<=option.Newtonmaxit
 
     % Check convergence ..
-    if (abs(y(i+1))<option.Newtontol)
+    if (abs(y(i+1))<1e-4)
 
         fprintf('Converged after %d Secant Iterations \n',i-1)
         flag=1;
@@ -72,13 +72,13 @@ while i<=option.Newtonmaxit
     if secant==1
         % Secant method
         u=u2-y(i+1)*(u2-u1)/(y(i+1)-y(i));
-%         v=v2-y(i+1)*(v2-v1)/(y(i+1)-y(i)); % interpolate v
+        v=v2-y(i+1)*(v2-v1)/(y(i+1)-y(i)); % interpolate v
     end
     % Update delta
     DJL.u=u;
 
     % Solve for new solution
-    [v,numit,newtonflag]=NewtonSolve(v2,DJL,pde,domain,option);
+    [v,numit,newtonflag]=NewtonSolve(v,DJL,pde,domain,option);
 
     % Check Newton converge
     if newtonflag==0

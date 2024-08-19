@@ -10,7 +10,7 @@ DJL.soltype=3;
 
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % not used in 2 bump really
-gamma_star=0.2;% keep small! to get the initial solution
+gamma_star=0.15;% keep small! to get the initial solution
 mu=0.7; % topography width scale
 KAI=25; % fKdV domain, since L=200
 

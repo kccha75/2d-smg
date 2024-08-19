@@ -20,6 +20,7 @@
 % pde - structure of pde array coefficients
 % domain.BC - boundary conditions (4x2 cell)
 %
+% Note error in BC topography! (see line77)
 
 function [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain)
 
@@ -73,7 +74,7 @@ BCRHS1{2}=@(x) 0*x;
 % y(end) a22*u+b22*u'= rhs22
 alpha2{2}=@(x) 1;
 beta2{2}=@(x) 0;
-BCRHS2{2}=@(x) alpha*topography(x*KAI/pi); % topography BC
+BCRHS2{2}=@(x) alpha*topography(x*KAI/pi); % topography BC (ERROR HERE), this is not h(x(u,v)) but h(x)
 
 BC=cell(4,dim);
 BCRHS=cell(2,dim);
