@@ -66,6 +66,7 @@ while j<steps
 
     % Update pde / jacobian
     [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
+    DJL.v(:,end)=domain.YY(:,end)/domain.H;
 
 % -------------------------------------------------------------------------
 % Newton here

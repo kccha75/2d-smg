@@ -63,7 +63,7 @@ while j<steps
 
     % Update pde / jacobian
     [DJL,pde,domain]=DJLpdeinitialise_topography(DJL,domain);
-    DJL.v(:,end)=domain.YY(:,end)/domain.H; %testing something here ...
+    DJL.v(:,end)=domain.YY(:,end)/domain.H; % BOUNDARY CONDITION
     % Newton 1 here ...
     DJL.u=W(j)+dw1*ds;
     [v1,~,newtonflag1]=NewtonSolve(DJL.v,DJL,pde,domain,option); % important for BCs
@@ -202,7 +202,7 @@ while j<steps
         % Break loop if minimum step size exceeded
         if ds<=ds_min
             if skip==1
-                ds=0.04;
+                ds=0.1;
                 skip=0;
             else
 

@@ -8,10 +8,10 @@ clear;close all;clc
 % 1 - fKdV continuation plot!
 DJL.soltype=3; 
 
-mode=1; % mode solution
+mode=2; % mode solution
 delta_star=1.5;%alpha=0.01; % not used in 2 bump really
-gamma_star=0.15;% keep small! to get the initial solution
-mu=0.7; % topography width scale
+gamma_star=0.07;% keep small! to get the initial solution
+mu=0.9; % topography width scale
 KAI=25; % fKdV domain, since L=200
 
 % N^2 function

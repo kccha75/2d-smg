@@ -58,7 +58,7 @@ while j<steps
 %     DJL.u=W(j+1);
     DJL.v=V(:,:,j+1);
 
-    DJL.Lx=2*DJL.KAI/DJL.mu^2;
+    DJL.Lx=2*DJL.KAI/DJL.mu;
 
     % Update mapping
     [DJL,domain]=conformalmapping(DJL,domain,option);

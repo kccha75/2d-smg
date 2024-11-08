@@ -10,15 +10,15 @@ DJL.soltype=1;
 
 mode=1; % mode solution
 delta_star=1.5;%alpha=0.01; % topography height
-gamma_star=-0.5;% mu=0.7;
+gamma_star=0.25;% mu=0.7;
 mu=0.90; % topography width scale
 KAI=30;KAI=20; % fKdV domain
 
 % N^2 function
-N2=@(psi) 2*(psi);%N2=@(psi) psi;
+N2=@(psi) 1/(exp(1)-1)*exp(psi);%N2=@(psi) 1/(exp(1)-2)*(exp(psi)-1);
 
 % (N^2)'
-N2d=@(psi) 2+0*psi;%N2d=@(psi) 1+0*psi;
+N2d=@(psi) 1/(exp(1)-1)*exp(psi);%N2d=@(psi) 1/(exp(1)-2)*exp(psi);
 
 DJL.delta_star=delta_star;
 DJL.gamma_star=gamma_star;
@@ -59,7 +59,8 @@ H=domain.H;
 v0=interp2(H*(domain.X{2}+1)/2,domain.X{1},v0,YY,XX,'makima',NaN);
 
 % Set BC here ... (but causes huge residual due to discont)
-v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi);
+% v0(:,end)=DJL.alpha*DJL.topography(domain.XX(:,end)*KAI/pi); WRONG
+v0(:,end)=YY(:,end)/domain.H;
 
 % Interpolate missing data (negative bump generally)
 v0(isnan(v0))=griddata(YY(~isnan(v0)),XX(~isnan(v0)),v0(~isnan(v0)),YY(isnan(v0)),XX(isnan(v0)),'cubic');
